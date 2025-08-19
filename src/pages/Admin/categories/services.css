@@ -1,0 +1,221 @@
+.services-page {
+  padding: 18px;
+  border-radius: 12px;
+  min-height: 100vh;
+}
+
+.services-page .header {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.serviceimage{
+  width:120px;
+}
+.services-page .header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Table Wrapper */
+.service-table {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.service-table .ant-table-thead > tr > th {
+  background: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+  text-align: center;
+}
+
+.service-table .ant-table-tbody > tr > td {
+  padding: 14px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.service-table .ant-table-tbody > tr:hover > td {
+  background: #f9fafb;
+  transition: 0.3s ease;
+}
+
+/* Service Image */
+.service-table img {
+  width: 90px;
+  height: 90px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s ease;
+}
+
+.service-table img:hover {
+  transform: scale(1.05);
+}
+
+/* Price Styling */
+.price-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.price-final {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.price-original {
+  text-decoration: line-through;
+  margin-left: 6px;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.discount-badge {
+  background: #f97316;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* Buttons */
+.service-table .ant-btn {
+  border-radius: 6px;
+  font-size: 13px;
+  padding: 4px 12px;
+}
+
+
+
+.service-table .ant-btn-dangerous {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.service-table .ant-btn-dangerous:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* Modal Styling */
+.ant-modal-title {
+  font-size: 18px !important;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.ant-form-item-label > label {
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Responsive Fix */
+@media (max-width: 992px) {
+  .service-table img {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  .services-page {
+    padding: 16px;
+  }
+
+  .services-page .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .service-table .ant-table {
+    font-size: 13px;
+  }
+
+  .service-table img {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 576px) {
+  .service-table .ant-table-thead {
+    display: none; /* Hide headers for mobile */
+  }
+
+  .service-table .ant-table-tbody > tr > td {
+    display: block;
+    text-align: left;
+    padding: 10px 8px;
+  }
+
+  .service-table .ant-table-tbody > tr {
+    margin-bottom: 16px;
+    display: block;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  }
+
+  .service-table img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+}
+/* Action button (3-dots) */
+.action-btn {
+  font-size: 18px;
+  color: #555;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #f4f4f4;
+  color: #000;
+}
+
+/* Dropdown menu */
+.ant-dropdown-menu {
+  min-width: 140px;
+  border-radius: 8px;
+  padding: 6px 0;
+}
+
+.ant-dropdown-menu-item {
+  font-size: 14px;
+  padding: 8px 16px;
+  transition: background 0.2s;
+}
+
+.ant-dropdown-menu-item:hover {
+  background: #f0f0f0;
+}
+.service-table .ant-table-thead > tr > th {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.service-table .ant-table-tbody > tr > td {
+  text-align: center;
+  vertical-align: middle;
+}

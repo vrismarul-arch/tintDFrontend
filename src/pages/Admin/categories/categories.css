@@ -1,0 +1,167 @@
+  /* ==== Page Wrapper ==== */
+  .categories-page {
+    background: #f5f6fa;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: "Inter", sans-serif;
+  }
+
+  /* ==== Header Section ==== */
+  .categories-page .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+
+  .categories-page .header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .categories-page .header h2 svg {
+    color: #f59e0b;
+    font-size: 22px;
+  }
+
+  /* ==== Add Button ==== */
+  .categories-page .ant-btn-primary {
+    border: none;
+    padding: 0 20px;
+    height: 38px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: 0.2s ease-in-out;
+  }
+
+
+
+  /* ==== Table Card ==== */
+  .category-table {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f0f0f0;
+  }
+
+  /* ==== Table Header ==== */
+  .category-table .ant-table-thead > tr > th {
+    background: #f9fafb !important;
+    font-weight: 600;
+    font-size: 14px;
+    color: #475569;
+    padding: 14px 18px !important;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  /* ==== Table Rows ==== */
+  .category-table .ant-table-tbody > tr > td {
+    padding: 18px !important;
+    vertical-align: middle;
+    font-size: 14px;
+    border-bottom: 1px solid #f8fafc;
+  }
+
+  .category-table .ant-table-tbody > tr:hover > td {
+    background: #f9fbff !important;
+  }
+
+  /* ==== Category Thumbnail ==== */
+  .category-table img {
+    border-radius: 10px;
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f1f5f9;
+  }
+
+  /* ==== Category Name + Description ==== */
+  .category-table h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    color: #1e293b;
+  }
+
+  .category-table p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #64748b;
+    max-width: 280px;
+  }
+
+  /* ==== Action Buttons ==== */
+  .category-table .action-btns {
+    display: flex;
+    gap: 10px;
+  }
+
+  .category-table .ant-btn-link {
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: 0.2s ease;
+  }
+
+  /* Edit */
+  .category-table .ant-btn-link.edit-btn {
+    color: #2563eb !important;
+    background: #eff6ff;
+  }
+
+  .category-table .ant-btn-link.edit-btn:hover {
+    background: #dbeafe;
+  }
+
+  /* Delete */
+  .category-table .ant-btn-link.delete-btn {
+    color: #dc2626 !important;
+    background: #fef2f2;
+  }
+
+  .category-table .ant-btn-link.delete-btn:hover {
+    background: #fee2e2;
+  }
+
+  /* ==== Modal ==== */
+  .ant-modal-content {
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .ant-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  /* Form Labels */
+  .ant-form-item-label > label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 14px;
+  }
+
+  /* ==== Pagination ==== */
+  .ant-pagination-item {
+    border-radius: 6px !important;
+  }
+
+  .ant-pagination-item-active {
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+  }
+
+  .ant-pagination-item-active a {
+    color: #fff !important;
+  }
+.serviceimage{
+  width:120px;
+}

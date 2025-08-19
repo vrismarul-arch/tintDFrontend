@@ -1,0 +1,8 @@
+/* 🌐 Global font */
+body {
+  font-family: "Poppins", "Inter", "Roboto", sans-serif;
+  color: #1f2937; /* neutral text color */
+  background-color: #fafafa;
+  margin: 0;
+  padding: 0;
+}
