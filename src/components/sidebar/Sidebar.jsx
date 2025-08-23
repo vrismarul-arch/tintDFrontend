@@ -5,6 +5,7 @@ import {
   UserOutlined,
   FileTextOutlined,
   TeamOutlined,
+  PictureOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
@@ -24,9 +25,7 @@ export default function Sidebar() {
       key: "dashboard",
       label: "Dashboard",
       icon: <DashboardOutlined />,
-      children: [
-        { key: "/admin/dashboard", label: "Leads Dashboard" },
-      ],
+      children: [{ key: "/admin/dashboard", label: "Leads Dashboard" }],
     },
     {
       key: "services",
@@ -35,6 +34,7 @@ export default function Sidebar() {
       children: [
         { key: "/admin/categories", label: "Categories", icon: <FileTextOutlined /> },
         { key: "/admin/services", label: "Services", icon: <TeamOutlined /> },
+        { key: "/admin/banners", label: "Banners", icon: <PictureOutlined /> }, // ✅ NEW
       ],
     },
     {

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Spin, Button, Table, Tag } from "antd";
+import { Spin, Button, Table, Tag, message } from "antd";
 import api from "../../../api";
 import "../../css/CategoryServices.css";
+import Salonservicesdrawer from "./details/Salonservicesdrawer";
 
 export default function CategoryServices() {
   const { id } = useParams();
@@ -14,22 +15,22 @@ export default function CategoryServices() {
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await api.get(`/api/admin/services?category=${id}`);
         const servicesData = res.data;
-
         setServices(servicesData);
 
-        // ✅ Extract unique SubCategories
         const subCatMap = new Map();
         servicesData.forEach((s) => {
           if (s.subCategory && !subCatMap.has(s.subCategory._id)) {
             subCatMap.set(s.subCategory._id, s.subCategory);
           }
         });
-
         setSubCategories(Array.from(subCatMap.values()));
       } catch (err) {
         console.error("❌ Fetch services error:", err);
@@ -40,7 +41,6 @@ export default function CategoryServices() {
     fetchData();
   }, [id]);
 
-  // ✅ Update varieties when subcategory changes
   useEffect(() => {
     if (selectedSubCat) {
       const filteredServices = services.filter(
@@ -62,18 +62,29 @@ export default function CategoryServices() {
     }
   }, [selectedSubCat, services]);
 
-  // ✅ Handle screen resize
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   if (loading) return <Spin className="m-10" />;
 
-  // ✅ Filter services
+  // ✅ Add to Cart handler (localStorage)
+  const handleAddToCart = (service) => {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    const existing = cart.find((item) => item._id === service._id);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({ ...service, quantity: 1 });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    message.success(`${service.name} added to cart`);
+  };
+
   const filteredServices = services.filter((s) => {
     return (
       (!selectedSubCat || s.subCategory?._id === selectedSubCat) &&
@@ -81,7 +92,6 @@ export default function CategoryServices() {
     );
   });
 
-  // ✅ Table columns for desktop
   const columns = [
     { title: "S.No.", render: (_, __, index) => index + 1, width: 70, align: "center" },
     {
@@ -133,12 +143,25 @@ export default function CategoryServices() {
     },
     {
       title: "Action",
-      render: () => (
+      render: (_, record) => (
         <div className="action-buttons">
-          <Button type="primary" shape="round" size="small" className="add-btn">
+          <Button
+            type="primary"
+            shape="round"
+            size="small"
+            className="add-btn"
+            onClick={() => handleAddToCart(record)}
+          >
             ADD
           </Button>
-          <Button size="small" className="view-btn">
+          <Button
+            size="small"
+            className="view-btn"
+            onClick={() => {
+              setSelectedService(record);
+              setDrawerOpen(true);
+            }}
+          >
             View Details
           </Button>
         </div>
@@ -152,7 +175,6 @@ export default function CategoryServices() {
 
       {/* ✅ SubCategories Row */}
       <div className="subcat-scroll">
-        {/* 🔹 All Tab */}
         <div
           className={`subcat-card ${!selectedSubCat ? "active" : ""}`}
           onClick={() => {
@@ -163,8 +185,6 @@ export default function CategoryServices() {
           <img src="/tintD.png" alt="All" width="120px" />
           <p>All</p>
         </div>
-
-        {/* 🔹 SubCategories */}
         {subCategories.map((sub) => (
           <div
             key={sub._id}
@@ -177,7 +197,7 @@ export default function CategoryServices() {
         ))}
       </div>
 
-      {/* ✅ Varieties Chips */}
+      {/* ✅ Varieties */}
       {selectedSubCat && (
         <div className="variety-chips">
           {varieties.map((v) => (
@@ -192,8 +212,7 @@ export default function CategoryServices() {
         </div>
       )}
 
-      {/* ✅ Desktop → Table */}
-      {!isMobile && (
+      {!isMobile ? (
         <Table
           dataSource={filteredServices}
           rowKey="_id"
@@ -202,10 +221,7 @@ export default function CategoryServices() {
           bordered={false}
           className="services-table"
         />
-      )}
-
-      {/* ✅ Mobile → Cards */}
-      {isMobile && (
+      ) : (
         <div className="services-grid">
           {filteredServices.map((service) => (
             <div key={service._id} className="service-card">
@@ -233,10 +249,22 @@ export default function CategoryServices() {
                   </Tag>
                 ) : null}
                 <div className="service-card-actions">
-                  <Button type="primary" size="small" className="add-btn">
+                  <Button
+                    type="primary"
+                    size="small"
+                    className="add-btn"
+                    onClick={() => handleAddToCart(service)}
+                  >
                     ADD
                   </Button>
-                  <Button size="small" className="view-btn">
+                  <Button
+                    size="small"
+                    className="view-btn"
+                    onClick={() => {
+                      setSelectedService(service);
+                      setDrawerOpen(true);
+                    }}
+                  >
                     View Details
                   </Button>
                 </div>
@@ -245,6 +273,12 @@ export default function CategoryServices() {
           ))}
         </div>
       )}
+
+      <Salonservicesdrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        service={selectedService}
+      />
     </div>
   );
 }

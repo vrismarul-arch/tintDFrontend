@@ -12,6 +12,7 @@ import {
   Dropdown,
   Menu,
   Tabs,
+  Spin,
 } from "antd";
 import {
   UploadOutlined,
@@ -30,39 +31,60 @@ export default function ServicesPage() {
   const [subCategories, setSubCategories] = useState([]);
   const [varieties, setVarieties] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDetailsDrawerOpen, setIsDetailsDrawerOpen] = useState(false);
   const [form] = Form.useForm();
   const [editingItem, setEditingItem] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchServices();
-    fetchCategories();
-    fetchSubCategories();
-    fetchVarieties();
+    (async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchServices(),
+          fetchCategories(),
+          fetchSubCategories(),
+          fetchVarieties(),
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   const fetchCategories = async () => {
     const res = await api.get("/api/admin/categories");
-    setCategories(res.data);
+    setCategories(res.data || []);
   };
 
   const fetchSubCategories = async () => {
     const res = await api.get("/api/admin/subcategories");
-    setSubCategories(res.data);
+    setSubCategories(res.data || []);
   };
 
   const fetchVarieties = async () => {
     const res = await api.get("/api/admin/varieties");
-    setVarieties(res.data);
+    setVarieties(res.data || []);
   };
 
   const fetchServices = async () => {
     const res = await api.get("/api/admin/services");
-    setServices(res.data);
+    setServices(res.data || []);
+  };
+
+  // Antd Upload normalizer
+  const normalizeUpload = (e) => {
+    if (Array.isArray(e)) return e;
+    return e && e.fileList ? e.fileList : [];
   };
 
   const handleSave = async () => {
     try {
+      setSaving(true);
+
       const values = await form.validateFields();
+
       const duration = (values.hours || 0) * 60 + (values.minutes || 0);
       values.duration = duration;
 
@@ -73,36 +95,65 @@ export default function ServicesPage() {
       }
 
       const formData = new FormData();
-      Object.keys(values).forEach((key) => formData.append(key, values[key]));
 
-      if (values.image && values.image[0]?.originFileObj) {
-        formData.append("image", values.image[0].originFileObj);
+      Object.keys(values).forEach((key) => {
+        if (["overview", "procedureSteps"].includes(key)) {
+  const arr = values[key].map((item, index) => {
+    if (item.img && item.img[0]?.originFileObj) {
+      formData.append(`${key}Images_${index}`, item.img[0].originFileObj);
+      return { ...item, img: item.img[0].name };
+    } else if (item.img && item.img[0]?.url) {
+      return { ...item, img: item.img[0].url };
+    }
+    return item;
+  });
+  formData.append(key, JSON.stringify(arr));
+
+
+        } else if (
+          ["thingsToKnow", "precautionsAftercare", "faqs"].includes(key)
+        ) {
+          formData.append(key, JSON.stringify(values[key] || []));
+        } else if (Array.isArray(values[key]) || typeof values[key] === "object") {
+          formData.append(key, JSON.stringify(values[key] ?? null));
+        } else if (values[key] !== undefined && values[key] !== null) {
+          formData.append(key, values[key]);
+        }
+      });
+
+      // Main image
+      const mainImage = values.image?.[0]?.originFileObj;
+      if (mainImage) {
+        formData.append("image", mainImage);
       }
 
       if (editingItem) {
         await api.put(`/api/admin/services/${editingItem._id}`, formData);
-        message.success("Service updated!");
+        message.success("✅ Service updated successfully!");
       } else {
         await api.post("/api/admin/services", formData);
-        message.success("Service added!");
+        message.success("✅ Service added successfully!");
       }
 
       setIsDrawerOpen(false);
+      setIsDetailsDrawerOpen(false);
       form.resetFields();
       setEditingItem(null);
       fetchServices();
     } catch (err) {
-      message.error("Something went wrong!");
+      console.error(err);
+      message.error("❌ Something went wrong while saving service!");
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleDelete = async (id) => {
     await api.delete(`/api/admin/services/${id}`);
     fetchServices();
-    message.success("Service deleted!");
+    message.success("🗑️ Service deleted!");
   };
 
-  // Table columns
   const columns = [
     { title: "S.No", render: (_, __, index) => index + 1, width: 70 },
     {
@@ -136,11 +187,7 @@ export default function ServicesPage() {
       render: (op, record) =>
         op ? (
           <span
-            className={`${
-              op > record.price
-                ? "line-through text-gray-400"
-                : "text-gray-600"
-            }`}
+            className={`${op > record.price ? "line-through text-gray-400" : "text-gray-600"}`}
           >
             ₹{op?.toFixed(2)}
           </span>
@@ -169,12 +216,41 @@ export default function ServicesPage() {
                   name: record.name,
                   originalPrice: record.originalPrice,
                   price: record.price,
-                  hours: Math.floor(record.duration / 60),
-                  minutes: record.duration % 60,
+                  hours: Math.floor((record.duration || 0) / 60),
+                  minutes: (record.duration || 0) % 60,
                   category: record.category?._id,
                   subCategory: record.subCategory?._id,
                   variety: record.variety?._id,
                   description: record.description,
+                  overview: (record.overview || []).map((item, idx) => ({
+                    ...item,
+                    img: item.img
+                      ? [
+                          {
+                            uid: `overview-${idx}`,
+                            name: `overview-${idx}.png`,
+                            status: "done",
+                            url: item.img,
+                          },
+                        ]
+                      : [],
+                  })),
+                  procedureSteps: (record.procedureSteps || []).map((item, idx) => ({
+                    ...item,
+                    img: item.img
+                      ? [
+                          {
+                            uid: `step-${idx}`,
+                            name: `step-${idx}.png`,
+                            status: "done",
+                            url: item.img,
+                          },
+                        ]
+                      : [],
+                  })),
+                  thingsToKnow: record.thingsToKnow || [],
+                  precautionsAftercare: record.precautionsAftercare || [],
+                  faqs: record.faqs || [],
                   image: record.imageUrl
                     ? [
                         {
@@ -228,48 +304,53 @@ export default function ServicesPage() {
         </Button>
       </div>
 
-      {/* Category Tabs */}
-      <Tabs defaultActiveKey="all">
-        <TabPane tab="All" key="all">
-          <Table
-            dataSource={services}
-            rowKey="_id"
-            pagination={{ pageSize: 5 }}
-            columns={columns}
-          />
-        </TabPane>
-
-        {categories.map((cat) => (
-          <TabPane tab={cat.name} key={cat._id}>
+      {loading ? (
+        <div className="flex items-center justify-center py-10">
+          <Spin />
+        </div>
+      ) : (
+        <Tabs defaultActiveKey="all">
+          <TabPane tab="All" key="all">
             <Table
-              dataSource={services.filter(
-                (s) => s.category && s.category._id === cat._id
-              )}
+              dataSource={services}
               rowKey="_id"
               pagination={{ pageSize: 5 }}
               columns={columns}
             />
           </TabPane>
-        ))}
-      </Tabs>
+
+          {categories.map((cat) => (
+            <TabPane tab={cat.name} key={cat._id}>
+              <Table
+                dataSource={services.filter(
+                  (s) => s.category && s.category._id === cat._id
+                )}
+                rowKey="_id"
+                pagination={{ pageSize: 5 }}
+                columns={columns}
+              />
+            </TabPane>
+          ))}
+        </Tabs>
+      )}
 
       {/* Drawer for Add/Edit */}
       <Drawer
         title={`${editingItem ? "Edit" : "Add"} Service`}
         open={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
-        width={480}
+        width={520}
         extra={
           <div className="flex gap-2">
             <Button onClick={() => setIsDrawerOpen(false)}>Cancel</Button>
-            <Button type="primary" onClick={handleSave}>
+            <Button type="primary" onClick={handleSave} loading={saving}>
               Save
             </Button>
           </div>
         }
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+          <Form.Item name="name" label="Name" rules={[{ required: true }]}> 
             <Input placeholder="Enter service name" />
           </Form.Item>
 
@@ -290,7 +371,7 @@ export default function ServicesPage() {
           </Form.Item>
 
           <Form.Item name="category" label="Category">
-            <Select placeholder="Select a category">
+            <Select placeholder="Select a category" allowClear>
               {categories.map((c) => (
                 <Select.Option key={c._id} value={c._id}>
                   {c.name}
@@ -327,14 +408,173 @@ export default function ServicesPage() {
             name="image"
             label="Upload Image"
             valuePropName="fileList"
-            getValueFromEvent={(e) =>
-              Array.isArray(e) ? e : e && e.fileList
-            }
+            getValueFromEvent={normalizeUpload}
           >
             <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
               <Button icon={<UploadOutlined />}>Upload</Button>
             </Upload>
           </Form.Item>
+
+          {/* Open nested details drawer */}
+          <Button type="dashed" block onClick={() => setIsDetailsDrawerOpen(true)}>
+            Manage Service Details
+          </Button>
+        </Form>
+      </Drawer>
+
+      {/* Nested Drawer for Service Details */}
+      <Drawer
+        title="Service Details"
+        open={isDetailsDrawerOpen}
+        onClose={() => setIsDetailsDrawerOpen(false)}
+        width={560}
+        extra={<Button type="primary" onClick={() => setIsDetailsDrawerOpen(false)}>Done</Button>}
+      >
+        <Form form={form} layout="vertical">
+          <Tabs defaultActiveKey="overview">
+            {/* Overview */}
+            <TabPane tab="Overview" key="overview">
+              <Form.List name="overview">
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
+                        <Form.Item
+                          {...restField}
+                          name={[name, "img"]}
+                          valuePropName="fileList"
+                          getValueFromEvent={normalizeUpload}
+                          rules={[{ required: true, message: "Image required" }]}
+                        >
+                          <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
+                            <Button icon={<UploadOutlined />}>Upload</Button>
+                          </Upload>
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "title"]}
+                          rules={[{ required: true, message: "Title required" }]}
+                        >
+                          <Input placeholder="Title" />
+                        </Form.Item>
+                        <Button danger onClick={() => remove(name)}>Remove</Button>
+                      </div>
+                    ))}
+                    <Button type="dashed" onClick={() => add()} block>
+                      + Add Overview
+                    </Button>
+                  </>
+                )}
+              </Form.List>
+            </TabPane>
+
+            {/* Procedure Steps */}
+            <TabPane tab="Procedure Steps" key="steps">
+              <Form.List name="procedureSteps">
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
+                        <Form.Item
+                          {...restField}
+                          name={[name, "img"]}
+                          valuePropName="fileList"
+                          getValueFromEvent={normalizeUpload}
+                          rules={[{ required: true, message: "Image required" }]}
+                        >
+                          <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
+                            <Button icon={<UploadOutlined />}>Upload</Button>
+                          </Upload>
+                        </Form.Item>
+                        <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}> 
+                          <Input placeholder="Step Title" />
+                        </Form.Item>
+                        <Form.Item {...restField} name={[name, "desc"]} rules={[{ required: true }]}> 
+                          <Input.TextArea placeholder="Step Description" />
+                        </Form.Item>
+                        <Button danger onClick={() => remove(name)}>Remove</Button>
+                      </div>
+                    ))}
+                    <Button type="dashed" onClick={() => add()} block>
+                      + Add Step
+                    </Button>
+                  </>
+                )}
+              </Form.List>
+            </TabPane>
+
+            {/* Things to Know */}
+            <TabPane tab="Things to Know" key="know">
+              <Form.List name="thingsToKnow">
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
+                        <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}> 
+                          <Input placeholder="Title" />
+                        </Form.Item>
+                        <Form.Item {...restField} name={[name, "desc"]} rules={[{ required: true }]}> 
+                          <Input.TextArea placeholder="Description" />
+                        </Form.Item>
+                        <Button danger onClick={() => remove(name)}>Remove</Button>
+                      </div>
+                    ))}
+                    <Button type="dashed" onClick={() => add()} block>
+                      + Add Info
+                    </Button>
+                  </>
+                )}
+              </Form.List>
+            </TabPane>
+
+            {/* Precautions / Aftercare */}
+            <TabPane tab="Precautions / Aftercare" key="precautions">
+              <Form.List name="precautionsAftercare">
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
+                        <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}> 
+                          <Input placeholder="Title" />
+                        </Form.Item>
+                        <Form.Item {...restField} name={[name, "desc"]} rules={[{ required: true }]}> 
+                          <Input.TextArea placeholder="Description" />
+                        </Form.Item>
+                        <Button danger onClick={() => remove(name)}>Remove</Button>
+                      </div>
+                    ))}
+                    <Button type="dashed" onClick={() => add()} block>
+                      + Add Precaution
+                    </Button>
+                  </>
+                )}
+              </Form.List>
+            </TabPane>
+
+            {/* FAQs */}
+            <TabPane tab="FAQs" key="faqs">
+              <Form.List name="faqs">
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
+                        <Form.Item {...restField} name={[name, "question"]} rules={[{ required: true }]}> 
+                          <Input placeholder="Question" />
+                        </Form.Item>
+                        <Form.Item {...restField} name={[name, "answer"]} rules={[{ required: true }]}> 
+                          <Input.TextArea placeholder="Answer" />
+                        </Form.Item>
+                        <Button danger onClick={() => remove(name)}>Remove</Button>
+                      </div>
+                    ))}
+                    <Button type="dashed" onClick={() => add()} block>
+                      + Add FAQ
+                    </Button>
+                  </>
+                )}
+              </Form.List>
+            </TabPane>
+          </Tabs>
         </Form>
       </Drawer>
     </div>

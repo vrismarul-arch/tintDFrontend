@@ -1,0 +1,70 @@
+.ads-banner-container {
+  width: 100%;
+  margin: 2rem auto;
+  max-width: 1400px;
+}
+
+.ads-slide {
+  padding: 8px;
+}
+
+.ads-slide-bg {
+  height: 340px;
+  border-radius: 16px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* floating text box */
+.ads-slide-content {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 16px 22px;
+  border-radius: 12px;
+  max-width: 340px;
+}
+
+.ads-subtitle {
+  font-size: 0.9rem;
+  color: #e0e0e0;
+  margin-bottom: 6px;
+}
+
+.ads-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 12px;
+  line-height: 1.3;
+}
+
+.ads-btn {
+  background: linear-gradient(90deg, #7b2ff7, #f107a3);
+  color: white;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.ads-btn:hover {
+  opacity: 0.9;
+}
+
+/* slick dots */
+.slick-dots li button:before {
+  color: white;
+  font-size: 12px;
+  opacity: 0.6;
+}
+.slick-dots li.slick-active button:before {
+  color: #7b2ff7;
+  opacity: 1;
+}

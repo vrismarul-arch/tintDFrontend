@@ -1,0 +1,106 @@
+
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1em;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Swiper layout fixes */
+.swiper {
+  width: 100%;
+}
+
+.swiper-slide {
+  height: auto !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Grid enforcement for 3×2 */
+@media (max-width: 767px) {
+  .swiper-wrapper {
+   
+    width: 10px;
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-auto-rows: auto;
+    row-gap: 15px;
+  }
+  .trending-card {
+    width: 120px !important;height: 120px !important;
+  }
+  
+}
+.trending-card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden; /* ✅ round corners apply to img */
+  cursor: pointer;
+  width: 100%;
+  max-width: 250px; /* control size in grid */
+  height: 220px;
+  background: #f5f5f5;
+}
+
+.trending-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* ✅ fill nicely */
+  display: block;
+}
+
+.trending-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 6px 10px;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.6),
+    rgba(0, 0, 0, 0)
+  ); /* ✅ fade effect */
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 0 0 12px 12px;
+}
+
+.swiper-pagination {
+  position: relative !important; /* ✅ Moves below the content */
+  margin-top: 10px;              /* Space between slider and dots */
+  text-align: center;
+}
+
+/* Style the dots */
+.swiper-pagination-bullet {
+  background: #888 !important;   /* inactive dot color */
+  opacity: 1 !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: #6c2bd9 !important; /* active dot color */
+}
+
+
+.see-all-wrapper {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.see-all-btn {
+  background: #6c2bd9;  /* purple accent */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.see-all-btn:hover {
+  background: #4a1ca6;
+}
+    

@@ -1,0 +1,25 @@
+/* banners.css */
+
+/* Page container */
+.banners-page {
+  padding: 20px;
+  background: #fff;
+}
+
+/* Header styling */
+.banners-page .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo or banner image preview */
+.banners-page img {
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Drawer form styling */
+.ant-drawer .ant-form-item {
+  margin-bottom: 16px;
+}

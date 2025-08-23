@@ -1,0 +1,60 @@
+.location-search-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 600px; /* control max size */
+  flex: 1; /* allow it to grow */
+}
+
+/* Location dropdown */
+.location-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 4px 8px;
+  min-width: 200px;
+}
+
+.location-icon {
+  color: #8454ba;
+  font-size: 18px;
+}
+
+.uc-location {
+  border: none !important;
+  width: 100%;
+}
+
+/* Search input */
+.uc-search {
+  flex: 1;               /* makes search bar expand */
+  border-radius: 8px !important;
+  padding: 6px 10px;
+  min-width: 220px;       /* ensure it’s not too tiny */
+}
+
+/* ---------- Mobile styles ---------- */
+@media (max-width: 768px) {
+  .location-search-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    max-width: 100%; /* full width on mobile */
+  }
+
+  .location-wrapper {
+    width: 100%;
+  }
+
+  .uc-search {
+    width: 100% !important;
+    min-width: unset;
+  }
+}

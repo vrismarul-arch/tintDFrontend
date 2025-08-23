@@ -1,0 +1,344 @@
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.drawer-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Drawer content */
+.drawer-content {
+  position: fixed;
+  background: white;
+  z-index: 1000;
+  transition: transform 0.3s ease-in-out;
+  overflow-y: auto;
+  border-radius: 12px 12px 0 0;
+}
+
+/* Desktop - slide from right */
+@media (min-width: 768px) {
+  .drawer-content {
+    top: 0;
+    right: 0;
+    width: 620px;
+    height: 100%;
+    border-radius: 0;
+    transform: translateX(100%);
+  }
+  .drawer-content.open {
+    transform: translateX(0);
+  }
+}
+
+/* Mobile - slide from bottom */
+@media (max-width: 767px) {
+  .drawer-content {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 87%;
+    transform: translateY(100%);
+  }
+  .drawer-content.open {
+    transform: translateY(0);
+  }
+}
+
+/* Top section */
+.drawer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+}
+
+.service-title {
+  font-size: 20px;
+  margin: 0;
+}
+
+.service-subtitle {
+  color: #666;
+  font-size: 14px;
+}
+
+.price-row {
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.price {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.discount {
+  color: green;
+  font-weight: 500;
+}
+
+.add-btn {
+  background: #8454ba;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Overview grid */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.overview-item {
+  background: #f9f6f4;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.overview-item img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 6px;
+}
+
+/* Section titles */
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0 16px;
+  margin: 10px 0;
+  border-left: 3px solid #8454ba;
+}
+
+/* Things list */
+.things-list {
+  list-style: none;
+  padding: 0 16px;
+}
+
+.things-list li {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #444;
+  position: relative;
+}
+
+.things-list li::before {
+  content: "•";
+  color: #8454ba;
+  position: absolute;
+  left: -10px;
+}
+
+/* Footer */
+.drawer-footer {
+  padding: 16px;
+}
+
+.done-btn {
+  width: 100%;
+  background: #eee;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+/* Container for slider and arrows */
+.procedure-slider-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+}
+
+/* Arrow Buttons */
+.scroll-btn {
+  background: white;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+  transition: opacity 0.3s ease;
+}
+.scroll-btn svg {
+  width: 18px;
+  height: 18px;
+}
+.scroll-btn.left {
+  position: absolute;
+  left: -18px;
+  opacity: 0; /* hidden by default */
+  pointer-events: none; /* prevent click when hidden */
+}
+.scroll-btn.right {
+  position: absolute;
+  right: -18px;
+}
+
+/* When left arrow is active */
+.scroll-btn.left.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Slider */
+.procedure-slider {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 12px;
+  padding-bottom: 8px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.procedure-slider::-webkit-scrollbar {
+  display: none;
+}
+
+/* Cards */
+.procedure-card {
+  flex: 0 0 85%;
+  max-width: 280px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+.procedure-card:hover {
+  transform: translateY(-3px);
+}
+.procedure-card img.procedure-img {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+.procedure-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.procedure-desc {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.4;
+}
+.procedure-step {
+  margin-top: 8px;
+  font-size: 13px;
+  background: #000;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .procedure-card {
+    flex: 0 0 260px;
+  }
+}
+  .drawer-content {
+  background: #fff;
+  border-radius: 10px 10px 0 0;
+  overflow-y: auto;
+  padding: 20px; /* ✅ added consistent padding for whole drawer */
+  box-sizing: border-box;
+}
+.ant-collapse {
+  background: #fff;
+  border: none;
+}
+
+.ant-collapse-item {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ant-collapse-header {
+  font-weight: 500;
+}
+
+.ant-collapse-content-box {
+  color: #555;
+}
+/* Section title customization */
+.precautions-title {
+  margin-top: 25px;
+  font-size: 1.5rem;
+  color: #8454ba; /* reddish tone for warning/aftercare */
+}
+
+/* Grid for precautions */
+.precautions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+/* Card styling */
+.precaution-card {
+  display: flex;
+  align-items: flex-start;
+  background: #f1f1f1; /* light red background */
+  border: 1px solid #f8d7da;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.precaution-card:hover {
+  transform: translateY(-3px);
+}
+
+/* Icon styling */
+.precaution-icon {
+  font-size: 1.5rem;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+/* Text styling */
+.precaution-title {
+  font-weight: 600;
+  margin: 0;
+  font-size: 1rem;
+  color: #8454ba;
+}
+
+.precaution-desc {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: #555;
+}

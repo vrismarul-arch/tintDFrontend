@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api";
 import "../../css/Home.css"; // ✅ custom styles
+import TrendingServices from "../services/trendind/trendingservices";
+
+import Adsbanner from "../home/addbanner/AdsBanner";
+// import CartPage from "../cart/CartPage";
+
 
 export default function Home() {
   const [categories, setCategories] = useState([]);
@@ -46,6 +51,13 @@ export default function Home() {
       <h2 className="home-title" style={{ marginTop: "3rem" }}>
         Trending Services
       </h2>
+      <TrendingServices />
+
+
+      <div className="addbanner">
+        <Adsbanner />
+      </div>
+
     </div>
   );
 }
