@@ -176,10 +176,11 @@ export default function CartPage() {
               <span>₹{total}</span>
             </div>
           </div>
+<Button type="primary" className="checkout-btn" onClick={() => navigate("/checkout")}>
+  Checkout
+</Button>
 
-          <Button type="primary" className="checkout-btn">
-            Checkout
-          </Button>
+
           <Button type="link" onClick={() => navigate("/category")}>
             ← Continue Shopping
           </Button>

@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import { ShoppingCartOutlined, UserOutlined, HomeOutlined, GiftOutlined, CalendarOutlined, LogoutOutlined } from "@ant-design/icons";
+import {
+  ShoppingCartOutlined,
+  UserOutlined,
+  HomeOutlined,
+  GiftOutlined,
+  CalendarOutlined,
+  LogoutOutlined,
+  ProfileOutlined,
+} from "@ant-design/icons";
+import { Badge } from "antd";
 import LocationSearch from "../components/LocationSearch/LocationSearch";
-import { useCart } from "../context/CartContext"; // ✅ cart context
+import { useCart } from "../context/CartContext";
 import "./Navbar.css";
 
 const menuData = {
@@ -12,6 +21,7 @@ const menuData = {
     { name: "Services", icon: GiftOutlined, link: "/services" },
     { name: "Refer", icon: CalendarOutlined, link: "/refer" },
     { name: "Bookings", icon: UserOutlined, link: "/bookings" },
+    { name: "Profile", icon: ProfileOutlined, link: "/profile" }, // ✅ Added Profile
   ],
 };
 
@@ -19,8 +29,10 @@ const ResponsiveNavbar = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const location = useLocation();
   const navigate = useNavigate();
-  const { cart } = useCart(); // ✅ get cart
+  const { cart } = useCart();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+
+  const totalCartQuantity = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -28,7 +40,6 @@ const ResponsiveNavbar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // ✅ Logout handler
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -58,12 +69,9 @@ const ResponsiveNavbar = () => {
 
           {/* ✅ Mobile Cart */}
           <Link to="/cart" className="tab-item">
-            <div className="cart-icon-wrapper">
+            <Badge count={totalCartQuantity} size="small" offset={[0, 5]}>
               <ShoppingCartOutlined className="tab-icon" />
-              {cart.length > 0 && (
-                <span className="cart-badge">{cart.length}</span>
-              )}
-            </div>
+            </Badge>
             <span>Cart</span>
           </Link>
 
@@ -99,14 +107,16 @@ const ResponsiveNavbar = () => {
 
       <div className="nav-right">
         {/* ✅ Desktop Cart */}
-        <Link to="/cart" className="cart-icon-wrapper">
-          <ShoppingCartOutlined className="uc-icon" />
-          {cart.length > 0 && (
-            <span className="cart-badge">{cart.length}</span>
-          )}
+        <Link to="/cart">
+          <Badge count={totalCartQuantity} size="small" offset={[0, 5]}>
+            <ShoppingCartOutlined className="uc-icon" />
+          </Badge>
         </Link>
 
-        <UserOutlined className="uc-icon" />
+        {/* ✅ Desktop Profile */}
+        <Link to="/profile">
+          <UserOutlined className="uc-icon" />
+        </Link>
 
         {/* ✅ Desktop Logout */}
         {isLoggedIn && (

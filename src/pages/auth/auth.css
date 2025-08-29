@@ -1,0 +1,215 @@
+/* ===== Container ===== */
+.auth-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* ===== Left side with background image (desktop) ===== */
+.auth-left {
+  flex: 1;
+  background: url("./bglogin.jpg") no-repeat center center/cover;
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4); /* dark overlay */
+}
+
+/* ===== Right side (form area on desktop) ===== */
+.auth-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f9fafb;
+  padding: 20px;
+}
+
+/* ===== White Card (desktop) ===== */
+.auth-box {
+  background: #fff;
+  padding: 30px 25px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* ===== Toggle buttons ===== */
+.toggle-btns {
+  display: flex;
+  justify-content: space-between;
+  background: #f1f1f1;
+  border-radius: 30px;
+  padding: 5px;
+  margin-bottom: 20px;
+}
+
+.toggle-btns button {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-btns .active {
+  background: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* ===== Inputs ===== */
+.auth-input {
+  border-radius: 30px !important;
+  height: 45px !important;
+  padding: 0 15px;
+  font-size: 14px;
+}
+
+/* ===== Options row ===== */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+/* ===== Main button ===== */
+.main-btn {
+  border-radius: 30px !important;
+  height: 45px !important;
+  font-weight: 600;
+  background: #007bff !important;
+  border: none;
+  margin-top: 5px;
+  color: #fff !important;
+}
+
+/* ===== Divider ===== */
+.divider {
+  text-align: center;
+  margin: 25px 0 15px;
+  font-size: 13px;
+  color: #666;
+  position: relative;
+}
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background: #ddd;
+}
+.divider::before { left: 0; }
+.divider::after { right: 0; }
+
+/* ===== Social login buttons ===== */
+.social-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.google-btn, .facebook-btn {
+  flex: 1;
+  border-radius: 30px !important;
+  height: 45px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #444;
+  font-weight: 500;
+}
+.icon { width: 18px; height: 18px; }
+
+/* ===== Bottom link ===== */
+.bottom-link {
+  margin-top: 20px;
+  font-size: 13px;
+  color: #666;
+}
+.bottom-link a {
+  color: #007bff;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+.bottom-link a:hover { text-decoration: underline; }
+
+/* ===== 📱 Mobile full background style ===== */
+@media (max-width: 768px) {
+  .auth-container {
+    flex-direction: column;
+    background: url("./mobilebg.png") no-repeat center center/cover;
+    position: relative;
+    height:auto ;
+  }
+
+  .auth-left { display: none; }
+
+  .auth-right {
+    flex: none;
+    padding: 20px;
+    background: transparent;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+
+  .auth-box {
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #fff;
+  }
+
+  .title, .form-options, .divider, .bottom-link {
+    color: #fff;
+  }
+
+  /* Inputs become transparent with white borders */
+  .auth-input {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff;
+  }
+  .auth-input::placeholder {
+    color: #ddd;
+  }
+
+  /* Main button stays bold blue */
+  .main-btn {
+    background: #007bff !important;
+    color: #fff !important;
+  }
+
+  /* Social buttons become translucent */
+  .google-btn, .facebook-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+  }
+
+  .icon { filter: invert(1); } /* make icons white */
+}

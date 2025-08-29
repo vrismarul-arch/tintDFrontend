@@ -7,10 +7,12 @@ import "swiper/css/pagination";
 import "swiper/css/grid";
 import "swiper/css/navigation";
 import api from "../../../../api";
+import { Skeleton } from "antd"; // ✅ Import Ant Design Skeleton
 import "./TrendingServices.css";
 
 export default function TrendingServices() {
   const [trending, setTrending] = useState([]);
+  const [loading, setLoading] = useState(true); // ✅ loading state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +35,8 @@ export default function TrendingServices() {
         setTrending(subRes.data);
       } catch (err) {
         console.error("❌ Error fetching trending services:", err);
+      } finally {
+        setLoading(false); // ✅ stop loading
       }
     };
 
@@ -41,7 +45,17 @@ export default function TrendingServices() {
 
   return (
     <div className="trending-container">
-      {trending.length > 0 ? (
+      {loading ? (
+        // Skeleton grid placeholder (same layout as Swiper)
+        <div className="skeleton-grid">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="skeleton-card">
+              <Skeleton.Image active style={{ width: "100%", height: 100, borderRadius: 8 }} />
+              <Skeleton active paragraph={false} title={{ width: "80%" }} style={{ marginTop: 10 }} />
+            </div>
+          ))}
+        </div>
+      ) : trending.length > 0 ? (
         <Swiper
           modules={[Pagination, Grid, Navigation, Autoplay]}
           autoplay={{ delay: 2000, disableOnInteraction: false }}
@@ -76,7 +90,7 @@ export default function TrendingServices() {
           ))}
         </Swiper>
       ) : (
-        <p>Loading services...</p>
+        <p>No trending services found</p>
       )}
     </div>
   );

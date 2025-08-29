@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Form, Input, Button, message, Card } from "antd";
+import { Form, Input, Button, message } from "antd";
+import { UserOutlined, MailOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api";
+import "./auth.css";
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
@@ -13,7 +15,7 @@ export default function RegisterPage() {
       const res = await api.post("/api/auth/register", values);
       localStorage.setItem("token", res.data.token);
       message.success("Registration successful");
-      navigate("/"); // redirect to homepage or services
+      navigate("/");
     } catch (err) {
       message.error(err.response?.data?.error || "Registration failed");
     } finally {
@@ -22,45 +24,89 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <Card title="Register" className="w-[400px] shadow-lg rounded-lg">
-        <Form name="register" layout="vertical" onFinish={onFinish}>
-          <Form.Item
-            name="name"
-            label="Name"
-            rules={[{ required: true, message: "Please input your name!" }]}
-          >
-            <Input placeholder="Enter your name" />
-          </Form.Item>
+    <div className="auth-container">
+      {/* Left side with background image */}
+      <div className="auth-left">
+        <div className="overlay" />
+      </div>
 
-          <Form.Item
-            name="email"
-            label="Email"
-            rules={[{ required: true, message: "Please input your email!" }]}
-          >
-            <Input type="email" placeholder="Enter your email" />
-          </Form.Item>
+      {/* Right side with form */}
+      <div className="auth-right">
+        <div className="auth-box">
+          <h2 className="title">Create Your Account</h2>
 
-          <Form.Item
-            name="password"
-            label="Password"
-            rules={[{ required: true, message: "Please input your password!" }]}
-          >
-            <Input.Password placeholder="Enter your password" />
-          </Form.Item>
+          {/* Toggle buttons */}
+          <div className="toggle-btns">
+            <button onClick={() => navigate("/login")}>Login</button>
+            <button className="active">Sign Up</button>
+          </div>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block>
-              Register
+          {/* Form */}
+          <Form onFinish={onFinish} className="auth-form">
+            <Form.Item
+              name="name"
+              rules={[{ required: true, message: "Please enter your name!" }]}
+            >
+              <Input
+                prefix={<UserOutlined />}
+                placeholder="Enter your name"
+                className="auth-input"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="email"
+              rules={[{ required: true, message: "Please enter your email!" }]}
+            >
+              <Input
+                prefix={<MailOutlined />}
+                placeholder="Enter your email"
+                className="auth-input"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="password"
+              rules={[{ required: true, message: "Please enter your password!" }]}
+            >
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="Enter your password"
+                className="auth-input"
+              />
+            </Form.Item>
+
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              block
+              className="main-btn"
+            >
+              Sign Up
             </Button>
-          </Form.Item>
+          </Form>
 
-          <p className="text-center">
+          <div className="divider">Or sign up with</div>
+
+          <div className="social-btns">
+            <Button block className="google-btn">
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt="Google"
+                className="icon"
+              />
+              Google
+            </Button>
+          
+          </div>
+
+          <p className="bottom-link">
             Already have an account?{" "}
             <a onClick={() => navigate("/login")}>Login</a>
           </p>
-        </Form>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

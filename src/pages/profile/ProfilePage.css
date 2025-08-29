@@ -1,0 +1,156 @@
+/* ========== Common ========== */
+.profile-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  font-family: "Poppins", sans-serif;
+}
+
+.profile-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.profile-header .avatar {
+  border: 3px solid #e6e6e6;
+}
+
+.profile-header .info {
+  margin-left: 1rem;
+}
+
+.profile-header .info h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.profile-header .info p {
+  color: #888;
+  margin: 0.2rem 0 0;
+}
+
+.profile-header .edit-btn {
+  margin-left: auto;
+}
+
+/* Tabs */
+.ant-tabs-nav {
+  margin-bottom: 1.5rem;
+}
+.ant-tabs-tab {
+  font-weight: 500;
+}
+
+/* Booking list */
+.ant-list-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.ant-list-item-meta-title {
+  font-weight: 600;
+}
+.ant-list-item-meta-description {
+  color: #555;
+}
+
+/* Form */
+.ant-form-item-label > label {
+  font-weight: 500;
+  color: #444;
+}
+
+/* Save button */
+.save-btn {
+  background: #3b82f6;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+}
+.save-btn:hover {
+  background: #2563eb;
+}
+
+/* ========== Mobile ========== */
+.mobile-card {
+  border-radius: 16px;
+  padding: 1.2rem;
+}
+
+.mobile-profile {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.mobile-profile .info {
+  margin-left: 1rem;
+}
+.mobile-profile .info h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.mobile-profile .info p {
+  color: #777;
+  margin: 0.2rem 0;
+}
+
+/* Mobile menu items */
+.mobile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.mobile-menu .item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  background: #f9f9f9;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.mobile-menu .item:hover {
+  background: #f0f0f0;
+}
+.mobile-menu .item.logout {
+  color: #dc2626;
+  font-weight: 600;
+}
+.profile-container {
+  padding: 20px;
+}
+
+.profile-card {
+  max-width: 800px;
+  margin: auto;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.profile-header .info {
+  flex: 1;
+  margin-left: 20px;
+}
+
+.mobile-profile {
+  padding: 16px;
+  text-align: center;
+}
