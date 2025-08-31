@@ -1,0 +1,13 @@
+.customer-email {
+  font-size: 12px;
+  color: #888;
+}
+
+.service-tag {
+  margin-bottom: 4px;
+}
+
+.unassigned {
+  color: #999;
+  font-style: italic;
+}

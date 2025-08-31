@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Form, Input, Button, Checkbox, message } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";   // ✅ Google login
 import api from "../../../api";
 import "./auth.css";
 
@@ -9,6 +10,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // 🔹 Email/Password login
   const onFinish = async (values) => {
     try {
       setLoading(true);
@@ -20,6 +22,20 @@ export default function LoginPage() {
       message.error(err.response?.data?.error || "Login failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 🔹 Google login success handler
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const res = await api.post("/api/auth/google", {
+        token: credentialResponse.credential,
+      });
+      localStorage.setItem("token", res.data.token);
+      message.success("Google login successful");
+      navigate("/");
+    } catch (err) {
+      message.error("Google login failed");
     }
   };
 
@@ -84,15 +100,12 @@ export default function LoginPage() {
           <div className="divider">Or login with</div>
 
           <div className="social-btns">
-            <Button block className="google-btn">
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google"
-                className="icon"
-              />
-              Google
-            </Button>
-            
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => {
+                message.error("Google login failed");
+              }}
+            />
           </div>
 
           <p className="bottom-link">

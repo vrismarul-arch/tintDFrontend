@@ -1,9 +1,31 @@
 import { useEffect, useState } from "react";
-import { Form, Input, Button, Card, message, DatePicker, TimePicker } from "antd";
+import { Form, Input, Button, Card, message, DatePicker, Radio } from "antd";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api";
 import dayjs from "dayjs";
 import "./CheckoutPage.css";
+
+// ✅ New helper function to generate 2-hour time slots
+const generateTimeSlots = () => {
+  const slots = [];
+  const startHour = 8; // 8 AM
+  const endHour = 20; // 10 PM to ensure last slot ends at 11 PM
+  const slotDurationHours = 2; // 2-hour slots
+
+  for (let h = startHour; h <= endHour; h += slotDurationHours) {
+    const startTime = dayjs().hour(h).minute(0).second(0);
+    const endTime = startTime.add(slotDurationHours, "hour");
+
+    const formattedStart = startTime.format("h A");
+    const formattedEnd = endTime.format("h A");
+    
+    slots.push({
+      value: startTime.toISOString(), // Use ISO string for backend
+      label: `${formattedStart} - ${formattedEnd}`,
+    });
+  }
+  return slots;
+};
 
 export default function CheckoutPage() {
   const [form] = Form.useForm();
@@ -12,6 +34,7 @@ export default function CheckoutPage() {
   const [cart, setCart] = useState([]);
   const [services, setServices] = useState([]);
   const navigate = useNavigate();
+  const timeSlots = generateTimeSlots(); // Generate slots once
 
   // ✅ Load cart + service details
   useEffect(() => {
@@ -57,32 +80,38 @@ export default function CheckoutPage() {
     }
   }, []);
 
-  // ✅ Go to payment page after validating form
-  const handleSubmit = (values) => {
-    if (!location) return message.error("Location not available");
+ // ✅ Go to payment page after validating form
+const handleSubmit = (values) => {
+  if (!location) return message.error("Location not available");
 
-    const totalAmount = cart.reduce((sum, item) => {
+  const totalAmount = cart.reduce((sum, item) => {
+    const srv = services.find((s) => s._id === item._id);
+    const price = srv?.price || item.price || 0;
+    return sum + price * item.quantity;
+  }, 0);
+
+  const payload = {
+    ...values,
+    location,
+    services: cart.map((item) => {
       const srv = services.find((s) => s._id === item._id);
-      const price = srv?.price || item.price || 0;
-      return sum + price * item.quantity;
-    }, 0);
-
-    const payload = {
-      ...values,
-      location,
-      services: cart.map((item) => ({
+      return {
         serviceId: item._id,
+        name: srv?.name || item.name || "Service",   // ✅ Save name
+        price: srv?.price || item.price || 0,        // ✅ Save price
         quantity: item.quantity,
-      })),
-      totalAmount,
-    };
-
-    // Save booking data temporarily in localStorage
-    localStorage.setItem("pendingBooking", JSON.stringify(payload));
-
-    // Redirect to Payment Page
-    navigate("/payment");
+        imageUrl: srv?.imageUrl || "/placeholder.png" // ✅ Save image too
+      };
+    }),
+    totalAmount,
   };
+
+  // Save booking data temporarily in localStorage
+  localStorage.setItem("pendingBooking", JSON.stringify(payload));
+
+  // Redirect to Payment Page
+  navigate("/payment");
+};
 
   if (cart.length === 0) {
     return (
@@ -132,10 +161,16 @@ export default function CheckoutPage() {
           </Form.Item>
           <Form.Item
             name="selectedTime"
-            label="Select Time"
+            label="Select Time Slot"
             rules={[{ required: true, message: "Please select a time" }]}
           >
-            <TimePicker style={{ width: "100%" }} format="hh:mm A" use12Hours />
+            <Radio.Group className="time-slot-radio-group">
+              {timeSlots.map((slot) => (
+                <Radio.Button key={slot.value} value={slot.value}>
+                  {slot.label}
+                </Radio.Button>
+              ))}
+            </Radio.Group>
           </Form.Item>
 
           {location && (

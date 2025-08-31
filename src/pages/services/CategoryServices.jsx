@@ -22,14 +22,15 @@ export default function CategoryServices() {
 
   const isLoggedIn = !!localStorage.getItem("token");
 
+  // Helper to round prices
+  const roundPrice = (p) => Number(Number(p).toFixed(2));
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch all services
         const res = await api.get(`/api/admin/services?category=${id}`);
         setServices(res.data);
 
-        // Extract unique subcategories and varieties from services
         const subs = [];
         const vars = [];
         res.data.forEach((s) => {
@@ -43,7 +44,6 @@ export default function CategoryServices() {
         setSubCategories(subs);
         setVarieties(vars);
 
-        // Load saved cart
         const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
         setCartItems(savedCart);
       } catch (err) {
@@ -124,9 +124,9 @@ export default function CategoryServices() {
       width: 170,
       render: (_, record) => (
         <div className="price-cell">
-          <span className="price">₹{record.price}</span>
+          <span className="price">₹{roundPrice(record.price)}</span>
           {record.originalPrice > record.price && (
-            <span className="old-price">₹{record.originalPrice}</span>
+            <span className="old-price">₹{roundPrice(record.originalPrice)}</span>
           )}
         </div>
       ),
@@ -247,9 +247,9 @@ export default function CategoryServices() {
                         : "N/A"}
                     </p>
                     <div className="price-section">
-                      <span className="price">₹{service.price}</span>
+                      <span className="price">₹{roundPrice(service.price)}</span>
                       {service.originalPrice > service.price && (
-                        <span className="old-price">₹{service.originalPrice}</span>
+                        <span className="old-price">₹{roundPrice(service.originalPrice)}</span>
                       )}
                     </div>
                     <div className="mobile-buttons">
@@ -297,7 +297,7 @@ export default function CategoryServices() {
             />
           )}
 
-          {drawerOpen && (
+          {drawerOpen && selectedService && (
             <Salonservicesdrawer
               open={drawerOpen}
               onClose={() => setDrawerOpen(false)}
