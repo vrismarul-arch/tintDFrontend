@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Form, Input, Button, Checkbox, message } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";   // ✅ Google login
+import { GoogleLogin } from "@react-oauth/google";
 import api from "../../../api";
 import "./auth.css";
 
@@ -17,7 +17,14 @@ export default function LoginPage() {
       const res = await api.post("/api/auth/login", values);
       localStorage.setItem("token", res.data.token);
       message.success("Login successful");
-      navigate("/");
+      
+      // 🟢 Check the user's role from the API response
+      if (res.data.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+
     } catch (err) {
       message.error(err.response?.data?.error || "Login failed");
     } finally {
@@ -33,7 +40,14 @@ export default function LoginPage() {
       });
       localStorage.setItem("token", res.data.token);
       message.success("Google login successful");
-      navigate("/");
+      
+      // 🟢 Check the user's role from the API response for Google login
+      if (res.data.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+
     } catch (err) {
       message.error("Google login failed");
     }
@@ -116,4 +130,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
+} 
