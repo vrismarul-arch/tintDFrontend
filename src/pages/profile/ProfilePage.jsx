@@ -1,20 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Card,
-  Button,
-  Avatar,
-  Tabs,
-  List,
-  message,
-  Spin,
-  Form,
-  Input,
-  Upload,
-  Drawer,
-  Modal,
+  Card, Button, Avatar, Tabs, List, message, Spin,
+  Form, Input, Upload, Drawer, Modal
 } from "antd";
 import { UserOutlined, UploadOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
 import api from "../../../api";
 import "./ProfilePage.css";
 
@@ -27,21 +17,20 @@ export default function ProfilePage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const getBookingDateAndTime = (b) => {
-    try {
-      if (b?.selectedDate && b?.selectedTime) {
-        const dateObj = new Date(b.selectedDate);
-        const timeObj = new Date(b.selectedTime);
-        dateObj.setHours(timeObj.getHours(), timeObj.getMinutes(), 0, 0);
-        return dateObj;
-      }
-      if (b?.createdAt) return new Date(b.createdAt);
-      return null;
-    } catch {
-      return null;
+  // -----------------------
+  // ✅ Protect page
+  // -----------------------
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      message.warning("Please login first");
+      navigate("/login");
     }
-  };
+  }, [navigate]);
 
+  // -----------------------
+  // Fetch profile & bookings
+  // -----------------------
   const fetchProfileAndBookings = async () => {
     setLoading(true);
     try {
@@ -74,6 +63,9 @@ export default function ProfilePage() {
     fetchProfileAndBookings();
   }, []);
 
+  // -----------------------
+  // Update profile
+  // -----------------------
   const onFinish = async (values) => {
     try {
       setSaving(true);
@@ -85,7 +77,7 @@ export default function ProfilePage() {
         if (key === "avatar") {
           const file = Array.isArray(val) ? val[0] : null;
           if (file?.originFileObj) formData.append("avatar", file.originFileObj);
-        } else if (val !== undefined && val !== null && val !== "") {
+        } else if (val) {
           formData.append(key, val);
         }
       });
@@ -104,6 +96,9 @@ export default function ProfilePage() {
     }
   };
 
+  // -----------------------
+  // Delete booking
+  // -----------------------
   const handleDeleteBooking = (bookingId) => {
     Modal.confirm({
       title: "Delete this booking?",
@@ -135,7 +130,7 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-container">
-      {/* Desktop */}
+      {/* Desktop Profile */}
       <Card className="hidden md:block profile-card">
         <div className="profile-header">
           <Avatar size={80} src={user?.avatar} icon={<UserOutlined />} />
@@ -174,9 +169,9 @@ export default function ProfilePage() {
                   dataSource={bookings}
                   rowKey={(it) => it._id}
                   renderItem={(item) => {
-                    const dt = getBookingDateAndTime(item);
-                    const dateStr = dt ? dt.toLocaleDateString("en-GB") : "-";
-                    const timeStr = dt ? dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true }) : "-";
+                    const dateStr = item.selectedDate ? new Date(item.selectedDate).toLocaleDateString() : "-";
+                    const timeStr = item.selectedTime ? new Date(item.selectedTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true }) : "-";
+
                     const firstService = item?.services?.[0] || {};
                     const firstServiceName = firstService?.serviceId?.name || firstService?.name || "Service";
                     const firstServiceImage = firstService?.serviceId?.imageUrl || firstService?.imageUrl;
@@ -184,33 +179,20 @@ export default function ProfilePage() {
                     return (
                       <List.Item
                         actions={[
-                          <Button
-                            type="link"
-                            key="view"
-                            onClick={() => navigate(`/profile/bookings/${item._id}`)}
-                          >
-                            View
-                          </Button>,
-                          <Button
-                            type="link"
-                            danger
-                            key="delete"
-                            onClick={() => handleDeleteBooking(item._id)}
-                          >
-                            Delete
-                          </Button>,
+                          <Button type="link" key="view" onClick={() => navigate(`/profile/bookings/${item._id}`)}>View</Button>,
+                          <Button type="link" danger key="delete" onClick={() => handleDeleteBooking(item._id)}>Delete</Button>
                         ]}
                       >
                         <List.Item.Meta
                           avatar={<Avatar src={firstServiceImage} icon={<UserOutlined />} />}
-                          title={`Booking ID: ${item.bookingId || item._id}`} // Show auto-generated bookingId
+                          title={`Booking ID: ${item.bookingId || item._id}`}
                           description={
                             <>
                               <div>Service: {firstServiceName}</div>
                               <div>Total: ₹{item.totalAmount}</div>
                               <div>Date: {dateStr}</div>
                               <div>Time: {timeStr}</div>
-                              <div>Status: {String(item.status || "pending")}</div>
+                              <div>Status: {item.status || "pending"}</div>
                             </>
                           }
                         />
@@ -224,7 +206,7 @@ export default function ProfilePage() {
         />
       </Card>
 
-      {/* Mobile */}
+      {/* Mobile Profile */}
       <div className="md:hidden mobile-profile">
         <Avatar size={64} src={user?.avatar} icon={<UserOutlined />} />
         <h3>{user?.name}</h3>

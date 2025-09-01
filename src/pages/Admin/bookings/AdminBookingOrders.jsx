@@ -1,91 +1,131 @@
 import React, { useEffect, useState } from "react";
-import { Table, Tag, Button, Card, Spin, message, Modal, Select, Popconfirm } from "antd";
-import axios from "axios";
-import "./AdminBookingOrders.css";
+import {
+  Table,
+  Tag,
+  Button,
+  Popconfirm,
+  Spin,
+  message,
+  Modal,
+  Select,
+  Drawer,
+  Dropdown,
+  Menu,
+} from "antd";
+import { EllipsisOutlined } from "@ant-design/icons";
+import api from "../../../../api";
+import BookingDetails from "./BookingDetails";
 
 const { Option } = Select;
 
-export default function AdminBookingOrders() {
+const AdminBookingOrders = () => {
   const [bookings, setBookings] = useState([]);
-  const [employees, setEmployees] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [currentBooking, setCurrentBooking] = useState(null);
+  const [newStatus, setNewStatus] = useState("");
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState(null);
 
-  useEffect(() => {
-    fetchBookingsAndEmployees();
-  }, []);
-
-  const fetchBookingsAndEmployees = async () => {
+  const fetchBookings = async () => {
+    setLoading(true);
     try {
-      // 🟢 Assuming a '/api/employees' endpoint exists to get the list of employees
-      const [bookingsRes, employeesRes] = await Promise.all([
-        axios.get("/api/bookings/admin", { withCredentials: true }),
-        axios.get("/api/employees", { withCredentials: true }),
-      ]);
-      setBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : bookingsRes.data?.bookings || []);
-      setEmployees(employeesRes.data);
+      const res = await api.get("/api/admin/bookings", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setBookings(Array.isArray(res.data) ? res.data : res.data.bookings || []);
     } catch (err) {
-      console.error("Failed to load data:", err);
-      message.error("Failed to load bookings or employees");
+      console.error("Failed to fetch bookings:", err);
+      message.error("Failed to load bookings");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpdate = async (values) => {
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const handleCancelBooking = async (id) => {
     try {
-      await axios.put(`/api/bookings/${currentBooking._id}`, values, { withCredentials: true });
-      message.success("Booking updated successfully!");
-      setIsModalVisible(false);
-      fetchBookingsAndEmployees(); // Refresh the list
+      await api.delete(`/api/admin/bookings/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      message.success("Booking cancelled successfully");
+      fetchBookings();
     } catch (err) {
-      message.error("Failed to update booking.");
-      console.error(err);
+      console.error("Failed to cancel booking:", err);
+      message.error("Failed to cancel booking");
     }
   };
 
-  const showUpdateModal = (booking) => {
-    setCurrentBooking(booking);
-    setIsModalVisible(true);
+  const showUpdateModal = (record) => {
+    setCurrentBooking(record);
+    setNewStatus(record.status || "pending");
+    setUpdateModalVisible(true);
   };
-  
-  const handleCancelBooking = async (id) => {
+
+  const handleUpdateStatus = async () => {
+    if (!currentBooking) return;
     try {
-      await axios.put(`/api/bookings/${id}`, { status: 'cancelled' }, { withCredentials: true });
-      message.success("Booking cancelled successfully.");
-      fetchBookingsAndEmployees();
+      await api.put(
+        `/api/admin/bookings/${currentBooking._id}`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      message.success("Booking status updated successfully");
+      setUpdateModalVisible(false);
+      fetchBookings();
     } catch (err) {
-      message.error("Failed to cancel booking.");
-      console.error(err);
+      console.error("Failed to update booking:", err);
+      message.error("Failed to update booking");
     }
+  };
+
+  const showDrawer = (bookingId) => {
+    setSelectedBookingId(bookingId);
+    setDrawerVisible(true);
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "-";
+    const d = new Date(date);
+    return isNaN(d) ? "-" : d.toLocaleDateString("en-GB");
+  };
+
+  const formatTime = (time) => {
+    if (!time) return "-";
+    const t = new Date(time);
+    return isNaN(t)
+      ? "-"
+      : t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   const columns = [
-    {
-      title: "#",
-      render: (_, __, index) => index + 1,
-      width: 50,
-    },
+    { title: "#", render: (_, __, index) => index + 1, width: 50 },
     {
       title: "Booking ID",
       dataIndex: "bookingId",
       key: "bookingId",
       render: (id) => <strong>{id}</strong>,
+      responsive: ["sm"],
     },
     {
       title: "Customer",
-      dataIndex: "user",
-      key: "user",
-      render: (_, record) => (
-        <div>
-          <strong>{record.name || record.user?.name || "Unknown"}</strong>
-          <br />
-          <span>{record.email || record.user?.email || "-"}</span>
-          <br />
-          <span>{record.phone || record.user?.phone || "-"}</span>
-        </div>
-      ),
+      key: "customer",
+      render: (_, record) => {
+        const user = record.user || {};
+        return (
+          <div>
+            <strong>{user.name || record.name || "Unknown"}</strong>
+            <br />
+            <span>{user.email || record.email || "-"}</span>
+            <br />
+            <span>{user.phone || record.phone || "-"}</span>
+          </div>
+        );
+      },
+      responsive: ["xs", "sm", "md", "lg", "xl"],
     },
     {
       title: "Services",
@@ -95,116 +135,131 @@ export default function AdminBookingOrders() {
         services?.length > 0 ? (
           services.map((s) => (
             <Tag key={s._id || s.serviceId?._id} color="blue">
-              {s.serviceId?.name || s.name} x {s.quantity || 1}
+              {s.serviceId?.name || s.name} × {s.quantity || 1}
             </Tag>
           ))
         ) : (
           <span>-</span>
         ),
+      responsive: ["md", "lg", "xl"],
     },
     {
       title: "Date & Time",
       key: "dateTime",
       render: (_, record) => (
         <div>
-          {record.selectedDate ? new Date(record.selectedDate).toLocaleDateString("en-GB") : "-"}
+          {formatDate(record.selectedDate)}
           <br />
-          {record.selectedTime ? new Date(record.selectedTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-"}
+          {formatTime(record.selectedTime)}
         </div>
-      )
+      ),
+      responsive: ["sm", "md", "lg", "xl"],
     },
     {
       title: "Assigned To",
       dataIndex: "assignedTo",
       key: "assignedTo",
-      render: (staff) => staff?.fullName || <span style={{ color: "#888" }}>Unassigned</span>,
+      render: (staff) =>
+        staff?.name || <span style={{ color: "#888" }}>Unassigned</span>,
+      responsive: ["md", "lg", "xl"],
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
       render: (status) => {
-        const color = status === "confirmed" ? "green" : status === "pending" ? "gold" : "red";
+        const color =
+          status === "confirmed"
+            ? "green"
+            : status === "pending"
+            ? "gold"
+            : "red";
         return <Tag color={color}>{status?.toUpperCase() || "N/A"}</Tag>;
       },
+      responsive: ["sm", "md", "lg", "xl"],
     },
     {
       title: "Action",
       key: "action",
-      render: (_, record) => (
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <Button type="default" size="small" onClick={() => showUpdateModal(record)}>
-            Update
-          </Button>
-          <Popconfirm
-            title="Are you sure you want to cancel this booking?"
-            onConfirm={() => handleCancelBooking(record._id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button danger size="small">Cancel</Button>
-          </Popconfirm>
-        </div>
-      ),
+      render: (_, record) => {
+        const menu = (
+          <Menu>
+            <Menu.Item key="view">
+              <Button type="text" onClick={() => showDrawer(record._id)}>
+                View
+              </Button>
+            </Menu.Item>
+            <Menu.Item key="update">
+              <Button type="text" onClick={() => showUpdateModal(record)}>
+                Update
+              </Button>
+            </Menu.Item>
+            <Menu.Item key="cancel">
+              <Popconfirm
+                title="Are you sure you want to cancel this booking?"
+                onConfirm={() => handleCancelBooking(record._id)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button type="text" danger>
+                  Cancel
+                </Button>
+              </Popconfirm>
+            </Menu.Item>
+          </Menu>
+        );
+
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <Button icon={<EllipsisOutlined />} />
+          </Dropdown>
+        );
+      },
+      responsive: ["xs", "sm", "md", "lg", "xl"],
     },
   ];
 
   return (
-    <Card title="📋 Booking Orders" className="booking-orders-card">
+    <>
       {loading ? (
-        <div style={{ textAlign: "center", padding: "2rem" }}>
-          <Spin size="large" />
-        </div>
+        <Spin tip="Loading bookings..." />
       ) : (
         <Table
-          rowKey="_id"
-          columns={columns}
           dataSource={bookings}
-          pagination={{ pageSize: 8 }}
-          bordered
+          columns={columns}
+          rowKey="_id"
+          scroll={{ x: "max-content" }}
         />
       )}
-      {currentBooking && (
-        <Modal
-          title={`Update Booking ${currentBooking.bookingId}`}
-          visible={isModalVisible}
-          onOk={() => {
-            const statusValue = document.getElementById("status-select").value;
-            const assignedToValue = document.getElementById("employee-select").value;
-            handleUpdate({
-              status: statusValue,
-              assignedTo: assignedToValue === "" ? null : assignedToValue,
-            });
-          }}
-          onCancel={() => setIsModalVisible(false)}
+
+      <Modal
+        title="Update Booking Status"
+        open={updateModalVisible}
+        onOk={handleUpdateStatus}
+        onCancel={() => setUpdateModalVisible(false)}
+        okText="Update"
+      >
+        <Select
+          value={newStatus}
+          onChange={setNewStatus}
+          style={{ width: "100%" }}
         >
-          <p>Update Status:</p>
-          <Select
-            id="status-select"
-            defaultValue={currentBooking.status}
-            style={{ width: "100%", marginBottom: "1rem" }}
-          >
-            <Option value="pending">Pending</Option>
-            <Option value="confirmed">Confirmed</Option>
-            <Option value="cancelled">Cancelled</Option>
-          </Select>
-          
-          <p>Assign Employee:</p>
-          <Select
-            id="employee-select"
-            defaultValue={currentBooking.assignedTo?._id || ""}
-            style={{ width: "100%" }}
-            placeholder="Select an employee"
-          >
-            <Option value="">Unassigned</Option>
-            {employees.map((emp) => (
-              <Option key={emp._id} value={emp._id}>
-                {emp.fullName}
-              </Option>
-            ))}
-          </Select>
-        </Modal>
-      )}
-    </Card>
+          <Option value="pending">Pending</Option>
+          <Option value="confirmed">Confirmed</Option>
+          <Option value="cancelled">Cancelled</Option>
+        </Select>
+      </Modal>
+
+      <Drawer
+        title="Booking Details"
+        open={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        width={720}
+      >
+        {selectedBookingId && <BookingDetails bookingId={selectedBookingId} />}
+      </Drawer>
+    </>
   );
-}
+};
+
+export default AdminBookingOrders;

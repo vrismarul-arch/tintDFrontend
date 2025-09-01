@@ -1,22 +1,35 @@
 import { Avatar, Dropdown, Menu } from "antd";
 import { MenuOutlined, UserOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import "./topbar.css";
 
 export default function Topbar({ onToggleSidebar }) {
-  // Define menu items as a JSON object
+  const navigate = useNavigate();
+
+  // Handle menu click
+  const handleMenuClick = ({ key }) => {
+    if (key === "3") {
+      // Logout: remove token & role
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      navigate("/login"); // redirect to login page
+    } else if (key === "1") {
+      navigate("/admin/profile");
+    } else if (key === "2") {
+      navigate("/admin/settings");
+    }
+  };
+
   const profileMenu = [
-    { key: "1", label: "Profile", path: "/admin/profile" },
-    { key: "2", label: "Settings", path: "/admin/settings" },
-    { key: "3", label: "Logout", path: "/logout" },
+    { key: "1", label: "Profile" },
+    { key: "2", label: "Settings" },
+    { key: "3", label: "Logout" },
   ];
 
-  // Map the JSON data to Ant Design's Menu component
   const menu = (
-    <Menu>
+    <Menu onClick={handleMenuClick}>
       {profileMenu.map(item => (
-        <Menu.Item key={item.key}>
-          <a href={item.path}>{item.label}</a>
-        </Menu.Item>
+        <Menu.Item key={item.key}>{item.label}</Menu.Item>
       ))}
     </Menu>
   );

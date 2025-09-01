@@ -13,7 +13,7 @@ import "./TrendingServices.css";
 export default function TrendingServices() {
   const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(true); // ✅ loading state
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchTrending = async () => {

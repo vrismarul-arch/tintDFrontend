@@ -15,16 +15,19 @@ export default function LoginPage() {
     try {
       setLoading(true);
       const res = await api.post("/api/auth/login", values);
+
+      // Save token and role
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data.role);
+
       message.success("Login successful");
-      
-      // 🟢 Check the user's role from the API response
+
+      // Redirect based on role
       if (res.data.role === "admin") {
         navigate("/admin");
       } else {
         navigate("/");
       }
-
     } catch (err) {
       message.error(err.response?.data?.error || "Login failed");
     } finally {
@@ -38,16 +41,18 @@ export default function LoginPage() {
       const res = await api.post("/api/auth/google", {
         token: credentialResponse.credential,
       });
+
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data.role);
+
       message.success("Google login successful");
-      
-      // 🟢 Check the user's role from the API response for Google login
+
+      // Redirect based on role
       if (res.data.role === "admin") {
         navigate("/admin");
       } else {
         navigate("/");
       }
-
     } catch (err) {
       message.error("Google login failed");
     }
@@ -116,9 +121,7 @@ export default function LoginPage() {
           <div className="social-btns">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => {
-                message.error("Google login failed");
-              }}
+              onError={() => message.error("Google login failed")}
             />
           </div>
 
@@ -130,4 +133,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-} 
+}
