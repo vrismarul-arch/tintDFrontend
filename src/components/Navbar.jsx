@@ -9,10 +9,13 @@ import {
   LogoutOutlined,
   ProfileOutlined,
 } from "@ant-design/icons";
-import { Badge } from "antd";
-import LocationSearch from "../components/LocationSearch/LocationSearch";
-import { useCart } from "../context/CartContext";
+import { Badge, Input } from "antd";
+import LocationSearch from "./LocationSearch/LocationSearch";
+// Note: You would need to set up a CartContext or remove this dependency
+// import { useCart } from "../context/CartContext"; 
 import "./Navbar.css";
+
+const { Search } = Input;
 
 const menuData = {
   desktopNav: [],
@@ -21,7 +24,7 @@ const menuData = {
     { name: "Services", icon: GiftOutlined, link: "/services" },
     { name: "Refer", icon: CalendarOutlined, link: "/refer" },
     { name: "Bookings", icon: UserOutlined, link: "/bookings" },
-    { name: "Profile", icon: ProfileOutlined, link: "/profile" }, // ✅ Added Profile
+    { name: "Profile", icon: ProfileOutlined, link: "/profile" },
   ],
 };
 
@@ -29,10 +32,14 @@ const ResponsiveNavbar = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const location = useLocation();
   const navigate = useNavigate();
-  const { cart } = useCart();
+  // const { cart } = useCart(); // Uncomment and set up a CartContext to use this
+  const cart = []; // Placeholder if you don't have a CartContext
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
 
-  const totalCartQuantity = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const totalCartQuantity = cart.reduce(
+    (sum, item) => sum + (item.quantity || 0),
+    0
+  );
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -48,9 +55,27 @@ const ResponsiveNavbar = () => {
   };
 
   if (isMobile) {
+    // 📱 Mobile Header + Bottom Nav
     return (
       <>
-        <LocationSearch isMobile={isMobile} />
+        <div className="mobile-top-bar">
+         <Link to="/">
+          <img src="/tintD.png" alt="Logo" className="uc-logo-mobile" />
+        </Link>
+ <Link to="/profile">
+          <UserOutlined className="uc-icon" />
+        </Link>
+        </div>
+        <div className="mobile-top-bar">
+          <LocationSearch />       
+
+        </div>
+        <div className="mobile-top-bar">
+                  <Search placeholder="Search for groceries and more" enterButton />
+
+        </div>
+
+
         <div className="mobile-bottom-navbar">
           {menuData.mobileNav.map((item, index) => {
             const IconComponent = item.icon;
@@ -67,7 +92,6 @@ const ResponsiveNavbar = () => {
             );
           })}
 
-          {/* ✅ Mobile Cart */}
           <Link to="/cart" className="tab-item">
             <Badge count={totalCartQuantity} size="small" offset={[0, 5]}>
               <ShoppingCartOutlined className="tab-icon" />
@@ -75,7 +99,6 @@ const ResponsiveNavbar = () => {
             <span>Cart</span>
           </Link>
 
-          {/* ✅ Mobile Logout */}
           {isLoggedIn && (
             <button className="tab-item logout-btn" onClick={handleLogout}>
               <LogoutOutlined className="tab-icon" />
@@ -87,6 +110,7 @@ const ResponsiveNavbar = () => {
     );
   }
 
+  // 💻 Desktop Navbar
   return (
     <div className="desktop-navbar">
       <div className="nav-left">
@@ -96,29 +120,22 @@ const ResponsiveNavbar = () => {
       </div>
 
       <div className="nav-middle">
-        {menuData.desktopNav.map((item, index) => (
-          <a key={index} href={item.link}>
-            {item.name}
-          </a>
-        ))}
+        <LocationSearch isMobile={isMobile} />
       </div>
 
-      <LocationSearch isMobile={isMobile} />
-
       <div className="nav-right">
-        {/* ✅ Desktop Cart */}
+        <Search placeholder="Search for restaurants and food" enterButton />
+
         <Link to="/cart">
           <Badge count={totalCartQuantity} size="small" offset={[0, 5]}>
             <ShoppingCartOutlined className="uc-icon" />
           </Badge>
         </Link>
 
-        {/* ✅ Desktop Profile */}
         <Link to="/profile">
           <UserOutlined className="uc-icon" />
         </Link>
 
-        {/* ✅ Desktop Logout */}
         {isLoggedIn && (
           <button className="logout-btn" onClick={handleLogout}>
             <LogoutOutlined className="uc-icon" />
@@ -131,4 +148,3 @@ const ResponsiveNavbar = () => {
 };
 
 export default ResponsiveNavbar;
-  

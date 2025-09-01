@@ -20,7 +20,7 @@ import ProfilePage from "../pages/profile/ProfilePage";
 import UserBookingDetails from "../pages/profile/UserBookingDetails";
 import AdminEmployees from "../pages/Admin/employee/AdminEmployees";
 import SuccessPage from "../pages/payment/SuccessPage";
-
+import AdminProfile from "../pages/Admin/profile/AdminProfile";
 function WithNavbar({ children }) {
   return (
     <>
@@ -53,6 +53,7 @@ export default function AppRoutes() {
 
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+      <Route path="profile" element={<AdminProfile />} /> 
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="services" element={<ServicesPage />} />
         <Route path="banners" element={<BannersPage />} />

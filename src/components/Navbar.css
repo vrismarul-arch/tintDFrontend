@@ -1,125 +1,96 @@
-/* ===== Desktop Navbar ===== */
-.desktop-navbar {
-  display: flex;
-  align-items: center;
-  padding: 8px 20px;
-  background: white;
-      justify-content: space-between;
-  border-bottom: 1px solid #eee;
-}
-
-.nav-left {
-  display: flex;
-  align-items: center;
-  margin-right: 20px;
-}
-
+/* 🌍 Common Styles */
 .uc-logo {
-  height: 32px;
+  height: 40px;
+  cursor: pointer;
+}
+.uc-logo-mobile {
+  height: 30px;
+  cursor: pointer;
 }
 
-.nav-middle a {
-  margin: 0 12px;
-  text-decoration: none;
+.uc-icon {
+  font-size: 22px;
+  margin-left: 20px;
+  cursor: pointer;
   color: #333;
-  font-weight: 500;
+  transition: color 0.2s;
 }
 
-.nav-location-search {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  margin-right: 20px;
+.uc-icon:hover {
+  color: #ff4d4f;
 }
 
-.location-wrapper {
-  display: flex;
-  align-items: center;
-  border: 1px solid #d9d9d9;
-  border-radius: 8px;
-  padding: 0 8px;
-  background: white;
-}
-
-.location-prefix {
-  color: #8454ba;
-  font-size: 20px !important; /* Updated size */
-  margin-right: 6px;
-}
-
-.uc-location {
-  border: none !important;
-  width: 200px;
-}
-
-.uc-location .ant-select-selector {
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.uc-search {
-  border-radius: 8px;
-}
-
-.search-icon {
-  font-size: 20px !important; /* Updated size */
-}
-
-.nav-right .uc-icon {
-  font-size: 20px !important; /* Updated size */
+.logout-btn {
+  background: none;
+  border: none;
+  color: #ff4d4f;
+  font-weight: bold;
   margin-left: 16px;
   cursor: pointer;
 }
 
-/* ===== Mobile ===== */
-.mobile-top-header {
-  padding: 10px;
-  background: white;
-  border-bottom: 1px solid #eee;
-}
-
-.location-row {
+/* 💻 Desktop Navbar */
+.desktop-navbar {
   display: flex;
   align-items: center;
-  font-weight: 500;
-  font-size: 14px;
+  justify-content: space-between;
+  padding: 12px 32px;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.location-icon {
-  margin-right: 5px;
-  color: #8454ba;
-  font-size: 20px !important; /* Updated size */
+.desktop-navbar .nav-left {
+  display: flex;
+  align-items: center;
 }
 
-.location-text {
+.desktop-navbar .nav-middle {
   flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.dropdown-arrow {
-  margin-left: 5px;
-  font-size: 12px;
-  color: gray;
+.desktop-navbar .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.mobile-search {
-  margin-top: 8px;
-  border-radius: 20px;
-  height: 38px;
+/* 📱 Mobile Navbar */
+.mobile-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
-/* Bottom tabs */
+
+.mobile-top-bar input {
+  flex: 1;
+  margin: 0 10px;
+  border-radius: 8px;
+}
+
+/* Bottom navigation */
 .mobile-bottom-navbar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #fff;
+  border-top: 1px solid #eee;
   position: fixed;
   bottom: 0;
   width: 100%;
-  background: white;
-  border-top: 1px solid #ddd;
-  display: flex;
-  justify-content: space-around;
-  padding: 5px 0;
-  z-index: 9999; /* Always on top */
+  padding: 6px 0;
+  z-index: 1000;
 }
 
 .tab-item {
@@ -127,57 +98,24 @@
   flex-direction: column;
   align-items: center;
   font-size: 12px;
-  color: #666;
-  transition: color 0.2s ease-in-out;
+  color: #555;
+  text-decoration: none;
+  flex: 1;
 }
 
-.tab-icon {
-  font-size: 20px !important;
+.tab-item .tab-icon {
+  font-size: 20px;
+  margin-bottom: 2px;
 }
 
 .tab-item.active {
-  color: #8454ba;
+  color: #ff4d4f;
   font-weight: bold;
 }
 
-.tab-item span {
-  font-size: 11px;
-  margin-top: 2px;
-}
-.cart-icon-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
-.cart-badge {
-  position: absolute;
-  top: -8px; /* Adjust vertical position */
-  right: -8px; /* Adjust horizontal position */
-  background: red;
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-  border-radius: 50%;
-  padding: 2px 6px;
-  min-width: 18px;
-  min-height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
-}
-.logout-btn {
-  background: none;
+.logout-btn.tab-item {
   border: none;
-  color: #333;
-  cursor: pointer;
-  margin-left: 10px;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-}
-
-.logout-btn:hover {
-  color: red;
+  background: none;
+  font-size: 12px;
+  color: #ff4d4f;
 }
