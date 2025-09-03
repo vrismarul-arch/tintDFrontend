@@ -1,0 +1,81 @@
+/* Desktop Split Layout */
+.otp-container {
+  display: flex;
+  min-height: 100vh;
+  background: #fff;
+}
+
+/* Left Section (Form) */
+.otp-wrapper {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.otp-header {
+  margin-bottom: 1rem;
+}
+
+.otp-back {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.otp-content h4 {
+  margin-bottom: 0.5rem;
+}
+
+.otp-content p {
+  margin-bottom: 1.5rem;
+  font-size: 14px;
+}
+
+/* OTP Inputs */
+.otp-inputs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.otp-box {
+  width: 45px !important;
+  height: 45px !important;
+  text-align: center;
+  font-size: 18px;
+  border-radius: 8px;
+}
+
+/* Button */
+.otp-btn {
+  background: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+  border-radius: 25px !important;
+  height: 45px !important;
+  font-weight: 600 !important;
+}
+
+/* Right Section (Image) */
+.otp-image {
+  flex: 1;
+  background: #fff5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.otp-image img {
+  max-width: 80%;
+  height: auto;
+}
+
+/* Responsive: Mobile Stacks */
+@media (max-width: 768px) {
+  .otp-container {
+    flex-direction: column;
+  }
+  .otp-image {
+    display: none;
+  }
+}

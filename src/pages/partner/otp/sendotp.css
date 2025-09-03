@@ -1,0 +1,96 @@
+.partner-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #fff;
+}
+
+/* 🔹 Mobile Top Section with Pink BG */
+.partner-top {
+ 
+  border-bottom-left-radius: 50px;
+  border-bottom-right-radius: 50px;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.partner-image {
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+}
+
+/* 🔹 Form Section (Bottom) */
+.partner-bottom {
+  background: #fff;
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.partner-subtitle {
+  color: #333;
+  font-size: 14px;
+}
+
+.partner-title {
+  margin: 0.5rem 0 1rem 0;
+  font-weight: 700;
+  color: #000;
+}
+
+.partner-input {
+  margin-bottom: 1rem;
+}
+
+.partner-label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #555;
+}
+
+.partner-checkbox {
+  margin: 1rem 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* 🔹 OTP Button */
+.partner-btn {
+  background: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+  font-weight: 600;
+  border-radius: 25px;
+  height: 45px;
+}
+
+/* 🖥️ Desktop Layout (Side by Side) */
+@media (min-width: 768px) {
+  .partner-wrapper {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    gap: 3rem;
+  }
+
+  .partner-top {
+    flex: 1;
+    border-radius: 20px;
+    padding: 2rem;
+ /* keep pink even on desktop */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .partner-bottom {
+    flex: 1;
+    max-width: 400px;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+}

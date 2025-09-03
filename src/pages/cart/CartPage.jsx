@@ -119,14 +119,7 @@ export default function CartPage() {
             </div>
           ))}
 
-          <div className="cart-coupon">
-            <Input
-              placeholder="Enter coupon code"
-              value={coupon}
-              onChange={(e) => setCoupon(e.target.value)}
-            />
-            <Button type="primary">Apply</Button>
-          </div>
+
 
           <div className="cart-summary">
             <div className="summary-row">

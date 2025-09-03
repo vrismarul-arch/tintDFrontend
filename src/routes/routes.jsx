@@ -21,6 +21,16 @@ import UserBookingDetails from "../pages/profile/UserBookingDetails";
 import AdminEmployees from "../pages/Admin/employee/AdminEmployees";
 import SuccessPage from "../pages/payment/SuccessPage";
 import AdminProfile from "../pages/Admin/profile/AdminProfile";
+import Sendotp from "../pages/partner/otp/Sendotp";
+import VerifyOTP from "../pages/partner/otp/VerifyOTP";
+import PartnerRegisterForm from "../pages/partner/home/PartnerRegisterForm";
+import PartnerLayout from "../pages/partner/layout/PartnerLayout";
+
+// ✅ Partner pages
+// import PartnerLogin from "../pages/partner/PartnerLogin";
+// import PartnerDashboard from "../pages/partner/PartnerDashboard";
+// import PartnerRoute from "./PartnerRoute"; // custom protected route for partners
+
 function WithNavbar({ children }) {
   return (
     <>
@@ -53,7 +63,7 @@ export default function AppRoutes() {
 
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
-      <Route path="profile" element={<AdminProfile />} /> 
+        <Route path="profile" element={<AdminProfile />} />
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="services" element={<ServicesPage />} />
         <Route path="banners" element={<BannersPage />} />
@@ -61,9 +71,34 @@ export default function AppRoutes() {
         <Route path="bookings" element={<AdminBookingOrders />} />
         <Route path="bookings/:id" element={<BookingDetails />} />
       </Route>
+      {/* Partner Routes */}
+      {/* Partner Routes */}
+      <Route path="/partner" element={<PartnerLayout />}>
+  <Route path="register" element={<PartnerRegisterForm />} />
+  <Route path="sendotp" element={<Sendotp />} />
+  <Route path="verifyotp" element={<VerifyOTP />} />
+</Route>
+
+
+
+      {/* <Route path="/partner/login" element={<PartnerLogin />} />
+      <Route path="/partner/dashboard" element={
+        <PartnerRoute>
+          <PartnerDashboard />
+        </PartnerRoute>
+      } /> */}
 
       {/* Fallback 404 */}
-      <Route path="*" element={<WithNavbar><p style={{ textAlign: "center", marginTop: "2rem" }}>Page Not Found</p></WithNavbar>} />
+      <Route
+        path="*"
+        element={
+          <WithNavbar>
+            <p style={{ textAlign: "center", marginTop: "2rem" }}>
+              Page Not Found
+            </p>
+          </WithNavbar>
+        }
+      />
     </Routes>
   );
 }

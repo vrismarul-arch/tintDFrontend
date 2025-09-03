@@ -1,0 +1,32 @@
+.partner-topbar {
+  height: 60px;
+  line-height: 60px;
+  background-color: #fff;
+}
+
+.topbar-right {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+}
+.auth-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 576px) {
+  .auth-buttons {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .auth-buttons button {
+    width: 100%;
+  }
+}
+
+.uc-logo {
+  height: 40px;
+  object-fit: contain;
+  margin-top: 16px;
+}

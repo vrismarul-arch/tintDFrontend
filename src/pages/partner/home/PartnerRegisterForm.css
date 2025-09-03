@@ -1,0 +1,217 @@
+  /* -------------------------
+    GLOBAL WRAPPER
+  -------------------------- */
+ .steps-wrapper {
+  padding: 20px;
+  font-family: "Inter", sans-serif;
+  background: #9a5edf;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* 👈 Adds spacing between children */
+}
+.steps-list {
+  display: flex;
+  flex-direction: column;
+ /* controls space between cards */
+} 
+.step-card{
+  padding: 0px;
+}
+  /* -------------------------
+    BANNER
+  -------------------------- */
+  .banner-box {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08); */
+  }
+
+  .banner-img {
+   
+    max-height: 100vh;
+    object-fit: cover;
+    border-radius: 16px;
+  }
+
+  .banner-text {
+    position: absolute;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+  }
+
+  .banner-text h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .banner-text p {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  /* Responsive Banner */
+  @media (max-width: 768px) {
+    .banner-box {
+      height: 220px;
+    }
+    .banner-text h2 {
+      font-size: 18px;
+    }
+    .banner-text p {
+      font-size: 12px;
+    }
+  }
+
+  /* -------------------------
+    STEP CARDS
+  -------------------------- */
+ .step-card {
+  /* display: flex; */
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  border-radius: 16px !important;
+  transition: all 0.3s ease;
+  text-align: center;
+  padding: 18px;
+  margin-bottom: 24px; /* 👈 increase spacing between cards */
+  border: 1px solid #eee;
+  background: #fff;
+}
+
+  .step-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(146, 84, 222, 0.25);
+    border-color: #9254de !important;
+  }
+
+  .step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .step-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .step-status {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .step-subtitle {
+    font-size: 14px;
+    color: #555;
+    text-align: justify;
+    margin: 4px 0 0 0;
+  }
+.step-title{
+    font-size: 14px;
+    color: #000000;
+}
+  /* -------------------------
+    DRAWER
+  -------------------------- */
+  .ant-drawer-title {
+    font-weight: 700;
+    font-size: 18px;
+    color: #4b0082;
+  }
+
+  /* -------------------------
+    FORM FIELDS
+  -------------------------- */
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+
+  .ant-input,
+  .ant-select-selector {
+    border-radius: 12px !important;
+    padding: 10px 14px !important;
+    border: 1px solid #d9d9d9 !important;
+    transition: all 0.3s ease;
+  }
+
+  .ant-input:focus,
+  .ant-select-selector:focus-within {
+    border-color: #9254de !important;
+    box-shadow: 0 0 0 2px rgba(146, 84, 222, 0.2);
+  }
+
+  /* Checkbox & Radio */
+  .ant-checkbox-checked .ant-checkbox-inner,
+  .ant-radio-checked .ant-radio-inner {
+    background-color: #9254de !important;
+    border-color: #9254de !important;
+  }
+
+  /* -------------------------
+    UPLOAD BUTTON
+  -------------------------- */
+  .upload-btn {
+    border-radius: 10px !important;
+    border: 1px solid #9254de !important;
+    color: #9254de !important;
+    transition: all 0.3s ease;
+  }
+
+  .upload-btn:hover {
+    background: #9254de !important;
+    color: #fff !important;
+  }
+
+.step-title .completed {
+  color: #52c41a; /* green for completed */
+  font-weight: 600;
+}
+
+.step-title .pending {
+  color: #ff4d4f; /* red for pending */
+  font-weight: 600;
+}.step-subtitle.completed {
+  color: #52c41a; /* green for completed */
+  font-weight: 600;
+}
+
+.step-subtitle.pending {
+  color: #ff4d4f; /* red for pending */
+  font-weight: 600;
+}
+
+  /* -------------------------
+    PRIMARY BUTTON
+  -------------------------- */
+  .ant-btn-primary {
+    background: #9254de !important;
+    border-radius: 12px !important;
+    font-weight: 600;
+    height: 42px;
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  .ant-btn-primary:hover {
+    background: #7b35d2 !important;
+  }
+:where(.css-dev-only-do-not-override-l9pxc0).ant-card .ant-card-body{
+  padding: 0px;
+}

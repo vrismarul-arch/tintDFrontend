@@ -1,0 +1,14 @@
+.partner-breadcrumb {
+  background: #fff;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  padding: 10px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.partner-content {
+  min-height: calc(100vh - 70px); /* adjust for Topbar height */
+  background: #9a5edf;
+  border-radius: 8px;
+  padding: 20px;
+}
