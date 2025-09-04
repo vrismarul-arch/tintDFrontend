@@ -1,0 +1,97 @@
+/* Full page wrapper */
+.partner-login-wrapper {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #f3f4f6; /* fallback gray */
+}
+
+/* Left side illustration / background */
+.partner-login-left {
+  flex: 1;
+  display: none;
+  position: relative;
+}
+
+.partner-login-left .bg-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.45;
+}
+
+/* Right side card */
+.partner-login-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.partner-login-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.partner-login-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+.logo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem auto;
+  display: block;
+}
+
+/* Forgot password */
+.forgot-password {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.forgot-password a {
+  color: #1890ff;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive: show illustration only on desktop */
+@media (min-width: 1024px) {
+  .partner-login-left {
+    display: block;
+  }
+}
+
+/* Mobile: full width card */
+@media (max-width: 768px) {
+  .partner-login-wrapper {
+    flex-direction: column;
+  }
+
+  .partner-login-left {
+    display: none;
+  }
+
+  .partner-login-right {
+    flex: none;
+    width: 100%;
+    padding: 1rem;
+  }
+}

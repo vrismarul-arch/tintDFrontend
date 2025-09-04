@@ -1,36 +1,34 @@
-// PartnerLayout.jsx
 import { useState } from "react";
-import { Layout } from "antd";
+import { Layout, Drawer } from "antd";
 import { Outlet } from "react-router-dom";
-// import Sidebar from "../../components/sidebar/Sidebar";
+import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
-// import BreadcrumbComponent from "./BreadcrumbComponent";
 import "./partnerLayout.css";
 
 const { Content } = Layout;
 
 export default function PartnerLayout() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      {/* Sidebar */}
-      {/* <Sidebar collapsed={collapsed} /> */}
+      <Drawer
+        width={280}
+        placement="left"
+        closable={false} // hides the default close button in the header
+        onClose={() => setSidebarVisible(false)}
+        open={sidebarVisible}
+        bodyStyle={{ padding: 0 }}
+        header={null}
+      >
+        <Sidebar />
+      </Drawer>
 
-      {/* Main layout */}
       <Layout className="site-layout">
-        {/* Topbar */}
         <Topbar
-          collapsed={collapsed}
-          onToggleSidebar={() => setCollapsed(!collapsed)}
+          onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
         />
 
-        {/* Breadcrumb */}
-        {/* <div className="partner-breadcrumb" style={{ padding: "10px 20px" }}>
-          <BreadcrumbComponent />
-        </div> */}
-
-        {/* Content area for nested Partner pages */}
         <Content className="partner-content" style={{ padding: "10px 20px" }}>
           <Outlet />
         </Content>

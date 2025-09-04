@@ -1,10 +1,11 @@
 // src/pages/partners/PartnerLoginPage.jsx
 import { useState } from "react";
-import { Form, Input, Button, message, Card, Typography } from "antd";
+import { Form, Input, Button, message, Typography } from "antd";
 import { UserOutlined, MailOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import api from "../../../../api";
 import { usePartnerAuth } from "../../../hooks/usePartnerAuth.js";
+import './PartnerLoginPage.css';
 
 const { Title, Text } = Typography;
 
@@ -23,10 +24,7 @@ export default function PartnerLoginPage() {
     try {
       setLoading(true);
       const { data } = await api.post("/api/partners/login", { partnerId, email, password });
-
-      // Save partner data & token
       login(data);
-
       message.success("Login successful!");
       navigate("/partner/dashboard");
     } catch (err) {
@@ -37,35 +35,73 @@ export default function PartnerLoginPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <Card style={{ width: 400, borderRadius: 16, boxShadow: "0 8px 24px rgba(0,0,0,0.12)" }}>
-        <div className="text-center mb-6">
-          <Title level={3} style={{ marginBottom: 0 }}>Partner Login</Title>
-          <Text type="secondary">Use your Partner ID or Email</Text>
+    <div className="partner-login-wrapper">
+      {/* Left illustration / background */}
+      <div className="partner-login-left">
+        <img
+          src="https://images.unsplash.com/photo-1588776814546-15a4e7f43b17?auto=format&fit=crop&w=1470&q=80"
+          alt="Salon Background"
+          className="bg-image"
+        />
+      </div>
+
+      {/* Right login card */}
+      <div className="partner-login-right">
+        <div className="partner-login-card">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/3062/3062634.png"
+            alt="Partner Logo"
+            className="logo"
+          />
+          <Title level={3} style={{ marginBottom: 0, textAlign: 'center' }}>Partner Login</Title>
+          <Text type="secondary" className="text-center mb-4">Use Partner ID or Email to login</Text>
+
+          <Form layout="vertical" onFinish={onFinish}>
+            <Form.Item name="partnerId">
+              <Input
+                prefix={<UserOutlined />}
+                placeholder="Partner ID (optional)"
+                size="large"
+                className="rounded-lg"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="email"
+              rules={[{ type: "email", message: "Invalid email" }]}
+            >
+              <Input
+                prefix={<MailOutlined />}
+                placeholder="Email (optional)"
+                size="large"
+                className="rounded-lg"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="password"
+              rules={[{ required: true, message: "Password is required" }]}
+            >
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="Password"
+                size="large"
+                className="rounded-lg"
+              />
+            </Form.Item>
+
+            <Button type="primary" htmlType="submit" block loading={loading} size="large" className="rounded-lg">
+              Login
+            </Button>
+          </Form>
+
+          <div className="forgot-password">
+            <Text type="secondary">
+              Forgot password? <a href="/partners/forgot-password">Reset here</a>
+            </Text>
+          </div>
         </div>
-
-        <Form layout="vertical" onFinish={onFinish}>
-          <Form.Item name="partnerId">
-            <Input prefix={<UserOutlined />} placeholder="Partner ID (optional)" />
-          </Form.Item>
-          <Form.Item
-            name="email"
-            rules={[{ type: "email", message: "Invalid email" }]}
-          >
-            <Input prefix={<MailOutlined />} placeholder="Email (optional)" />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: "Password is required" }]}
-          >
-            <Input.Password prefix={<LockOutlined />} placeholder="Password" />
-          </Form.Item>
-
-          <Button type="primary" htmlType="submit" block loading={loading}>
-            Login
-          </Button>
-        </Form>
-      </Card>
+      </div>
     </div>
   );
 }

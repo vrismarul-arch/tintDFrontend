@@ -28,6 +28,7 @@ import AdminPartnersPage from "../pages/Admin/partner/AdminPartnersPage";
 import PartnerLoginPage from "../pages/partner/login/PartnerLoginPage";
 import PartnerDashboard from "../pages/partner/dashboard/PartnerDashboard";
 import PartnerRoute from "./PartnerRoute";
+import PartnerProfile from "../pages/partner/home/profile/PartnerProfile";
 
 // ✅ Partner pages
 // import PartnerLogin from "../pages/partner/PartnerLogin";
@@ -38,6 +39,14 @@ function WithNavbar({ children }) {
   return (
     <>
       <Navbar />
+      {children}
+    </>
+  );
+}
+function Topbar({ children }) {
+  return (
+    <>
+      <Topbar />
       {children}
     </>
   );
@@ -84,6 +93,7 @@ export default function AppRoutes() {
 
         <Route element={<PartnerRoute />}>
           <Route path="dashboard" element={<PartnerDashboard />} />
+          <Route path="profile" element={<PartnerProfile />} />
         </Route>
       </Route>
 

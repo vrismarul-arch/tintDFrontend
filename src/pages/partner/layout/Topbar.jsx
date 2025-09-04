@@ -1,15 +1,14 @@
 import React from "react";
-import { Layout, Dropdown, Avatar, Menu, Tooltip } from "antd";
-import { UserOutlined, LoginOutlined, FormOutlined } from "@ant-design/icons";
+import { Layout, Dropdown, Avatar, Menu, Tooltip, Button } from "antd";
+import { UserOutlined, LoginOutlined, FormOutlined, MenuOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "./topbar.css";
 
 const { Header } = Layout;
 
-export default function Topbar({ user }) {
+export default function Topbar({ user, onToggleSidebar }) {
   const navigate = useNavigate();
 
-  // Menu for logged-in users
   const userMenu = (
     <Menu>
       <Menu.Item key="1" onClick={() => navigate("/profile")}>Profile</Menu.Item>
@@ -18,7 +17,6 @@ export default function Topbar({ user }) {
     </Menu>
   );
 
-  // Menu for guest users (Login / Join Partner)
   const guestMenu = (
     <Menu>
       <Menu.Item key="1" onClick={() => navigate("/partner/login")} icon={<LoginOutlined />}>Login</Menu.Item>
@@ -38,12 +36,18 @@ export default function Topbar({ user }) {
         boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
       }}
     >
-      {/* Logo */}
-      <div className="topbar-left">
-        <img src="/tintD.png" alt="Logo" className="uc-logo" />
+      {/* Left side: Hamburger + Logo */}
+      <div className="topbar-left" style={{ display: "flex", alignItems: "center", gap: "10px",  marginLeft:30}}>
+        <Button
+          type="text"
+          icon={        <img src="/tintD.png" alt="Logo" className="uc-logo" />
+}
+          onClick={onToggleSidebar}
+          style={{ fontSize: "20px" }}
+        />
       </div>
 
-      {/* Right side */}
+      {/* Right side: User Avatar */}
       <div className="topbar-right">
         <Dropdown overlay={user ? userMenu : guestMenu} placement="bottomRight" trigger={["click"]}>
           <Tooltip title={user ? user.name || "Profile" : "Account"}>
