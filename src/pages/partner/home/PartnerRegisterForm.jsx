@@ -169,6 +169,10 @@ const PartnerRegisterForm = () => {
         return <>
           <Form.Item name="name" rules={[{ required: true }]}><Input placeholder="Name" /></Form.Item>
           <Form.Item name="phone" rules={[{ required: true }]}><Input placeholder="Phone" /></Form.Item>
+          <Form.Item name="email" rules={[{ required: true, type: "email" }]}>
+  <Input placeholder="Email" />
+</Form.Item>
+
           <Form.Item name="city" rules={[{ required: true }]}><Input placeholder="City" /></Form.Item>
           <Form.Item name="gender" rules={[{ required: true }]}><Select placeholder="Select Gender">
             <Option value="Male">Male</Option>
@@ -198,6 +202,8 @@ const PartnerRegisterForm = () => {
           <h3>Review All Details</h3>
           <p><strong>Name:</strong> {form.getFieldValue("name")}</p>
           <p><strong>Phone:</strong> {form.getFieldValue("phone")}</p>
+          <p><strong>Email:</strong> {form.getFieldValue("email")}</p>
+
           <p><strong>City:</strong> {form.getFieldValue("city")}</p>
           <p><strong>Gender:</strong> {form.getFieldValue("gender")}</p>
           <p><strong>Profession:</strong> {form.getFieldValue("profession")}</p>

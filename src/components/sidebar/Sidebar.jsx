@@ -43,7 +43,7 @@
         label: "User Manage",
         icon: <UserOutlined />,
         children: [
-          { key: "/admin/employee", label: "User Add", icon: <UserOutlined /> },
+          { key: "/admin/partners", label: "TintdPartner", icon: <UserOutlined /> },
           { key: "/admin/profile", label: "Profile", icon: <UserOutlined /> },
         ],
       },

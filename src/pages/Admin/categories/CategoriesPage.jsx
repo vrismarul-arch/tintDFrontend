@@ -87,14 +87,14 @@ export default function CategoriesPage() {
     <div className="categories-page">
       <Tabs defaultActiveKey="categories">
         {/* CATEGORIES TAB */}
-     <TabPane
-  tab={
-    <span className="flex items-center">
-      <FolderOpenOutlined className="mr-2 text-yellow-500" /> Categories
-    </span>
-  }
-  key="categories"
->
+        <TabPane
+          tab={
+            <span className="flex items-center">
+              <FolderOpenOutlined className="mr-2 text-yellow-500" /> Categories
+            </span>
+          }
+          key="categories"
+        >
           <div className="header flex justify-between items-center mb-4">
 
             <h2 className="text-2xl font-bold text-gray-800">
@@ -255,28 +255,28 @@ export default function CategoriesPage() {
         </TabPane>
 
         {/* SUBCATEGORIES TAB */}
-       <TabPane
-  tab={
-    <span>
-      <AppstoreOutlined /> SubCategories
-    </span>
-  }
-  key="subcategories"
->
-  <SubCategoriesPage />
-</TabPane>
+        <TabPane
+          tab={
+            <span>
+              <AppstoreOutlined /> SubCategories
+            </span>
+          }
+          key="subcategories"
+        >
+          <SubCategoriesPage />
+        </TabPane>
 
         {/* VARIETIES TAB */}
-       <TabPane
-  tab={
-    <span>
-      <TagsOutlined /> Varieties
-    </span>
-  }
-  key="varieties"
->
-  <VarietiesPage />
-</TabPane>
+        <TabPane
+          tab={
+            <span>
+              <TagsOutlined /> Varieties
+            </span>
+          }
+          key="varieties"
+        >
+          <VarietiesPage />
+        </TabPane>
       </Tabs>
     </div>
   );

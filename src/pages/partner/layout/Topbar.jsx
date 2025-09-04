@@ -21,7 +21,7 @@ export default function Topbar({ user }) {
   // Menu for guest users (Login / Join Partner)
   const guestMenu = (
     <Menu>
-      <Menu.Item key="1" onClick={() => navigate("/login")} icon={<LoginOutlined />}>Login</Menu.Item>
+      <Menu.Item key="1" onClick={() => navigate("/partner/login")} icon={<LoginOutlined />}>Login</Menu.Item>
       <Menu.Item key="2" onClick={() => navigate("/partner/register")} icon={<FormOutlined />}>Join as Partner</Menu.Item>
     </Menu>
   );
