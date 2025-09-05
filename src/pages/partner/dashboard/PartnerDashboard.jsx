@@ -1,9 +1,9 @@
-// src/pages/partners/PartnerDashboard.jsx
 import { useEffect, useState } from "react";
-import { Card, Row, Col, Typography, Tag, Spin, message, Tabs, Button, Image } from "antd";
+import { Row, Col, Typography, Tag, Spin, Tabs, Button, Image, Divider } from "antd";
 import api from "../../../../api";
-import { usePartnerAuth } from "../../../hooks/usePartnerAuth.js";
+import { usePartnerAuth } from "../../../hooks/usePartnerAuth.jsx";
 import { useNavigate } from "react-router-dom";
+import "./PartnerDashboard.css";
 
 const { Title, Text } = Typography;
 
@@ -25,20 +25,24 @@ export default function PartnerDashboard() {
         });
         setProfile(data);
       } catch (err) {
-        message.error(err.response?.data?.error || "Profile fetch error");
+        console.error(err);
       } finally {
         setLoading(false);
       }
     })();
   }, [isAuthed]);
 
-  if (loading) return <div className="flex justify-center items-center min-h-screen"><Spin size="large" /></div>;
+  if (loading)
+    return (
+      <div className="dashboard-loading">
+        <Spin size="large" />
+      </div>
+    );
   if (!profile) return null;
 
   const handleLogout = () => {
     logout();
     navigate("/partner/login");
-    message.success("Logged out successfully");
   };
 
   const items = [
@@ -46,73 +50,71 @@ export default function PartnerDashboard() {
       key: "1",
       label: "Profile Info",
       children: (
-        <Card bordered>
-          <Row gutter={[16, 16]}>
-            <Col span={12}><Text strong>Name:</Text> {profile.name}</Col>
-            <Col span={12}><Text strong>Email:</Text> {profile.email}</Col>
-            <Col span={12}><Text strong>Phone:</Text> {profile.phone}</Col>
-            <Col span={12}><Text strong>City:</Text> {profile.city || "-"}</Col>
-            <Col span={12}><Text strong>Gender:</Text> {profile.gender || "-"}</Col>
-            <Col span={12}><Text strong>Profession:</Text> {profile.profession || "-"}</Col>
-            <Col span={12}>
+        <div className="dashboard-card">
+          <Row gutter={[24, 24]}>
+            <Col xs={24} sm={12}><Text strong>Name:</Text> {profile.name}</Col>
+            <Col xs={24} sm={12}><Text strong>Email:</Text> {profile.email}</Col>
+            <Col xs={24} sm={12}><Text strong>Phone:</Text> {profile.phone}</Col>
+            <Col xs={24} sm={12}><Text strong>City:</Text> {profile.city || "-"}</Col>
+            <Col xs={24} sm={12}><Text strong>Gender:</Text> {profile.gender || "-"}</Col>
+            <Col xs={24} sm={12}><Text strong>Profession:</Text> {profile.profession || "-"}</Col>
+            <Col xs={24} sm={12}>
               <Text strong>Status:</Text>{" "}
               <Tag color={profile.status === "approved" ? "green" : "orange"}>
                 {profile.status?.toUpperCase()}
               </Tag>
             </Col>
-            <Col span={12}><Text strong>Partner ID:</Text> {profile.partnerId}</Col>
+            <Col xs={24} sm={12}><Text strong>Partner ID:</Text> {profile.partnerId}</Col>
           </Row>
-        </Card>
+        </div>
       ),
     },
     {
       key: "2",
       label: "Documents",
       children: (
-        <Card bordered>
-          <Row gutter={[16, 16]}>
-            {profile.aadhaarFront && <Col span={12}><Text strong>Aadhaar Front:</Text><Image src={profile.aadhaarFront} width={200} /></Col>}
-            {profile.aadhaarBack && <Col span={12}><Text strong>Aadhaar Back:</Text><Image src={profile.aadhaarBack} width={200} /></Col>}
-            {profile.pan && <Col span={12}><Text strong>PAN Card:</Text><Image src={profile.pan} width={200} /></Col>}
-            {profile.professionalCert && <Col span={12}><Text strong>Experience Certificate:</Text><Image src={profile.professionalCert} width={200} /></Col>}
+        <div className="dashboard-card">
+          <Row gutter={[24, 24]}>
+            {profile.aadhaarFront && <Col xs={24} sm={12}><Text strong>Aadhaar Front:</Text><Image src={profile.aadhaarFront} className="doc-image" /></Col>}
+            {profile.aadhaarBack && <Col xs={24} sm={12}><Text strong>Aadhaar Back:</Text><Image src={profile.aadhaarBack} className="doc-image" /></Col>}
+            {profile.pan && <Col xs={24} sm={12}><Text strong>PAN Card:</Text><Image src={profile.pan} className="doc-image" /></Col>}
+            {profile.professionalCert && <Col xs={24} sm={12}><Text strong>Experience Certificate:</Text><Image src={profile.professionalCert} className="doc-image" /></Col>}
           </Row>
-        </Card>
+        </div>
       ),
     },
     {
       key: "3",
       label: "Bank & Personal Info",
       children: (
-        <Card bordered>
-          <Row gutter={[16, 16]}>
-            <Col span={12}><Text strong>Bank Name:</Text> {profile.bankName || "-"}</Col>
-            <Col span={12}><Text strong>Account Number:</Text> {profile.accountNumber || "-"}</Col>
-            <Col span={12}><Text strong>IFSC:</Text> {profile.ifsc || "-"}</Col>
-            <Col span={12}><Text strong>Father's Name:</Text> {profile.fathersName || "-"}</Col>
-            <Col span={12}><Text strong>Mother's Name:</Text> {profile.mothersName || "-"}</Col>
-            <Col span={12}><Text strong>Date of Birth:</Text> {profile.dob || "-"}</Col>
+        <div className="dashboard-card">
+          <Row gutter={[24, 24]}>
+            <Col xs={24} sm={12}><Text strong>Bank Name:</Text> {profile.bankName || "-"}</Col>
+            <Col xs={24} sm={12}><Text strong>Account Number:</Text> {profile.accountNumber || "-"}</Col>
+            <Col xs={24} sm={12}><Text strong>IFSC:</Text> {profile.ifsc || "-"}</Col>
+            <Col xs={24} sm={12}><Text strong>Date of Birth:</Text> {profile.dob || "-"}</Col>
           </Row>
-        </Card>
+        </div>
       ),
     },
   ];
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <Card style={{ borderRadius: 16, boxShadow: "0 6px 16px rgba(0,0,0,0.1)", marginBottom: 24 }}>
-        <Row justify="space-between" align="middle">
-          <Col>
-            <Title level={3}>Welcome, {profile.name} 👋</Title>
-            <Text type="secondary">Here’s your partner dashboard</Text>
-          </Col>
-          <Col>
-            <Button type="primary" danger onClick={handleLogout}>
-              Logout
-            </Button>
-          </Col>
-        </Row>
-      </Card>
-      <Tabs defaultActiveKey="1" items={items} />
+    <div className="dashboard-wrapper">
+      <Row justify="space-between" align="middle" className="dashboard-header">
+        <Col>
+          <Title level={3}>Welcome, {profile.name} 👋</Title>
+          <Text type="secondary">Here’s your partner dashboard</Text>
+        </Col>
+        <Col>
+          <Button type="primary" danger onClick={handleLogout}>Logout</Button>
+        </Col>
+      </Row>
+
+      <Divider />
+
+      <Tabs defaultActiveKey="1" items={items} type="card" size="large" />
     </div>
   );
 }
+  

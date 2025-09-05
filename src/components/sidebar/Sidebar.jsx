@@ -71,14 +71,12 @@
         collapsible
         collapsed={collapsed}
         trigger={null}
-        width={190}
+        width={260}
         theme="light"
         className="shadow-md min-h-screen"
       >
         {/* Logo */}
-        <div className="sidebar-logo">
-          <img src="/tintD.png" alt="Logo" className="logo" />
-        </div>
+      
 
         {/* Main Menu Text */}
         {!collapsed && <div className="sidebar-heading">MAIN MENU</div>}
@@ -92,11 +90,7 @@
         />
 
         {/* Collapse Button */}
-        <div className="sidebar-collapse">
-          <button onClick={() => setCollapsed(!collapsed)}>
-            {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          </button>
-        </div>
+      
       </Sider>
     );
   }

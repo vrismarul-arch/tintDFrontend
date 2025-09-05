@@ -1,52 +1,53 @@
+// src/routes/AppRoutes.jsx
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
+import PartnerRoute from "./PartnerRoute";
 
 import Home from "../pages/home/Home";
 import CategoryServices from "../pages/services/CategoryServices";
+import Navbar from "../components/Navbar";
+import NotFoundPage from "../pages/NotFoundPage";
+
+// User pages
+import CartPage from "../pages/cart/CartPage";
+import CheckoutPage from "../pages/checkout/CheckoutPage";
+import PaymentPage from "../pages/payment/PaymentPage";
+import ProfilePage from "../pages/profile/ProfilePage";
+import UserBookingDetails from "../pages/profile/UserBookingDetails";
+import SuccessPage from "../pages/payment/SuccessPage";
+import LoginPage from "../pages/auth/LoginPage";
+import RegisterPage from "../pages/auth/RegisterPage";
+
+// Admin pages
 import AdminLayout from "../pages/Admin/AdminLayout";
 import ServicesPage from "../pages/Admin/categories/ServicesPage";
 import CategoriesPage from "../pages/Admin/categories/CategoriesPage";
 import BannersPage from "../pages/Admin/addbanner/BannersPage";
 import AdminBookingOrders from "../pages/Admin/bookings/AdminBookingOrders";
 import BookingDetails from "../pages/Admin/bookings/BookingDetails";
-import CartPage from "../pages/cart/CartPage";
-import LoginPage from "../pages/auth/LoginPage";
-import RegisterPage from "../pages/auth/RegisterPage";
-import CheckoutPage from "../pages/checkout/CheckoutPage";
-import PaymentPage from "../pages/payment/PaymentPage";
-import Navbar from "../components/Navbar";
-import ProfilePage from "../pages/profile/ProfilePage";
-import UserBookingDetails from "../pages/profile/UserBookingDetails";
-import SuccessPage from "../pages/payment/SuccessPage";
 import AdminProfile from "../pages/Admin/profile/AdminProfile";
+import AdminPartnersPage from "../pages/Admin/partner/AdminPartnersPage";
+
+// Partner pages
+import PartnerLayout from "../pages/partner/layout/PartnerLayout";
+import PartnerRegisterForm from "../pages/partner/home/PartnerRegisterForm";
 import Sendotp from "../pages/partner/otp/Sendotp";
 import VerifyOTP from "../pages/partner/otp/VerifyOTP";
-import PartnerRegisterForm from "../pages/partner/home/PartnerRegisterForm";
-import PartnerLayout from "../pages/partner/layout/PartnerLayout";
-import AdminPartnersPage from "../pages/Admin/partner/AdminPartnersPage";
 import PartnerLoginPage from "../pages/partner/login/PartnerLoginPage";
+
+// Partner App pages
+import PartnerAppLayout from "../pages/partner/layout/PartnerAppLayout";
 import PartnerDashboard from "../pages/partner/dashboard/PartnerDashboard";
-import PartnerRoute from "./PartnerRoute";
 import PartnerProfile from "../pages/partner/home/profile/PartnerProfile";
+import PartnerNotifications from "../pages/partner/notification/PartnerNotifications";
+import PartnerMessages from "../pages/partner/notification/PartnerMessages";
 
-// ✅ Partner pages
-// import PartnerLogin from "../pages/partner/PartnerLogin";
-// import PartnerDashboard from "../pages/partner/PartnerDashboard";
-// import PartnerRoute from "./PartnerRoute"; // custom protected route for partners
-
+// Wrapper for pages with Navbar
 function WithNavbar({ children }) {
   return (
     <>
       <Navbar />
-      {children}
-    </>
-  );
-}
-function Topbar({ children }) {
-  return (
-    <>
-      <Topbar />
       {children}
     </>
   );
@@ -83,40 +84,27 @@ export default function AppRoutes() {
         <Route path="bookings" element={<AdminBookingOrders />} />
         <Route path="bookings/:id" element={<BookingDetails />} />
       </Route>
-      {/* Partner Routes */}
-      {/* Partner Routes */}
+
+      {/* Partner Public Routes */}
       <Route path="/partner" element={<PartnerLayout />}>
         <Route path="register" element={<PartnerRegisterForm />} />
         <Route path="sendotp" element={<Sendotp />} />
         <Route path="verifyotp" element={<VerifyOTP />} />
         <Route path="login" element={<PartnerLoginPage />} />
+      </Route>
 
+      {/* Partner Protected App Routes */}
+      <Route path="/partnerapp" element={<PartnerAppLayout />}>
         <Route element={<PartnerRoute />}>
           <Route path="dashboard" element={<PartnerDashboard />} />
           <Route path="profile" element={<PartnerProfile />} />
+          <Route path="notifications" element={<PartnerNotifications />} />
+          <Route path="messages" element={<PartnerMessages />} />
         </Route>
       </Route>
 
-
-
-      {/* <Route path="/partner/login" element={<PartnerLogin />} />
-      <Route path="/partner/dashboard" element={
-        <PartnerRoute>
-          <PartnerDashboard />
-        </PartnerRoute>
-      } /> */}
-
       {/* Fallback 404 */}
-      <Route
-        path="*"
-        element={
-          <WithNavbar>
-            <p style={{ textAlign: "center", marginTop: "2rem" }}>
-              Page Not Found
-            </p>
-          </WithNavbar>
-        }
-      />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

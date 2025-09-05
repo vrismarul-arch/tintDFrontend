@@ -170,8 +170,8 @@ const PartnerRegisterForm = () => {
           <Form.Item name="name" rules={[{ required: true }]}><Input placeholder="Name" /></Form.Item>
           <Form.Item name="phone" rules={[{ required: true }]}><Input placeholder="Phone" /></Form.Item>
           <Form.Item name="email" rules={[{ required: true, type: "email" }]}>
-  <Input placeholder="Email" />
-</Form.Item>
+            <Input placeholder="Email" />
+          </Form.Item>
 
           <Form.Item name="city" rules={[{ required: true }]}><Input placeholder="City" /></Form.Item>
           <Form.Item name="gender" rules={[{ required: true }]}><Select placeholder="Select Gender">
@@ -221,8 +221,8 @@ const PartnerRegisterForm = () => {
                   <strong>
                     {field === "aadhaarFront" ? "Aadhaar Front"
                       : field === "aadhaarBack" ? "Aadhaar Back"
-                      : field === "pan" ? "PAN Card"
-                      : "Experience Certificate"}:
+                        : field === "pan" ? "PAN Card"
+                          : "Experience Certificate"}:
                   </strong>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: 4 }}>
                     <Image
@@ -306,8 +306,7 @@ const PartnerRegisterForm = () => {
         okText="OK"
       >
         <p>🎉 Congratulations! Your partner request has been approved.</p>
-        <p>Your login ID and password have been sent to you via WhatsApp.</p>
-        <p>Thanks for contacting <strong>Tintt</strong>. You can now log in and start using our platform.</p>
+
       </Modal>
     </div>
   );

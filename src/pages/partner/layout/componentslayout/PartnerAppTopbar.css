@@ -1,0 +1,72 @@
+/* PartnerAppTopbar.css */
+
+/* Topbar Header */
+.partner-topbar {
+  background: #fff;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Left Section */
+.partner-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Right Section */
+.partner-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Duty Switch */
+.partner-topbar-right .ant-switch {
+  min-width: 40px;
+}
+
+/* Avatar */
+.partner-topbar-avatar {
+  cursor: pointer;
+  background-color: #9a5edf;
+}
+
+/* Drawer Lists */
+.partner-drawer-list .ant-list-item {
+  padding: 12px 0;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.partner-drawer-list .ant-list-item-text {
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .partner-topbar {
+    padding: 0 12px;
+    height: 56px;
+  }
+  .partner-topbar-left img {
+    height: 32px;
+  }
+  .partner-topbar-right {
+    gap: 12px;
+  }
+  .partner-topbar-avatar {
+    width: 28px;
+    height: 28px;
+  }
+  .ant-switch {
+    min-width: 32px;
+  }
+}

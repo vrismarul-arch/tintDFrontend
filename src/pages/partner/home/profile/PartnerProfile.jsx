@@ -11,13 +11,14 @@ import {
   Input,
   Upload,
   DatePicker,
+  Avatar,
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { usePartnerAuth } from "../../../../hooks/usePartnerAuth.js";
+import { UploadOutlined, UserOutlined } from "@ant-design/icons";
+import { usePartnerAuth } from "../../../../hooks/usePartnerAuth.jsx";
 import { useNavigate } from "react-router-dom";
 import api from "../../../../../api";
 import "./PartnerProfile.css";
-import moment from "moment"; // Import the moment library
+import moment from "moment";
 
 export default function PartnerProfile() {
   const { logout, isAuthed } = usePartnerAuth();
@@ -28,14 +29,13 @@ export default function PartnerProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [fileList, setFileList] = useState({});
   const navigate = useNavigate();
-  const [form] = Form.useForm(); // Hook to get form instance
+  const [form] = Form.useForm();
 
   const actions = ["Personal Info", "Document", "Bank Info", "Tint ID Card"];
 
-  // Fetch profile when logged in
+  // Fetch profile
   useEffect(() => {
     if (!isAuthed) return;
-
     (async () => {
       try {
         setLoading(true);
@@ -59,7 +59,7 @@ export default function PartnerProfile() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProfile(data);
-    } catch (err) {}
+    } catch (err) { }
   };
 
   const showDrawer = (title) => {
@@ -73,7 +73,7 @@ export default function PartnerProfile() {
     setDrawerTitle("");
     setIsEditing(false);
     setFileList({});
-    form.resetFields(); // Reset form fields on close
+    form.resetFields();
   };
 
   const handleLogout = () => {
@@ -85,8 +85,6 @@ export default function PartnerProfile() {
   const handleSave = async (values) => {
     try {
       const formData = new FormData();
-
-      // Convert DOB to string if present
       if (values.dob) values.dob = values.dob.format("YYYY-MM-DD");
 
       Object.entries(values).forEach(([k, v]) => formData.append(k, v));
@@ -109,13 +107,11 @@ export default function PartnerProfile() {
       message.error(err.response?.data?.error || "Update failed");
     }
   };
-  
-  // Prepare initial values for the form, converting dob to a moment object
-  const initialFormValues = profile ? {
-    ...profile,
-    dob: profile.dob ? moment(profile.dob, "YYYY-MM-DD") : null,
-  } : {};
-  
+
+  const initialFormValues = profile
+    ? { ...profile, dob: profile.dob ? moment(profile.dob, "YYYY-MM-DD") : null }
+    : {};
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -128,13 +124,17 @@ export default function PartnerProfile() {
 
   return (
     <div className="profile-container">
-      {/* Left Profile Section */}
+      {/* Left Profile */}
       <div className="profile-left">
-        <img
-          src={profile.avatar || "https://i.pravatar.cc/150"}
-          alt="Profile"
-          className="profile-img"
-        />
+        {profile.avatar ? (
+          <img src={profile.avatar} alt="Profile" className="profile-img" />
+        ) : (
+          <Avatar
+            size={120}
+            icon={<UserOutlined />}
+            style={{ backgroundColor: "#9a5edf" }}
+          />
+        )}
         <h2 className="profile-name">{profile.name}</h2>
         <div className="profile-details">
           <p><strong>Email:</strong> {profile.email}</p>
@@ -152,7 +152,7 @@ export default function PartnerProfile() {
         </div>
       </div>
 
-      {/* Right Action Section */}
+      {/* Right Actions */}
       <div className="profile-right">
         {actions.map((action, idx) => (
           <button
@@ -182,12 +182,20 @@ export default function PartnerProfile() {
           <>
             {!isEditing ? (
               <div>
-                <Image
-                  src={profile.avatar || "https://i.pravatar.cc/150"}
-                  width={120}
-                  height={120}
-                  style={{ borderRadius: "50%", marginBottom: 16 }}
-                />
+                {profile.avatar ? (
+                  <Image
+                    src={profile.avatar}
+                    width={120}
+                    height={120}
+                    style={{ borderRadius: "50%", marginBottom: 16 }}
+                  />
+                ) : (
+                  <Avatar
+                    size={120}
+                    icon={<UserOutlined />}
+                    style={{ backgroundColor: "#9a5edf", marginBottom: 16 }}
+                  />
+                )}
                 <p><strong>Name:</strong> {profile.name}</p>
                 <p><strong>Email:</strong> {profile.email}</p>
                 <p><strong>Phone:</strong> {profile.phone}</p>
@@ -205,7 +213,12 @@ export default function PartnerProfile() {
                 <Button type="primary" onClick={() => setIsEditing(true)}>Edit</Button>
               </div>
             ) : (
-              <Form layout="vertical" initialValues={initialFormValues} onFinish={handleSave} form={form}>
+              <Form
+                layout="vertical"
+                initialValues={initialFormValues}
+                onFinish={handleSave}
+                form={form}
+              >
                 <Form.Item label="Profile Image">
                   <Upload
                     beforeUpload={(file) => {
@@ -216,12 +229,27 @@ export default function PartnerProfile() {
                   >
                     <Button icon={<UploadOutlined />}>Upload New Image</Button>
                   </Upload>
-                  <Image
-                    src={fileList.avatar ? URL.createObjectURL(fileList.avatar) : profile.avatar || "https://i.pravatar.cc/150"}
-                    width={120}
-                    height={120}
-                    style={{ borderRadius: "50%", marginTop: 8 }}
-                  />
+                  {fileList.avatar ? (
+                    <Image
+                      src={URL.createObjectURL(fileList.avatar)}
+                      width={120}
+                      height={120}
+                      style={{ borderRadius: "50%", marginTop: 8 }}
+                    />
+                  ) : profile.avatar ? (
+                    <Image
+                      src={profile.avatar}
+                      width={120}
+                      height={120}
+                      style={{ borderRadius: "50%", marginTop: 8 }}
+                    />
+                  ) : (
+                    <Avatar
+                      size={120}
+                      icon={<UserOutlined />}
+                      style={{ backgroundColor: "#9a5edf", marginTop: 8 }}
+                    />
+                  )}
                 </Form.Item>
 
                 <Form.Item name="name" label="Name"><Input /></Form.Item>
@@ -230,7 +258,6 @@ export default function PartnerProfile() {
                 <Form.Item name="city" label="City"><Input /></Form.Item>
                 <Form.Item name="gender" label="Gender"><Input /></Form.Item>
                 <Form.Item name="profession" label="Profession"><Input /></Form.Item>
-
                 <Form.Item
                   name="dob"
                   label="Date of Birth"
@@ -238,7 +265,6 @@ export default function PartnerProfile() {
                 >
                   <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
                 </Form.Item>
-
 
                 <Form.Item label="Status">
                   <Tag color={profile.status === "approved" ? "green" : "orange"}>
@@ -258,7 +284,7 @@ export default function PartnerProfile() {
           </>
         )}
 
-        {/* DOCUMENT INFO */}
+        {/* DOCUMENTS */}
         {drawerTitle === "Document" && (
           <>
             {!isEditing ? (
@@ -271,7 +297,7 @@ export default function PartnerProfile() {
               </div>
             ) : (
               <Form layout="vertical" onFinish={handleSave}>
-                {["aadhaarFront","aadhaarBack","pan","professionalCert"].map((field) => (
+                {["aadhaarFront", "aadhaarBack", "pan", "professionalCert"].map((field) => (
                   <Form.Item key={field} label={field.replace(/([A-Z])/g, " $1")}>
                     <Upload
                       beforeUpload={(file) => {
@@ -328,22 +354,37 @@ export default function PartnerProfile() {
           <div className="idcard-container">
             <div className="idcard-card">
               <div className="idcard-header">
-                <img src={profile.avatar || "/tintD.png"} alt="avatar" className="idcard-avatar" />
-                <img src="/tintdw.png" alt="Logo" className="uc-logo-mobile" />
-              </div>
+                {profile.avatar ? (
+                  <img
+                    src={profile.avatar}
+                    alt="avatar"
+                    className="idcard-avatar"
+                  />
+                ) : (
+                  <Avatar
+                    size={80}
+                    icon={<UserOutlined />}
+                    style={{ backgroundColor: "#9a5edf", marginTop: 8 }}
+                  />
+                )}
 
+                <img src="/tintD.png" alt="Logo" className="uc-logo-mobile" />
+
+              </div><p className="status">
+            <strong>Status:</strong>{" "}
+            <Tag color={profile.status === "approved" ? "green" : "orange"}>
+              {profile.status?.toUpperCase()}
+            </Tag>
+          </p>
               <div className="idcard-details">
                 <div className="idcard-info">
                   <h2 className="idcard-name">{profile.name}</h2>
-                  <h2 style={{
-                    color: profile.status === "approved" ? "green" :
-                           profile.status === "rejected" ? "red" : "orange"
-                  }}>
-                    {profile.status ? profile.status.toUpperCase() : "PENDING"}
-                  </h2>
+                  
                 </div>
-                <p><strong>License Validity:</strong> {profile.licenseValidity || "-"}</p>
-                <p><strong>Partner ID:</strong> {profile.partnerId || "-"}</p>
+        
+                <p><strong>Email:</strong> {profile.email}</p>
+                {/* <p><strong>License Validity:</strong> {profile.licenseValidity || "N/A"}</p> */}
+                <p><strong>Partner ID:</strong> {profile.partnerId || "N/A"}</p>
               </div>
             </div>
           </div>

@@ -11,7 +11,7 @@ export default function Topbar({ user, onToggleSidebar }) {
 
   const userMenu = (
     <Menu>
-      <Menu.Item key="1" onClick={() => navigate("/profile")}>Profile</Menu.Item>
+      <Menu.Item key="1" onClick={() => navigate("/partnerapp/profile")}>Profile</Menu.Item>
       <Menu.Item key="2" onClick={() => navigate("/bookings")}>My Bookings</Menu.Item>
       <Menu.Item key="3" onClick={() => navigate("/logout")} icon={<LoginOutlined />}>Logout</Menu.Item>
     </Menu>
@@ -37,14 +37,8 @@ export default function Topbar({ user, onToggleSidebar }) {
       }}
     >
       {/* Left side: Hamburger + Logo */}
-      <div className="topbar-left" style={{ display: "flex", alignItems: "center", gap: "10px",  marginLeft:30}}>
-        <Button
-          type="text"
-          icon={        <img src="/tintD.png" alt="Logo" className="uc-logo" />
-}
-          onClick={onToggleSidebar}
-          style={{ fontSize: "20px" }}
-        />
+     <div className="topbar-left">
+        <img src="/tintD.png" alt="Logo" className="uc-logo" />
       </div>
 
       {/* Right side: User Avatar */}

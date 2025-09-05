@@ -1,0 +1,39 @@
+.admin-card {
+  max-width: 700px;
+  margin: 2rem auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-avatar {
+  background-color: #1890ff;
+}
+
+.admin-name {
+  margin: 0;
+}
+
+.admin-email {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.ant-descriptions-item-label {
+  font-weight: 600;
+}
+
+.admin-tag {
+  font-weight: 500;
+}

@@ -1,11 +1,12 @@
 // src/pages/partners/PartnerLoginPage.jsx
 import { useState } from "react";
 import { Form, Input, Button, message, Typography } from "antd";
-import { UserOutlined, MailOutlined, LockOutlined } from "@ant-design/icons";
+import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import api from "../../../../api";
-import { usePartnerAuth } from "../../../hooks/usePartnerAuth.js";
+import { usePartnerAuth } from "../../../hooks/usePartnerAuth.jsx";
 import './PartnerLoginPage.css';
+import bgImage from './bglogin.jpg';
 
 const { Title, Text } = Typography;
 
@@ -15,18 +16,18 @@ export default function PartnerLoginPage() {
   const { login } = usePartnerAuth();
 
   const onFinish = async (values) => {
-    const { partnerId, email, password } = values;
-    if ((!partnerId && !email) || !password) {
-      message.error("Enter Partner ID or Email, and Password");
+    const { email, password } = values;
+    if (!email || !password) {
+      message.error("Enter Email and Password");
       return;
     }
 
     try {
       setLoading(true);
-      const { data } = await api.post("/api/partners/login", { partnerId, email, password });
+      const { data } = await api.post("/api/partners/login", { email, password });
       login(data);
       message.success("Login successful!");
-      navigate("/partner/dashboard");
+      navigate("/partnerapp/dashboard");
     } catch (err) {
       message.error(err.response?.data?.error || "Login failed");
     } finally {
@@ -39,7 +40,7 @@ export default function PartnerLoginPage() {
       {/* Left illustration / background */}
       <div className="partner-login-left">
         <img
-          src="https://images.unsplash.com/photo-1588776814546-15a4e7f43b17?auto=format&fit=crop&w=1470&q=80"
+          src={bgImage}
           alt="Salon Background"
           className="bg-image"
         />
@@ -54,25 +55,16 @@ export default function PartnerLoginPage() {
             className="logo"
           />
           <Title level={3} style={{ marginBottom: 0, textAlign: 'center' }}>Partner Login</Title>
-          <Text type="secondary" className="text-center mb-4">Use Partner ID or Email to login</Text>
+          <Text type="secondary" className="text-center mb-4">Use Email to login</Text>
 
           <Form layout="vertical" onFinish={onFinish}>
-            <Form.Item name="partnerId">
-              <Input
-                prefix={<UserOutlined />}
-                placeholder="Partner ID (optional)"
-                size="large"
-                className="rounded-lg"
-              />
-            </Form.Item>
-
             <Form.Item
               name="email"
-              rules={[{ type: "email", message: "Invalid email" }]}
+              rules={[{ type: "email", required: true, message: "Enter a valid email" }]}
             >
               <Input
                 prefix={<MailOutlined />}
-                placeholder="Email (optional)"
+                placeholder="Email"
                 size="large"
                 className="rounded-lg"
               />
