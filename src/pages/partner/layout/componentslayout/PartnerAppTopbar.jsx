@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Layout, Avatar, Tooltip, Dropdown, Menu, Switch, Badge, Drawer, List } from "antd";
+import { Layout, Avatar, Tooltip, Dropdown, Menu, Badge, Drawer, List } from "antd";
 import { UserOutlined, LoginOutlined, BellOutlined, MessageOutlined } from "@ant-design/icons";
 import { useNavigate, Link } from "react-router-dom";
 import { usePartnerAuth } from "../../../../hooks/usePartnerAuth.jsx";
+import DutyToggle from "./DutyToggle"; // ✅ Import DutyToggle component
 
 const { Header } = Layout;
 
@@ -10,7 +11,6 @@ export default function PartnerAppTopbar({ extra }) {
   const navigate = useNavigate();
   const { partner, logout } = usePartnerAuth();
 
-  const [duty, setDuty] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
 
@@ -28,7 +28,6 @@ export default function PartnerAppTopbar({ extra }) {
     />
   );
 
-  // Dummy notifications & messages
   const notifications = [
     { id: 1, text: "New booking request received" },
     { id: 2, text: "Profile updated successfully" },
@@ -40,20 +39,7 @@ export default function PartnerAppTopbar({ extra }) {
 
   return (
     <>
-      <Header
-        style={{
-          background: "#fff",
-          padding: "0 24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          height: 64,
-          position: "sticky",
-          top: 0,
-          zIndex: 1000,
-        }}
-      >
+      <Header style={{ background: "#fff", padding: "0 24px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", height: 64 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {extra}
           <Link to="/partnerapp/dashboard">
@@ -62,12 +48,8 @@ export default function PartnerAppTopbar({ extra }) {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <Switch
-            checked={duty}
-            onChange={setDuty}
-            checkedChildren="ON DUTY"
-            unCheckedChildren="OFF DUTY"
-          />
+          {/* ✅ Use the DutyToggle component here */}
+          <DutyToggle />
 
           <Badge count={notifications.length} size="small">
             <BellOutlined style={{ fontSize: 20, cursor: "pointer" }} onClick={() => setNotifOpen(true)} />
@@ -90,27 +72,11 @@ export default function PartnerAppTopbar({ extra }) {
         </div>
       </Header>
 
-      <Drawer
-        title="Notifications"
-        placement="right"
-        onClose={() => setNotifOpen(false)}
-        open={notifOpen}
-        width={320}
-      >
-        <List
-          dataSource={notifications}
-          renderItem={(item) => <List.Item key={item.id}>{item.text}</List.Item>}
-          locale={{ emptyText: "No notifications." }}
-        />
+      <Drawer title="Notifications" placement="right" onClose={() => setNotifOpen(false)} open={notifOpen} width={320}>
+        <List dataSource={notifications} renderItem={(item) => <List.Item key={item.id}>{item.text}</List.Item>} locale={{ emptyText: "No notifications." }} />
       </Drawer>
 
-      <Drawer
-        title="Messages"
-        placement="right"
-        onClose={() => setMsgOpen(false)}
-        open={msgOpen}
-        width={320}
-      >
+      <Drawer title="Messages" placement="right" onClose={() => setMsgOpen(false)} open={msgOpen} width={320}>
         <List
           dataSource={messages}
           renderItem={(item) => (

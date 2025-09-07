@@ -58,10 +58,11 @@ useEffect(() => {
     <div
       className={`drawer-overlay ${open ? "show" : ""}`}
       onClick={onClose}
-      style={{ padding: "20px" }}
+      style={{ padding: "20px",marginTop:"50px" }}
     >
       <div
         className={`drawer-content ${open ? "open" : ""}`}
+        style={{ padding: "20px", marginTop: "80px" }}
         onClick={(e) => e.stopPropagation()}
       >
         {loading ? (
