@@ -42,6 +42,7 @@ import PartnerDashboard from "../pages/partner/dashboard/PartnerDashboard";
 import PartnerProfile from "../pages/partner/home/profile/PartnerProfile";
 import PartnerNotifications from "../pages/partner/notification/PartnerNotifications";
 import PartnerMessages from "../pages/partner/notification/PartnerMessages";
+import PartnerOrderHistory from "../pages/partner/home/history/PartnerOrderHistory";
 
 // Wrapper for pages with Navbar
 function WithNavbar({ children }) {
@@ -98,6 +99,7 @@ export default function AppRoutes() {
         <Route element={<PartnerRoute />}>
           <Route path="dashboard" element={<PartnerDashboard />} />
           <Route path="profile" element={<PartnerProfile />} />
+          <Route path="order-history" element={<PartnerOrderHistory />} />
           <Route path="notifications" element={<PartnerNotifications />} />
           <Route path="messages" element={<PartnerMessages />} />
         </Route>

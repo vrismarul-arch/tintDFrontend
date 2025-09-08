@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { Layout, Avatar, Tooltip, Dropdown, Menu, Badge, Drawer, List } from "antd";
+import React, { useState, useEffect } from "react";
+import { Layout, Avatar, Tooltip, Dropdown, Menu, Badge } from "antd";
 import { UserOutlined, LoginOutlined, BellOutlined, MessageOutlined } from "@ant-design/icons";
 import { useNavigate, Link } from "react-router-dom";
 import { usePartnerAuth } from "../../../../hooks/usePartnerAuth.jsx";
-import DutyToggle from "./DutyToggle"; // ✅ Import DutyToggle component
+import DutyToggle from "./DutyToggle";
+import NotificationAlerts from "./NotificationAlerts"; // alert popup
+import api from "../../../../../api.js";
 
 const { Header } = Layout;
 
@@ -13,6 +15,7 @@ export default function PartnerAppTopbar({ extra }) {
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
+  const [notifCount, setNotifCount] = useState(0); // unread count
 
   const handleLogout = () => {
     logout();
@@ -28,18 +31,46 @@ export default function PartnerAppTopbar({ extra }) {
     />
   );
 
-  const notifications = [
-    { id: 1, text: "New booking request received" },
-    { id: 2, text: "Profile updated successfully" },
-  ];
-  const messages = [
-    { id: 1, from: "Admin", text: "Please update your documents." },
-    { id: 2, from: "Support", text: "Welcome to TintD Partner app 🎉" },
-  ];
+  // Fetch initial notification count
+  const fetchNotificationCount = async () => {
+    if (!partner?.token) return;
+    try {
+      const res = await api.get("/api/partners/notifications", {
+        headers: { Authorization: `Bearer ${partner.token}` },
+      });
+      const newItems = res.data || [];
+      setNotifCount(newItems.length);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Poll count every 30 seconds
+  useEffect(() => {
+    fetchNotificationCount();
+    const interval = setInterval(fetchNotificationCount, 30000);
+    return () => clearInterval(interval);
+  }, [partner?.token]);
+
+  // Open notifications drawer and reset count
+  const handleNotifOpen = () => {
+    setNotifOpen(true);
+    setNotifCount(0);
+  };
 
   return (
     <>
-      <Header style={{ background: "#fff", padding: "0 24px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", height: 64 }}>
+      <Header
+        style={{
+          background: "#fff",
+          padding: "0 24px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          height: 64,
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {extra}
           <Link to="/partnerapp/dashboard">
@@ -48,15 +79,21 @@ export default function PartnerAppTopbar({ extra }) {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          {/* ✅ Use the DutyToggle component here */}
           <DutyToggle />
 
-          <Badge count={notifications.length} size="small">
-            <BellOutlined style={{ fontSize: 20, cursor: "pointer" }} onClick={() => setNotifOpen(true)} />
+          {/* Bell with unread count */}
+          <Badge count={notifCount} size="small" offset={[0, 0]}>
+            <BellOutlined
+              style={{ fontSize: 20, cursor: "pointer" }}
+              onClick={handleNotifOpen}
+            />
           </Badge>
 
-          <Badge count={messages.length} size="small">
-            <MessageOutlined style={{ fontSize: 20, cursor: "pointer" }} onClick={() => setMsgOpen(true)} />
+          <Badge size="small">
+            <MessageOutlined
+              style={{ fontSize: 20, cursor: "pointer" }}
+              onClick={() => setMsgOpen(!msgOpen)}
+            />
           </Badge>
 
           <Dropdown overlay={menu} placement="bottomRight" trigger={["click"]}>
@@ -72,21 +109,13 @@ export default function PartnerAppTopbar({ extra }) {
         </div>
       </Header>
 
-      <Drawer title="Notifications" placement="right" onClose={() => setNotifOpen(false)} open={notifOpen} width={320}>
-        <List dataSource={notifications} renderItem={(item) => <List.Item key={item.id}>{item.text}</List.Item>} locale={{ emptyText: "No notifications." }} />
-      </Drawer>
-
-      <Drawer title="Messages" placement="right" onClose={() => setMsgOpen(false)} open={msgOpen} width={320}>
-        <List
-          dataSource={messages}
-          renderItem={(item) => (
-            <List.Item key={item.id}>
-              <b>{item.from}: </b> {item.text}
-            </List.Item>
-          )}
-          locale={{ emptyText: "No messages." }}
-        />
-      </Drawer>
+      {/* Alerts for notifications/messages */}
+      <NotificationAlerts
+        open={notifOpen}
+        type="notifications"
+        onNew={(newCount) => setNotifCount(prev => prev + newCount)}
+      />
+      <NotificationAlerts open={msgOpen} type="messages" />
     </>
   );
 }

@@ -56,35 +56,50 @@ export default function UserBookingDetails() {
     : "-";
   const selectedTime = booking.selectedTime
     ? new Date(booking.selectedTime).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      })
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })
     : "-";
 
   return (
     <Card title={`Booking Details - ${booking.bookingId || booking._id}`}>
       <Descriptions bordered column={1}>
+        {/* User Details */}
         <Descriptions.Item label="Name">{booking.user?.name || booking.name}</Descriptions.Item>
         <Descriptions.Item label="Email">{booking.user?.email || booking.email}</Descriptions.Item>
         <Descriptions.Item label="Phone">{booking.user?.phone || booking.phone}</Descriptions.Item>
         <Descriptions.Item label="Address">{booking.address || "-"}</Descriptions.Item>
 
+        {/* Services */}
         <Descriptions.Item label="Services">
           {booking.services?.map((s) => (
             <Tag key={s.serviceId?._id || s._id}>{s.serviceId?.name || s.name}</Tag>
           ))}
         </Descriptions.Item>
 
+        {/* Payment & Date */}
         <Descriptions.Item label="Total Amount">₹{booking.totalAmount}</Descriptions.Item>
         <Descriptions.Item label="Payment Method">{booking.paymentMethod || "-"}</Descriptions.Item>
         <Descriptions.Item label="Date">{selectedDate}</Descriptions.Item>
         <Descriptions.Item label="Time">{selectedTime}</Descriptions.Item>
+
+        {/* Booking Status */}
         <Descriptions.Item label="Status">
           <Tag color={booking.status === "confirmed" ? "green" : "gold"}>
             {booking.status?.toUpperCase() || "PENDING"}
           </Tag>
         </Descriptions.Item>
+
+        {booking.assignedTo && (
+          <>
+            <Descriptions.Item label="Assigned Partner ID">{booking.assignedTo.partnerId}</Descriptions.Item>
+            <Descriptions.Item label="Partner Name">{booking.assignedTo.name}</Descriptions.Item>
+            <Descriptions.Item label="Partner Email">{booking.assignedTo.email}</Descriptions.Item>
+            <Descriptions.Item label="Partner Phone">{booking.assignedTo.phone}</Descriptions.Item>
+
+          </>
+        )}
       </Descriptions>
     </Card>
   );

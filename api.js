@@ -9,13 +9,18 @@ const api = axios.create({
 // Add a request interceptor to attach the auth token
 api.interceptors.request.use(
   (config) => {
-    // Get the authentication token from local storage
-    const token = localStorage.getItem('token'); 
-    
-    // If a token exists, add it to the Authorization header
+    // Check if this is a partner API request
+    const isPartner = config.url?.includes("/api/partners");
+
+    // Get the correct token
+    const token = isPartner
+      ? localStorage.getItem("partnerToken")
+      : localStorage.getItem("token");
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => {

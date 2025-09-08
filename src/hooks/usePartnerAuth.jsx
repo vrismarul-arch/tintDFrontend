@@ -6,7 +6,7 @@ export const PartnerAuthProvider = ({ children }) => {
   const [partner, setPartner] = useState(null);
   const [isAuthed, setIsAuthed] = useState(false);
 
-  // Load partner data from localStorage on mount
+  // Load partner data from localStorage
   useEffect(() => {
     const savedPartner = localStorage.getItem("partnerData");
     if (savedPartner) {
@@ -16,11 +16,10 @@ export const PartnerAuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Login and save partner data + token
   const login = (data) => {
     const partnerData = {
       ...data,
-      avatar: data.avatar || null, // ✅ ensure avatar always exists
+      avatar: data.avatar || null,
     };
     localStorage.setItem("partnerData", JSON.stringify(partnerData));
     if (data.token) localStorage.setItem("partnerToken", data.token);
@@ -28,14 +27,12 @@ export const PartnerAuthProvider = ({ children }) => {
     setIsAuthed(true);
   };
 
-  // Update partner info (e.g. after profile edit)
   const updatePartner = (newData) => {
     const updated = { ...partner, ...newData };
     setPartner(updated);
     localStorage.setItem("partnerData", JSON.stringify(updated));
   };
 
-  // Logout
   const logout = () => {
     localStorage.removeItem("partnerData");
     localStorage.removeItem("partnerToken");
@@ -52,5 +49,5 @@ export const PartnerAuthProvider = ({ children }) => {
   );
 };
 
-// ✅ Custom hook
+// Custom hook
 export const usePartnerAuth = () => useContext(PartnerAuthContext);

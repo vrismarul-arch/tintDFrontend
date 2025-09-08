@@ -63,13 +63,13 @@ export default function Sidebar({ collapsed }) {
 
   const menuItems = [
     {
-      key: "/partner/profile",
+      key: "/partner/history",
       icon: <WalletOutlined />,
       label: (
         <div className="menu-item">
-          <span className="menu-title">Earnings</span>
+          <span className="menu-title">Booking History</span>
           <span className="menu-description">
-            {dynamicData?.earnings ? `$${dynamicData.earnings}` : "Transfer Money to Bank, History"}
+            {dynamicData?.bookingHistory ? `$${dynamicData.bookingHistory}` : "View your booking history"}
           </span>
         </div>
       ),
