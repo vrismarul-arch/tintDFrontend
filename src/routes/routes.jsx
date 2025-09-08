@@ -64,10 +64,10 @@ export default function AppRoutes() {
       <Route path="/category/:id" element={<WithNavbar><CategoryServices /></WithNavbar>} />
       <Route path="/category" element={<WithNavbar><CategoryServices /></WithNavbar>} />
       <Route path="/booking-history" element={<WithNavbar><BookingHistoryPage /></WithNavbar>} />
-      <Route path="/login" element={<WithNavbar><LoginPage /></WithNavbar>} />
-      <Route path="/register" element={<WithNavbar><RegisterPage /></WithNavbar>} />
-      <Route path="/success" element={<WithNavbar><SuccessPage /></WithNavbar>} />
-   
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/success" element={<SuccessPage />} />
+
       {/* Protected User Routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/cart" element={<WithNavbar><CartPage /></WithNavbar>} />

@@ -53,8 +53,7 @@
 
 .desktop-navbar .nav-middle {
   flex: 1;
-  display: flex;
-  justify-content: space-around;
+  margin-left: 40px;
   align-items: center;
   gap: 12px;
 }
