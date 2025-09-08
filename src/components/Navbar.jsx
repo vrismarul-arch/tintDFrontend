@@ -3,61 +3,42 @@ import React, { useState, useEffect } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import {
   ShoppingCartOutlined,
-  GiftOutlined,
   HomeOutlined,
   LogoutOutlined,
   ProfileOutlined,
-  SearchOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Input, Avatar, Dropdown, Menu, message } from "antd";
+import { Avatar, Dropdown, Menu, Badge, message } from "antd";
 import LocationSearch from "./LocationSearch/LocationSearch";
-import api from "../../api"; // ✅ import your axios instance
+import api from "../../api";
 import "./Navbar.css";
 
 const menuData = {
   mobileNav: [
     { name: "Home", icon: HomeOutlined, link: "/" },
-    { name: "Services", icon: GiftOutlined, link: "/services" },
-    { name: "Bookings", icon: ProfileOutlined, link: "/bookings" },
+    { name: "Bookings", icon: ProfileOutlined, link: "/booking-history" },
     { name: "Profile", icon: ProfileOutlined, link: "/profile" },
   ],
 };
 
-// 🔍 Custom Track SearchBar
-const TrackSearchBar = () => (
-  <Input
-    className="track-searchbar"
-    placeholder="Search Services"
-    prefix={<SearchOutlined className="track-icon" />}
-  />
-);
-
 const ResponsiveNavbar = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
-  const [userAvatar, setUserAvatar] = useState(
-    localStorage.getItem("avatar") || null
-  );
+  const [userAvatar, setUserAvatar] = useState(localStorage.getItem("avatar") || null);
   const [user, setUser] = useState(null);
+  const [cartItems, setCartItems] = useState(JSON.parse(localStorage.getItem("cart")) || []);
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const cart = []; // replace with CartContext later
-  const totalCartQuantity = cart.reduce(
-    (sum, item) => sum + (item.quantity || 0),
-    0
-  );
+  const totalCartQuantity = cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
 
-  // ✅ Resize listener
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // ✅ Fetch user profile from API
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -68,7 +49,7 @@ const ResponsiveNavbar = () => {
             setUser(res.data);
             if (res.data.avatar) {
               setUserAvatar(res.data.avatar);
-              localStorage.setItem("avatar", res.data.avatar); // ✅ keep localStorage in sync
+              localStorage.setItem("avatar", res.data.avatar);
             }
           }
         }
@@ -80,9 +61,16 @@ const ResponsiveNavbar = () => {
 
     setIsLoggedIn(!!localStorage.getItem("token"));
     fetchUserProfile();
-  }, [location.pathname]);
+  }, [location.pathname, isLoggedIn]);
 
-  // ✅ Logout handler
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setCartItems(JSON.parse(localStorage.getItem("cart")) || []);
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -93,27 +81,21 @@ const ResponsiveNavbar = () => {
     navigate("/login");
   };
 
-  // 📋 Dropdown Menu for Profile
   const profileMenu = (
     <Menu>
       <Menu.Item key="profile">
-        <Link to="/profile">
-          <UserOutlined /> Profile
-        </Link>
+        <Link to="/profile">Profile</Link>
       </Menu.Item>
       <Menu.Item key="bookings">
-        <Link to="/bookings">
-          <ProfileOutlined /> My Bookings
-        </Link>
+        <Link to="/booking-history">My Bookings</Link>
       </Menu.Item>
       <Menu.Item key="logout" onClick={handleLogout}>
-        <LogoutOutlined /> Logout
+        Logout
       </Menu.Item>
     </Menu>
   );
 
   if (isMobile) {
-    // 📱 Mobile Navbar
     return (
       <>
         <div className="mobile-top-bar">
@@ -123,11 +105,7 @@ const ResponsiveNavbar = () => {
 
           {!isLoggedIn ? (
             <Link to="/login">
-              <Avatar
-                size={36}
-                icon={<UserOutlined />}
-                style={{ backgroundColor: "#a066e1" }}
-              />
+              <Avatar size={36} icon={<UserOutlined />} style={{ backgroundColor: "#a066e1" }} />
             </Link>
           ) : (
             <Dropdown overlay={profileMenu} trigger={["click"]} placement="bottomRight">
@@ -143,10 +121,6 @@ const ResponsiveNavbar = () => {
 
         <div className="mobile-top-bar">
           <LocationSearch />
-        </div>
-
-        <div className="mobile-top-bar">
-          <TrackSearchBar />
         </div>
 
         <div className="mobile-bottom-navbar">
@@ -166,17 +140,16 @@ const ResponsiveNavbar = () => {
           })}
 
           <Link to="/cart" className="tab-item">
-            <ShoppingCartOutlined className="tab-icon" />
-            <span className="cart-label">
-              Cart {totalCartQuantity > 0 && `(${totalCartQuantity})`}
-            </span>
+            <Badge count={totalCartQuantity} offset={[0, 0]} showZero={false}>
+              <ShoppingCartOutlined className="tab-icon" />
+            </Badge>
+            <span className="cart-label">Cart</span>
           </Link>
         </div>
       </>
     );
   }
 
-  // 💻 Desktop Navbar
   return (
     <div className="desktop-navbar">
       <div className="nav-left">
@@ -187,23 +160,18 @@ const ResponsiveNavbar = () => {
 
       <div className="nav-middle">
         <LocationSearch isMobile={isMobile} />
-        <TrackSearchBar />
       </div>
 
       <div className="nav-right">
-         <Link to="/cart" className="nav-link">
-          <ShoppingCartOutlined className="nav-icon" />
-          <span className="cart-label"><br />
-            <span className="cart-count">{totalCartQuantity}</span> Cart
-          </span>
+        <Link to="/cart" className="nav-link">
+          <Badge count={totalCartQuantity} offset={[0, 0]} showZero={false}>
+            <ShoppingCartOutlined className="nav-icon" />
+          </Badge>
         </Link>
+
         {!isLoggedIn ? (
           <Link to="/login" className="nav-link">
-            <Avatar
-              size={36}
-              icon={<UserOutlined />}
-              style={{ backgroundColor: "#a066e1" }}
-            />
+            <Avatar size={36} icon={<UserOutlined />} style={{ backgroundColor: "#a066e1" }} />
             <span style={{ marginLeft: 6 }}>Sign In</span>
           </Link>
         ) : (
@@ -219,8 +187,6 @@ const ResponsiveNavbar = () => {
             </div>
           </Dropdown>
         )}
-
-       
       </div>
     </div>
   );

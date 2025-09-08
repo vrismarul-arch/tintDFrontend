@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Layout, Avatar, Tooltip, Dropdown, Menu, Badge } from "antd";
 import { UserOutlined, LoginOutlined, BellOutlined, MessageOutlined } from "@ant-design/icons";
 import { useNavigate, Link } from "react-router-dom";
 import { usePartnerAuth } from "../../../../hooks/usePartnerAuth.jsx";
 import DutyToggle from "./DutyToggle";
-import NotificationAlerts from "./NotificationAlerts"; // alert popup
+import NotificationAlerts from "./NotificationAlerts"; // for displaying alerts
 import api from "../../../../../api.js";
 
 const { Header } = Layout;
@@ -15,7 +15,24 @@ export default function PartnerAppTopbar({ extra }) {
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
-  const [notifCount, setNotifCount] = useState(0); // unread count
+  const [notifCount, setNotifCount] = useState(0);
+
+  const audioRef = useRef(null);
+  const notifiedIds = useRef(new Set());
+
+  // Load sound once
+  useEffect(() => {
+    audioRef.current = new Audio("/notification.mp3");
+    audioRef.current.addEventListener('error', (e) => {
+      console.error("Audio load error:", e);
+    });
+  }, []);
+
+  const playSound = () => {
+    audioRef.current?.play().catch(err => {
+      console.error("Audio play error:", err);
+    });
+  };
 
   const handleLogout = () => {
     logout();
@@ -31,31 +48,42 @@ export default function PartnerAppTopbar({ extra }) {
     />
   );
 
-  // Fetch initial notification count
-  const fetchNotificationCount = async () => {
+  // ✅ Fetch notifications every 30 sec and play sound when new ones arrive
+  const fetchNotifications = async () => {
     if (!partner?.token) return;
     try {
       const res = await api.get("/api/partners/notifications", {
         headers: { Authorization: `Bearer ${partner.token}` },
       });
-      const newItems = res.data || [];
-      setNotifCount(newItems.length);
+      const newItems = Array.isArray(res.data) ? res.data : [];
+      
+      let newCount = 0;
+      newItems.forEach(item => {
+        const id = item.id || item.bookingId;
+        if (!notifiedIds.current.has(id)) {
+          notifiedIds.current.add(id);
+          newCount++;
+        }
+      });
+
+      if (newCount > 0) {
+        playSound(); // ✅ Play sound immediately on new notification
+        setNotifCount(prev => prev + newCount); // ✅ Increase count immediately
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Fetch notifications error:", err);
     }
   };
 
-  // Poll count every 30 seconds
   useEffect(() => {
-    fetchNotificationCount();
-    const interval = setInterval(fetchNotificationCount, 30000);
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [partner?.token]);
 
-  // Open notifications drawer and reset count
   const handleNotifOpen = () => {
     setNotifOpen(true);
-    setNotifCount(0);
+    setNotifCount(0); // reset when user opens the notification drawer
   };
 
   return (
@@ -81,7 +109,6 @@ export default function PartnerAppTopbar({ extra }) {
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
           <DutyToggle />
 
-          {/* Bell with unread count */}
           <Badge count={notifCount} size="small" offset={[0, 0]}>
             <BellOutlined
               style={{ fontSize: 20, cursor: "pointer" }}
@@ -109,13 +136,16 @@ export default function PartnerAppTopbar({ extra }) {
         </div>
       </Header>
 
-      {/* Alerts for notifications/messages */}
+      {/* Notification drawer */}
       <NotificationAlerts
         open={notifOpen}
         type="notifications"
         onNew={(newCount) => setNotifCount(prev => prev + newCount)}
       />
+
+      {/* Message drawer */}
       <NotificationAlerts open={msgOpen} type="messages" />
     </>
   );
 }
+  

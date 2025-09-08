@@ -1,136 +1,177 @@
-.services-container {
+/* ------------------ CONTAINER & PAGE ------------------ */
+.category-services {
   padding: 16px;
-  background: #fff;
-}
-
-.page-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 16px;
+  background: #fefefe;
   font-family: "Poppins", "Inter", sans-serif;
 }
 
-/* ---------- TABLE STYLES (desktop) ---------- */
-.services-table .ant-table-thead > tr > th {
-  font-weight: 600;
-  background: #fafafa;
+/* ------------------ TABLE STYLES (Desktop) ------------------ */
+@media (min-width: 768px) {
+  .ant-table-thead > tr > th {
+    font-weight: 600;
+    background: #fafafa;
+  }
+
+  .service-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .service-thumb {
+    width: 125px;
+    height: 125px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  .service-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .service-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .service-duration {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  .price-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .price {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .old-price {
+    font-size: 12px;
+    color: #9ca3af;
+    text-decoration: line-through;
+  }
+
+  .discount-tag {
+    font-weight: 600;
+    width: fit-content;
+    border-radius: 6px;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .view-btn {
+    border-radius: 6px;
+    padding: 5px;
+    font-size: 13px;
+  }
 }
 
-.service-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.service-thumb {
-  width: 125px;
-  height: 125px;
-  border-radius: 8px;
-  object-fit: cover;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
-.service-info {
-  display: flex;
-  flex-direction: column;
-}
-.service-name {
-  font-size: 15px;
-  font-weight: 600;
-  margin: 0;
-}
-.service-duration {
-  font-size: 12px;
-  color: #6b7280;
-  margin: 0;
+/* ------------------ MOBILE CARD STYLES ------------------ */
+@media (max-width: 767px) {
+  .mobile-services {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 8px 0;
+  }
+
+  .mobile-service-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .mobile-service-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  }
+
+  .mobile-service-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-bottom: 1px solid #eee;
+  }
+
+  .mobile-service-info {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mobile-service-info h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    color: #111827;
+  }
+
+  .mobile-service-info p {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  .price-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .price-section .price {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .price-section .old-price {
+    font-size: 12px;
+    color: #9ca3af;
+    text-decoration: line-through;
+  }
+
+  .mobile-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .mobile-buttons .ant-btn {
+    flex: 1;
+    min-width: 100px;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  .mobile-buttons .ant-btn-primary {
+    background: #7c3aed;
+    border: none;
+  }
+
+  .mobile-buttons .ant-btn-danger {
+    border: none;
+  }
 }
 
-.price-cell {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.price {
-  font-weight: 600;
-  color: #111827;
-}
-.old-price {
-  font-size: 12px;
-  color: #9ca3af;
-  text-decoration: line-through;
-}
-
-.discount-tag {
-  font-weight: 600;
-  width: fit-content;
-  border-radius: 6px;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 8px;
-}
-.add-btn {
-  background: #7c3aed !important;
-  border: none;
-  font-weight: 600;
-}
-.view-btn {
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-/* ---------- CARD STYLES (mobile) ---------- */
-.services-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-
-.service-card {
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-}
-
-.service-card-img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-
-.service-card-body {
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.service-card-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0;
-}
-
-.service-card-duration {
-  font-size: 13px;
-  color: #6b7280;
-  margin: 0;
-}
-
-.service-card-price {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.service-card-actions {
-  margin-top: 8px;
-  display: flex;
-  gap: 8px;
-}
-/* ✅ Horizontal scroll for subcategories */
+/* ------------------ SUBCATEGORY SCROLL ------------------ */
 .subcat-scroll {
   display: flex;
   gap: 12px;
@@ -141,36 +182,41 @@
 .subcat-scroll::-webkit-scrollbar {
   display: none;
 }
+
 .subcat-card {
   flex: 0 0 auto;
   width: 80px;
   text-align: center;
   cursor: pointer;
 }
+
 .subcat-card img {
   width: 70px;
   height: 70px;
   border-radius: 12px;
   object-fit: cover;
   border: 2px solid transparent;
-  transition: 0.3s;
+  transition: all 0.3s;
 }
+
 .subcat-card.active img {
   border-color: #9e61e4;
 }
+
 .subcat-card p {
   margin-top: 6px;
   font-size: 12px;
   color: #333;
 }
 
-/* ✅ Variety filter chips */
+/* ------------------ VARIETY FILTER CHIPS ------------------ */
 .variety-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin: 12px 0;
 }
+
 .chip {
   padding: 6px 14px;
   border-radius: 20px;
@@ -180,8 +226,27 @@
   cursor: pointer;
   transition: all 0.2s;
 }
+
 .chip.active {
   background: #9e61e4;
   color: white;
   border-color: #9e61e4;
+}
+.mobile-buttons,
+.action-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.view-btn {
+  background-color: #fff;
+  color: #a066e1;padding: 20px;
+  border: 1px solid #a066e1;
+}
+
+.view-btn:hover {
+  background-color: #a066e1;
+  color: #fff;
+  border-color: #a066e1;
 }

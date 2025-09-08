@@ -1,0 +1,106 @@
+.booking-history-wrapper {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+}
+
+.booking-title {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.order-card {
+  border-radius: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s ease;
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.order-item {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.order-image {
+  flex-shrink: 0;
+}
+
+.order-details {
+  flex: 1;
+  min-width: 220px;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.service-name {
+  font-size: 16px;
+}
+
+.booking-id {
+  font-size: 13px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.order-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.price {
+  font-size: 16px;
+  color: #e63946; /* Amazon/Flipkart price highlight */
+}
+
+.order-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.status-tag {
+  font-size: 13px;
+  border-radius: 12px;
+  padding: 2px 10px;
+  text-transform: capitalize;
+}
+
+@media (max-width: 600px) {
+  .order-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .order-image {
+    margin-bottom: 10px;
+  }
+
+  .order-info {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .order-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+}

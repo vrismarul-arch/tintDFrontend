@@ -1,11 +1,16 @@
-/* 🌍 Common Styles */
+/* ===================== COMMON STYLES ===================== */
+.uc-logo,
+.uc-logo-mobile {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
 .uc-logo {
   height: 40px;
-  cursor: pointer;
 }
+
 .uc-logo-mobile {
   height: 30px;
-  cursor: pointer;
 }
 
 .uc-icon {
@@ -28,7 +33,7 @@
   cursor: pointer;
 }
 
-/* 💻 Desktop Navbar */
+/* ===================== DESKTOP NAVBAR ===================== */
 .desktop-navbar {
   display: flex;
   align-items: center;
@@ -48,12 +53,10 @@
 
 .desktop-navbar .nav-middle {
   flex: 1;
-/* margin-left: 40px;
-font-size: 22px; */
   display: flex;
-  justify-content: left;
-  align-items: center;
   justify-content: space-around;
+  align-items: center;
+  gap: 12px;
 }
 
 .desktop-navbar .nav-right {
@@ -62,7 +65,7 @@ font-size: 22px; */
   gap: 24px;
 }
 
-/* 🔗 Desktop Right Links */
+/* Links and Icons */
 .nav-link {
   display: flex;
   align-items: center;
@@ -71,6 +74,7 @@ font-size: 22px; */
   color: #111;
   text-decoration: none;
   cursor: pointer;
+  transition: color 0.2s;
 }
 
 .nav-link:hover {
@@ -102,7 +106,7 @@ font-size: 22px; */
   line-height: 16px;
 }
 
-/* 📱 Mobile Navbar */
+/* ===================== MOBILE NAVBAR ===================== */
 .mobile-top-bar {
   display: flex;
   align-items: center;
@@ -121,6 +125,7 @@ font-size: 22px; */
   border-radius: 8px;
 }
 
+/* Bottom Navbar */
 .mobile-bottom-navbar {
   display: flex;
   justify-content: space-around;
@@ -129,6 +134,7 @@ font-size: 22px; */
   border-top: 1px solid #eee;
   position: fixed;
   bottom: 0;
+  margin-top: 40px;
   width: 100%;
   padding: 6px 0;
   z-index: 1000;
@@ -142,6 +148,7 @@ font-size: 22px; */
   color: #555;
   text-decoration: none;
   flex: 1;
+  transition: color 0.2s, font-weight 0.2s;
 }
 
 .tab-item .tab-icon {
@@ -161,36 +168,51 @@ font-size: 22px; */
   color: #a066e1;
 }
 
-/* 🔍 Custom Track SearchBar */
+/* ===================== TRACK SEARCHBAR ===================== */
 .track-searchbar {
+  width: 40%;
+  min-width: 180px;
+  max-width: 400px;
   border: none !important;
   border-radius: 12px !important;
   background: #f9f9f9 !important;
-  padding: 8px 14px !important;
+  padding: 8px;
   font-size: 15px !important;
   color: #333 !important;
   box-shadow: none !important;
   outline: none !important;
-  width: 40%;
+  transition: all 0.3s ease;
 }
-@media (max-width: 768px) {
-  .track-searchbar {
-    width: 100% !important;
-    max-width: 100% !important;
-    font-size: 14px !important;
-  }
-}
+
 .track-searchbar:focus,
 .track-searchbar:hover {
-  border: none !important;
-  box-shadow: 0 0 0 2px rgba(64, 169, 255, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(158, 97, 228, 0.2) !important;
+  background: #fff !important;
 }
 
 .track-searchbar input::placeholder {
   color: #a0a0a0 !important;
+  opacity: 1;
 }
 
 .track-icon {
   color: #bfbfbf !important;
   font-size: 18px !important;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+  .desktop-navbar {
+    display: none;
+  }
+
+  .track-searchbar {
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: 14px !important;
+  }
+
+  .nav-right {
+    gap: 12px;
+  }
 }

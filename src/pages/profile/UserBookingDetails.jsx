@@ -1,12 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { Card, Descriptions, Tag, Spin, message } from "antd";
-import { useParams } from "react-router-dom";
+import {
+  Card,
+  Tag,
+  Spin,
+  message,
+  Button,
+  Divider,
+  Typography,
+  Avatar,
+  Steps,
+  Row,
+  Col,
+} from "antd";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  ArrowLeftOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
+  ShoppingCartOutlined,
+  UserOutlined,
+  FilePdfOutlined,
+  ReloadOutlined,
+  StopOutlined,
+} from "@ant-design/icons";
 import api from "../../../api";
+import "./UserBookingDetails.css";
+
+const { Title, Text } = Typography;
+const { Step } = Steps;
 
 export default function UserBookingDetails() {
-  const { id } = useParams(); // _id of booking from URL
+  const { id } = useParams();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -15,10 +42,7 @@ export default function UserBookingDetails() {
         const token = localStorage.getItem("token");
         const headers = { Authorization: `Bearer ${token}` };
 
-        // Fetch all bookings for the logged-in user
         const res = await api.get("/api/bookings/my", { headers });
-
-        // Find booking by _id
         const single = res.data.find((b) => b._id === id);
 
         if (!single) {
@@ -26,7 +50,6 @@ export default function UserBookingDetails() {
           setBooking(null);
           return;
         }
-
         setBooking(single);
       } catch (err) {
         console.error(err);
@@ -35,72 +58,152 @@ export default function UserBookingDetails() {
         setLoading(false);
       }
     };
-
     fetchBooking();
   }, [id]);
 
   if (loading) {
-    return (
-      <Spin
-        size="large"
-        style={{ display: "block", margin: "2rem auto" }}
-      />
-    );
+    return <Spin size="large" style={{ display: "block", margin: "2rem auto" }} />;
   }
 
   if (!booking) return <p>Booking not found</p>;
 
-  // Format date and time
   const selectedDate = booking.selectedDate
     ? new Date(booking.selectedDate).toLocaleDateString("en-GB")
     : "-";
   const selectedTime = booking.selectedTime
     ? new Date(booking.selectedTime).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    })
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
     : "-";
 
+  // Progress tracker mapping
+  const statusSteps = ["pending", "confirmed", "in-progress", "completed"];
+  const currentStep = statusSteps.indexOf(booking.status?.toLowerCase());
+
   return (
-    <Card title={`Booking Details - ${booking.bookingId || booking._id}`}>
-      <Descriptions bordered column={1}>
-        {/* User Details */}
-        <Descriptions.Item label="Name">{booking.user?.name || booking.name}</Descriptions.Item>
-        <Descriptions.Item label="Email">{booking.user?.email || booking.email}</Descriptions.Item>
-        <Descriptions.Item label="Phone">{booking.user?.phone || booking.phone}</Descriptions.Item>
-        <Descriptions.Item label="Address">{booking.address || "-"}</Descriptions.Item>
+    <div className="booking-details-wrapper">
+      {/* Back Button */}
+      <Button
+        type="link"
+        icon={<ArrowLeftOutlined />}
+        className="back-btn"
+        onClick={() => navigate(-1)}
+      >
+        Back to My Bookings
+      </Button>
 
-        {/* Services */}
-        <Descriptions.Item label="Services">
-          {booking.services?.map((s) => (
-            <Tag key={s.serviceId?._id || s._id}>{s.serviceId?.name || s.name}</Tag>
-          ))}
-        </Descriptions.Item>
-
-        {/* Payment & Date */}
-        <Descriptions.Item label="Total Amount">₹{booking.totalAmount}</Descriptions.Item>
-        <Descriptions.Item label="Payment Method">{booking.paymentMethod || "-"}</Descriptions.Item>
-        <Descriptions.Item label="Date">{selectedDate}</Descriptions.Item>
-        <Descriptions.Item label="Time">{selectedTime}</Descriptions.Item>
-
-        {/* Booking Status */}
-        <Descriptions.Item label="Status">
-          <Tag color={booking.status === "confirmed" ? "green" : "gold"}>
+      {/* Hero Section */}
+      <Card className="hero-card" bordered={false}>
+        <div className="hero-left">
+          <Title level={4}>Booking #{booking.bookingId || booking._id}</Title>
+          <Tag
+            className="status-tag"
+            color={
+              booking.status === "completed"
+                ? "green"
+                : booking.status === "cancelled"
+                ? "red"
+                : booking.status === "confirmed"
+                ? "blue"
+                : "gold"
+            }
+          >
             {booking.status?.toUpperCase() || "PENDING"}
           </Tag>
-        </Descriptions.Item>
+          <div className="hero-meta">
+            <Text>
+              <CalendarOutlined /> {selectedDate}
+            </Text>
+            <Text>
+              <ClockCircleOutlined /> {selectedTime}
+            </Text>
+          </div>
+        </div>
+        <div className="hero-right">
+          <Text className="total-price">₹{booking.totalAmount}</Text>
+          <Text type="secondary">{booking.paymentMethod || "—"}</Text>
+          <div className="hero-actions">
+            <Button icon={<FilePdfOutlined />}>Download Invoice</Button>
+            <Button danger icon={<StopOutlined />}>
+              Cancel Booking
+            </Button>
+            <Button type="primary" icon={<ReloadOutlined />}>
+              Re-Book
+            </Button>
+          </div>
+        </div>
+      </Card>
 
-        {booking.assignedTo && (
-          <>
-            <Descriptions.Item label="Assigned Partner ID">{booking.assignedTo.partnerId}</Descriptions.Item>
-            <Descriptions.Item label="Partner Name">{booking.assignedTo.name}</Descriptions.Item>
-            <Descriptions.Item label="Partner Email">{booking.assignedTo.email}</Descriptions.Item>
-            <Descriptions.Item label="Partner Phone">{booking.assignedTo.phone}</Descriptions.Item>
+      {/* Order Progress */}
+      <Card className="progress-card" bordered={false}>
+        <Steps
+          size="small"
+          current={currentStep >= 0 ? currentStep : 0}
+          responsive
+        >
+          <Step title="Pending" />
+          <Step title="Confirmed" />
+          <Step title="In Progress" />
+          <Step title="Completed" />
+        </Steps>
+      </Card>
 
-          </>
-        )}
-      </Descriptions>
-    </Card>
+      <Row gutter={[16, 16]} className="content-row">
+        {/* Left: Services */}
+        <Col xs={24} md={16}>
+          <Card className="section-card" bordered={false}>
+            <Divider orientation="left">Services</Divider>
+            <div className="services-list">
+              {booking.services?.map((s) => {
+                const img = s.serviceId?.imageUrl || s.imageUrl;
+                const name = s.serviceId?.name || s.name;
+                return (
+                  <Card key={s._id} className="service-card" bordered>
+                    <Avatar
+                      shape="square"
+                      size={80}
+                      src={img}
+                      icon={<UserOutlined />}
+                    />
+                    <div className="service-info">
+                      <Text strong>{name}</Text>
+                      <Tag color="blue">Service</Tag>
+                      <Text type="secondary">Qty: 1</Text>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </Card>
+        </Col>
+
+        {/* Right: Summary */}
+        <Col xs={24} md={8}>
+          <Card className="section-card" bordered={false}>
+            <Divider orientation="left">Customer Info</Divider>
+            <Text strong>{booking.user?.name || booking.name}</Text>
+            <br />
+            <Text>{booking.user?.email || booking.email}</Text>
+            <br />
+            <Text>{booking.user?.phone || booking.phone}</Text>
+            <br />
+            <Text>{booking.address || "-"}</Text>
+          </Card>
+
+          {booking.assignedTo && (
+            <Card className="section-card" bordered={false}>
+              <Divider orientation="left">Assigned Partner</Divider>
+              <Text strong>{booking.assignedTo.name}</Text>
+              <br />
+              <Text>{booking.assignedTo.email}</Text>
+              <br />
+              <Text>{booking.assignedTo.phone}</Text>
+            </Card>
+          )}
+        </Col>
+      </Row>
+    </div>
   );
 }

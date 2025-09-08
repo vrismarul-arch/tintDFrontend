@@ -43,6 +43,7 @@ import PartnerProfile from "../pages/partner/home/profile/PartnerProfile";
 import PartnerNotifications from "../pages/partner/notification/PartnerNotifications";
 import PartnerMessages from "../pages/partner/notification/PartnerMessages";
 import PartnerOrderHistory from "../pages/partner/home/history/PartnerOrderHistory";
+import BookingHistoryPage from "../pages/profile/BookingHistoryPage";
 
 // Wrapper for pages with Navbar
 function WithNavbar({ children }) {
@@ -62,10 +63,11 @@ export default function AppRoutes() {
       <Route path="/home" element={<WithNavbar><Home /></WithNavbar>} />
       <Route path="/category/:id" element={<WithNavbar><CategoryServices /></WithNavbar>} />
       <Route path="/category" element={<WithNavbar><CategoryServices /></WithNavbar>} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/success" element={<SuccessPage />} />
-
+      <Route path="/booking-history" element={<WithNavbar><BookingHistoryPage /></WithNavbar>} />
+      <Route path="/login" element={<WithNavbar><LoginPage /></WithNavbar>} />
+      <Route path="/register" element={<WithNavbar><RegisterPage /></WithNavbar>} />
+      <Route path="/success" element={<WithNavbar><SuccessPage /></WithNavbar>} />
+   
       {/* Protected User Routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/cart" element={<WithNavbar><CartPage /></WithNavbar>} />
