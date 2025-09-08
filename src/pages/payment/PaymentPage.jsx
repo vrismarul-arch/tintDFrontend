@@ -3,6 +3,12 @@ import { useNavigate } from "react-router-dom";
 import api from "../../../api";
 import { message, Spin, Button, Card, Radio, Modal } from "antd";
 
+// Import images from assets folder
+import onlinePaymentIcon from "../payment/icon/bank.png";
+import codPaymentIcon from "../payment/icon/afterpay.png";
+
+import "./PaymentPage.css";
+
 export default function PaymentPage() {
   const navigate = useNavigate();
   const [pendingBooking, setPendingBooking] = useState(null);
@@ -21,7 +27,6 @@ export default function PaymentPage() {
     setPendingBooking(stored);
   }, [navigate]);
 
-  // 🟢 Online Payment
   const handleOnlinePayment = () => {
     if (!pendingBooking) return;
 
@@ -50,6 +55,17 @@ export default function PaymentPage() {
 
               if (verifyRes.data.success) {
                 message.success("Payment successful!");
+                // Save booking details for success page
+                localStorage.setItem(
+                  "successBooking",
+                  JSON.stringify({
+                    name: pendingBooking.name,
+                    email: pendingBooking.email,
+                    phone: pendingBooking.phone,
+                    totalAmount: pendingBooking.totalAmount,
+                    paymentMethod: "online",
+                  })
+                );
                 localStorage.removeItem("cart");
                 localStorage.removeItem("pendingBooking");
                 navigate("/success");
@@ -83,7 +99,6 @@ export default function PaymentPage() {
       });
   };
 
-  // 🟢 COD
   const handleCOD = async () => {
     if (!pendingBooking) return;
     try {
@@ -96,6 +111,17 @@ export default function PaymentPage() {
         }
       );
       message.success("Booking placed with Cash on Delivery!");
+      // Save booking details for success page
+      localStorage.setItem(
+        "successBooking",
+        JSON.stringify({
+          name: pendingBooking.name,
+          email: pendingBooking.email,
+          phone: pendingBooking.phone,
+          totalAmount: pendingBooking.totalAmount,
+          paymentMethod: "cod",
+        })
+      );
       localStorage.removeItem("cart");
       localStorage.removeItem("pendingBooking");
       navigate("/success");
@@ -116,12 +142,10 @@ export default function PaymentPage() {
     }
   };
 
-  // 🟢 Handle Cancel Modal confirm
   const confirmCancel = async () => {
     try {
       setCancelLoading(true);
-      // backend cancel call optional
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // mock delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       message.info("Booking cancelled, returning to cart.");
       localStorage.removeItem("pendingBooking");
       navigate("/cart");
@@ -136,62 +160,73 @@ export default function PaymentPage() {
 
   if (!pendingBooking) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <Spin /> <span className="ml-2">Loading booking...</span>
+      <div className="payment-container">
+        <Spin size="large" />
       </div>
     );
   }
 
   return (
     <>
-      <div className="flex justify-center items-start min-h-screen bg-gray-100 p-4">
-        <Card title="Review & Confirm" className="w-full max-w-lg shadow-md">
-          {/* ✅ User Details */}
-          <h3 className="font-semibold mb-2">Your Details</h3>
+      <div className="payment-container">
+        <Card className="payment-card">
+          <h3>Your Details</h3>
           <p><strong>Name:</strong> {pendingBooking.name}</p>
           <p><strong>Email:</strong> {pendingBooking.email}</p>
           <p><strong>Phone:</strong> {pendingBooking.phone}</p>
           <p><strong>Address:</strong> {pendingBooking.address}</p>
 
-          <hr className="my-3" />
+          <div className="payment-summary">
+            <h3>Order Summary</h3>
+            {pendingBooking.services?.map((s, idx) => (
+              <div key={idx}>
+                <span>{s.name} x {s.quantity}</span>
+                <span>₹{s.price * s.quantity}</span>
+              </div>
+            ))}
+            <p className="total">Total: ₹{pendingBooking.totalAmount}</p>
+          </div>
 
-          {/* ✅ Order Summary */}
-          <h3 className="font-semibold mb-2">Order Summary</h3>
-          {pendingBooking.services?.map((s, idx) => (
-            <div key={idx} className="flex justify-between border-b py-1">
-              <span>{s.name} x {s.quantity}</span>
-              <span>₹{s.price * s.quantity}</span>
-            </div>
-          ))}
-          <p className="font-bold mt-2">Total: ₹{pendingBooking.totalAmount}</p>
+          <div className="payment-method">
+            <h3>Payment Method</h3>
+            <Radio.Group
+              onChange={(e) => setPaymentMethod(e.target.value)}
+              value={paymentMethod}
+            >
+              <Radio value="online">
+                <img
+                  src={onlinePaymentIcon}
+                  alt="Online Payment"
+                  style={{ marginRight: "8px", verticalAlign: "middle" }}
+                />
+                Online Payment
+              </Radio>
+              <Radio value="cod">
+                <img
+                  src={codPaymentIcon}
+                  alt="Cash on Delivery"
+                  style={{ marginRight: "8px", verticalAlign: "middle" }}
+                />
+                Cash on Delivery
+              </Radio>
+            </Radio.Group>
+          </div>
 
-          <hr className="my-3" />
-
-          {/* ✅ Payment Method */}
-          <h3 className="font-semibold mb-2">Payment Method</h3>
-          <Radio.Group
-            onChange={(e) => setPaymentMethod(e.target.value)}
-            value={paymentMethod}
-            className="mb-4"
-          >
-            <Radio value="online">💳 Online Payment</Radio>
-            <Radio value="cod">🚚 Cash on Delivery</Radio>
-          </Radio.Group>
-
-          {/* Buttons */}
-          <div className="flex gap-2">
-            <Button danger onClick={() => setShowCancelModal(true)} block>
+          <div className="payment-buttons">
+            <Button className="btn-danger" onClick={() => setShowCancelModal(true)}>
               ← Go Back to Cart
             </Button>
-            <Button type="primary" onClick={handleProceed} loading={loading} block>
-              Confirm & Proceed with{" "}
-              {paymentMethod === "online" ? "Online Payment" : "COD"}
+            <Button
+              className="btn-primary"
+              onClick={handleProceed}
+              loading={loading}
+            >
+              Confirm & Proceed with {paymentMethod === "online" ? "Online Payment" : "COD"}
             </Button>
           </div>
         </Card>
       </div>
 
-      {/* ✅ Cancel Confirmation Modal */}
       <Modal
         title="Cancel Booking?"
         open={showCancelModal}
@@ -211,13 +246,11 @@ export default function PaymentPage() {
         ]}
       >
         {cancelLoading ? (
-          <div className="flex justify-center items-center py-6">
+          <div className="payment-container">
             <Spin size="large" />
           </div>
         ) : (
-          <p>
-            Are you sure you want to cancel this booking and return to your cart?
-          </p>
+          <p>Are you sure you want to cancel this booking and return to your cart?</p>
         )}
       </Modal>
     </>
