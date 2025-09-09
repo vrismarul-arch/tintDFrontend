@@ -9,7 +9,7 @@ const { Sider } = Layout;
 const { Text } = Typography;
 
 const menuConfig = [
-  { key: "/partnerapp/earnings", icon: <WalletOutlined />, title: "Earnings", subtitle: "Transfer & History" },
+  { key: "/partnerapp/order-history", icon: <WalletOutlined />, title: "Booking", subtitle: "bookings & History" },
   { key: "/partnerapp/incentives", icon: <BarChartOutlined />, title: "Incentives", subtitle: "How you get paid" },
   { key: "/partnerapp/rewards", icon: <GiftOutlined />, title: "Rewards", subtitle: "Insurance & Discounts" },
   { key: "/partnerapp/services", icon: <AppstoreOutlined />, title: "Services", subtitle: "Food Delivery & more" },

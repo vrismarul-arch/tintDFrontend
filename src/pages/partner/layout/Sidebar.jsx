@@ -63,7 +63,7 @@ export default function Sidebar({ collapsed }) {
 
   const menuItems = [
     {
-      key: "/partner/history",
+      key: "/partner/order-history",
       icon: <WalletOutlined />,
       label: (
         <div className="menu-item">
