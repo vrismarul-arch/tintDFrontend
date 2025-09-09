@@ -7,36 +7,24 @@ import "swiper/css/pagination";
 import "swiper/css/grid";
 import "swiper/css/navigation";
 import api from "../../../../api";
-import { Skeleton } from "antd"; // ✅ Import Ant Design Skeleton
+import { Skeleton } from "antd";
 import "./TrendingServices.css";
 
 export default function TrendingServices() {
   const [trending, setTrending] = useState([]);
-  const [loading, setLoading] = useState(true); // ✅ loading state
-  const navigate = useNavigate(); 
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const categoryRes = await api.get("/api/admin/categories");
-        const salonCategory = categoryRes.data.find(
-          (cat) => cat.name === "Salon At Home"
-        );
-
-        if (!salonCategory) {
-          console.warn("⚠️ 'Salon At Home' category not found");
-          return;
-        }
-
-        const subRes = await api.get(
-          `/api/admin/subcategories?category=${salonCategory._id}`
-        );
-
-        setTrending(subRes.data);
+        // ✅ Directly get all subcategories (or categories if you prefer)
+        const subRes = await api.get("/api/admin/subcategories");
+        setTrending(subRes.data || []);
       } catch (err) {
         console.error("❌ Error fetching trending services:", err);
       } finally {
-        setLoading(false); // ✅ stop loading
+        setLoading(false);
       }
     };
 
@@ -46,12 +34,19 @@ export default function TrendingServices() {
   return (
     <div className="trending-container">
       {loading ? (
-        // Skeleton grid placeholder (same layout as Swiper)
         <div className="skeleton-grid">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="skeleton-card">
-              <Skeleton.Image active style={{ width: "100%", height: 100, borderRadius: 8 }} />
-              <Skeleton active paragraph={false} title={{ width: "80%" }} style={{ marginTop: 10 }} />
+              <Skeleton.Image
+                active
+                style={{ width: "100%", height: 100, borderRadius: 8 }}
+              />
+              <Skeleton
+                active
+                paragraph={false}
+                title={{ width: "80%" }}
+                style={{ marginTop: 10 }}
+              />
             </div>
           ))}
         </div>
