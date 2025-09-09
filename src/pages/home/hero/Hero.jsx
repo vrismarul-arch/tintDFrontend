@@ -1,12 +1,12 @@
 import React from "react";
 import { Carousel } from "antd";
 import "./Hero.css";
-import facial from "./banner/facial.jpg";
+import facial from "./banner/Facial.jpg";
 import waxing from "./banner/waxing.jpg";
 import Manicure from "./banner/Manicure.png";
 import SareeDraping from "./banner/SareeDraping.png";
-import facialleft from "./banner/facial.jpg";
-import waxingleft from "./banner/facial.jpg";
+import facialleft from "./banner/Facial.jpg";
+import waxingleft from "./banner/Facial.jpg";
 import { StarOutlined, TeamOutlined } from "@ant-design/icons";
 
 const categories = [
