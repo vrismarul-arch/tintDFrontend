@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
-
 import "./Salonservicesdrawer.css";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
-import { Collapse, Spin } from "antd";
-import api from "../../../../api"; // ✅ your axios instance
+import { Collapse, Spin, Button } from "antd";
+import api from "../../../../api";
+import toast from "react-hot-toast"; // ✅ added toast
 
 const { Panel } = Collapse;
 
@@ -20,22 +20,23 @@ export default function Salonservicesdrawer({
   const [loading, setLoading] = useState(false);
 
   // Fetch service details when drawer opens
-useEffect(() => {
-  const fetchDetails = async () => {
-    if (service?._id && open) {
-      try {
-        setLoading(true);
-        const res = await api.get(`/api/admin/services/${service._id}`);
-        setDetails(res.data);
-      } catch (err) {
-        console.error("Failed to fetch service details", err);
-      } finally {
-        setLoading(false);
+  useEffect(() => {
+    const fetchDetails = async () => {
+      if (service?._id && open) {
+        try {
+          setLoading(true);
+          const res = await api.get(`/api/admin/services/${service._id}`);
+          setDetails(res.data);
+        } catch (err) {
+          console.error("❌ Failed to fetch service details", err);
+          toast.error("Failed to fetch service details"); // ✅ show toast error
+        } finally {
+          setLoading(false);
+        }
       }
-    }
-  };
-  fetchDetails();
-}, [service, open]);
+    };
+    fetchDetails();
+  }, [service, open]);
 
   if (!service) return null;
 
@@ -43,7 +44,7 @@ useEffect(() => {
     if (sliderRef.current) {
       sliderRef.current.scrollBy({
         left: direction === "left" ? -320 : 320,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   };
@@ -58,7 +59,7 @@ useEffect(() => {
     <div
       className={`drawer-overlay ${open ? "show" : ""}`}
       onClick={onClose}
-      style={{ padding: "20px",marginTop:"50px" }}
+      style={{ padding: "20px", marginTop: "50px" }}
     >
       <div
         className={`drawer-content ${open ? "open" : ""}`}
@@ -111,6 +112,7 @@ useEffect(() => {
                   <button
                     className={`scroll-btn left ${showLeft ? "show" : ""}`}
                     onClick={() => scroll("left")}
+                    aria-label="Scroll left"
                   >
                     <LeftOutlined />
                   </button>
@@ -141,6 +143,7 @@ useEffect(() => {
                   <button
                     className="scroll-btn right"
                     onClick={() => scroll("right")}
+                    aria-label="Scroll right"
                   >
                     <RightOutlined />
                   </button>
@@ -198,9 +201,9 @@ useEffect(() => {
 
             {/* Footer */}
             <div className="drawer-footer">
-              <button className="done-btn" onClick={onClose}>
+              <Button type="primary" shape="round" onClick={onClose}>
                 Done
-              </button>
+              </Button>
             </div>
           </>
         ) : (

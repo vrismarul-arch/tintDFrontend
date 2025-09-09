@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Form, Input, Button, Card, DatePicker, Radio, message } from "antd";
+import { Form, Input, Button, Card, DatePicker, Radio } from "antd";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api";
 import dayjs from "dayjs";
+import toast from "react-hot-toast";
 import "./CheckoutPage.css";
 
 const generateTimeSlots = () => {
@@ -34,9 +35,10 @@ export default function CheckoutPage() {
 
     if (storedCart.length > 0) {
       const ids = storedCart.map((i) => i._id);
-      api.post("/api/admin/services/byIds", { ids })
+      api
+        .post("/api/admin/services/byIds", { ids })
         .then((res) => setServices(res.data))
-        .catch(() => message.error("Failed to fetch service details"));
+        .catch(() => toast.error("Failed to fetch service details"));
     }
   }, []);
 
@@ -44,11 +46,12 @@ export default function CheckoutPage() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      api.get("/api/profile", { headers: { Authorization: `Bearer ${token}` } })
+      api
+        .get("/api/profile", { headers: { Authorization: `Bearer ${token}` } })
         .then((res) => {
           form.setFieldsValue(res.data);
         })
-        .catch(() => message.warning("Could not fetch profile"));
+        .catch(() => toast("Could not fetch profile", { icon: "⚠️" }));
     }
   }, [form]);
 
@@ -56,14 +59,20 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => message.warning("Could not fetch location")
+        (pos) =>
+          setLocation({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          }),
+        () => toast("Could not fetch location", { icon: "⚠️" })
       );
     }
   }, []);
 
   const handleSubmit = (values) => {
-    if (!location) return message.error("Location not available");
+    if (!location) return toast.error("Location not available");
+
+    setLoading(true);
 
     const totalAmount = cart.reduce((sum, item) => {
       const srv = services.find((s) => s._id === item._id);
@@ -87,14 +96,23 @@ export default function CheckoutPage() {
     };
 
     localStorage.setItem("pendingBooking", JSON.stringify(payload));
-    navigate("/payment");
+
+    toast.success("Booking details saved! Redirecting to payment…");
+
+    setTimeout(() => {
+      setLoading(false);
+      navigate("/payment");
+    }, 1000);
   };
 
   if (cart.length === 0) {
     return (
       <div className="empty-cart">
-        <p>Your cart is empty. 
-          <Button type="link" onClick={() => navigate("/category")}>Go Shopping</Button>
+        <p>
+          Your cart is empty.{" "}
+          <Button type="link" onClick={() => navigate("/category")}>
+            Go Shopping
+          </Button>
         </p>
       </div>
     );
@@ -104,27 +122,55 @@ export default function CheckoutPage() {
     <div className="checkout-wrapper">
       <Card className="checkout-card">
         <h2 className="checkout-title">Checkout</h2>
-        <Form layout="vertical" form={form} onFinish={handleSubmit}>
+        <Form
+          layout="vertical"
+          form={form}
+          onFinish={handleSubmit}
+          onFinishFailed={() =>
+            toast.error("Please fill all required fields")
+          }
+        >
           <Form.Item name="name" label="Name" rules={[{ required: true }]}>
             <Input placeholder="Enter your name" />
           </Form.Item>
-          <Form.Item name="email" label="Email" rules={[{ required: true, type: "email" }]}>
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[{ required: true, type: "email" }]}
+          >
             <Input placeholder="Enter your email" />
           </Form.Item>
           <Form.Item name="phone" label="Phone" rules={[{ required: true }]}>
             <Input placeholder="Enter your phone number" />
           </Form.Item>
-          <Form.Item name="address" label="Address" rules={[{ required: true }]}>
+          <Form.Item
+            name="address"
+            label="Address"
+            rules={[{ required: true }]}
+          >
             <Input.TextArea rows={2} placeholder="Enter your address" />
           </Form.Item>
 
-          <Form.Item name="selectedDate" label="Select Date" rules={[{ required: true }]}>
-            <DatePicker style={{ width: "100%" }} disabledDate={(d) => d && d < dayjs().startOf("day")} />
+          <Form.Item
+            name="selectedDate"
+            label="Select Date"
+            rules={[{ required: true, message: "Please select a date" }]}
+          >
+            <DatePicker
+              style={{ width: "100%" }}
+              disabledDate={(d) => d && d < dayjs().startOf("day")}
+            />
           </Form.Item>
-          <Form.Item name="selectedTime" label="Select Time Slot" rules={[{ required: true }]}>
+          <Form.Item
+            name="selectedTime"
+            label="Select Time Slot"
+            rules={[{ required: true, message: "Please select a time slot" }]}
+          >
             <Radio.Group className="time-slots">
               {timeSlots.map((slot) => (
-                <Radio.Button key={slot.value} value={slot.value}>{slot.label}</Radio.Button>
+                <Radio.Button key={slot.value} value={slot.value}>
+                  {slot.label}
+                </Radio.Button>
               ))}
             </Radio.Group>
           </Form.Item>
@@ -144,19 +190,40 @@ export default function CheckoutPage() {
           const price = srv?.price || item.price;
           return (
             <div key={item._id} className="order-item">
-              <img src={srv?.imageUrl || "/placeholder.png"} alt={srv?.name || item.name} />
+              <img
+                src={srv?.imageUrl || "/placeholder.png"}
+                alt={srv?.name || item.name}
+              />
               <div>
                 <p className="item-name">{srv?.name || item.name}</p>
-                <p className="item-price">{item.quantity} × ₹{price} = ₹{item.quantity * price}</p>
+                <p className="item-price">
+                  {item.quantity} × ₹{price} = ₹{item.quantity * price}
+                </p>
               </div>
             </div>
           );
         })}
-        <p className="total">Total: ₹{cart.reduce((s, i) => s + (services.find((srv) => srv._id === i._id)?.price || i.price) * i.quantity, 0)}</p>
+        <p className="total">
+          Total: ₹
+          {cart.reduce(
+            (s, i) =>
+              s +
+              (services.find((srv) => srv._id === i._id)?.price || i.price) *
+                i.quantity,
+            0
+          )}
+        </p>
       </Card>
 
       <div className="sticky-footer">
-        <Button type="primary" block shape="round" size="large" loading={loading} onClick={() => form.submit()}>
+        <Button
+          type="primary"
+          block
+          shape="round"
+          size="large"
+          loading={loading}
+          onClick={() => form.submit()}
+        >
           Proceed to Payment
         </Button>
       </div>

@@ -1,0 +1,64 @@
+import React from "react";
+import { Carousel } from "antd";
+import "./Hero.css";
+import facial from "./banner/facial.jpg";
+import waxing from "./banner/waxing.jpg";
+import Manicure from "./banner/Manicure.png";
+import SareeDraping from "./banner/SareeDraping.png";
+import facialleft from "./banner/facial.jpg";
+import waxingleft from "./banner/facial.jpg";
+import { StarOutlined, TeamOutlined } from "@ant-design/icons";
+
+const categories = [
+  { name: "BOOK NOW", icon: facialleft },
+  { name: "Salon for Women", icon: facialleft },
+  { name: "Waxing Service", icon: waxing },
+  { name: "Manicure", icon: Manicure },
+  { name: "Saree Draping", icon: waxingleft },
+];
+
+const Hero = () => {
+  return (
+    <section className="hero-container">
+      {/* Left Section */}
+      <div className="hero-left">
+        <h1 className="hero-title"><span className="brand">Tintd</span> services at your doorstep</h1>
+
+        <Carousel autoplay dots className="hero-carousel">
+          {categories.map((cat, index) => (
+            <div key={index} className="hero-category-card">
+              <img src={cat.icon} alt={cat.name} />
+              <button className="hero-btn">Explore Now</button>
+            </div>
+          ))}
+        </Carousel>
+
+        <div className="hero-ratings">
+          <div className="rating-item">
+            <StarOutlined className="rating-icon" />
+            <div className="rating-number">4.8</div>
+            <div className="rating-label">Service Rating*</div>
+          </div>
+
+          <div className="rating-item">
+            <TeamOutlined className="rating-icon" />
+            <div className="rating-number">12M+</div>
+            <div className="rating-label">Customers Globally*</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Section */}
+      <div className="hero-right">
+        <div className="image-grid">
+          <img className="img-tall" src={facial} alt="Service 1" />
+          <img className="img-wide" src={waxing} alt="Service 2" />
+          <img className="img-tall" src={SareeDraping} alt="Service 4" />
+          <img className="img-small" src={Manicure} alt="Service 3" />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Hero;

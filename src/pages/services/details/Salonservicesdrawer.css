@@ -35,6 +35,7 @@
   }
   .drawer-content.open {
     transform: translateX(0);
+
   }
 }
 
@@ -48,7 +49,7 @@
     transform: translateY(100%);
   }
   .drawer-content.open {
-    transform: translateY(0);
+    transform: translateY(0);    margin-bottom: 10px;
   }
 }
 
@@ -118,7 +119,7 @@
 
 .overview-item img {
   width: 100%;  
-  height: 100%;
+  /* height: 100%; */
   margin-bottom: 6px;
 }
 

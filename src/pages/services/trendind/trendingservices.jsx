@@ -33,6 +33,8 @@ export default function TrendingServices() {
 
   return (
     <div className="trending-container">
+      <h2 className="home-title" style={{ marginTop: "3rem", textAlign: "center" }}>Trending Services</h2>
+
       {loading ? (
         <div className="skeleton-grid">
           {Array.from({ length: 6 }).map((_, i) => (

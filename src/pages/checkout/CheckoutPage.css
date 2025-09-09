@@ -1,6 +1,8 @@
 .checkout-wrapper {
   padding: 12px;
   display: flex;
+    margin-bottom: 40px;
+
   flex-direction: column;
   gap: 16px;
 }
@@ -64,6 +66,7 @@
 
 @media (min-width: 768px) {
   .checkout-wrapper {
+    margin-bottom: 40px;
     flex-direction: row;
     align-items: flex-start;
   }
