@@ -5,6 +5,7 @@ import api from "../../../api";
 import "../../css/CategoryServices.css";
 import Salonservicesdrawer from "./details/Salonservicesdrawer";
 import toast from "react-hot-toast";
+import { useCart } from "../../context/CartContext"; // ✅ use global cart context
 
 export default function CategoryServices() {
   const { id } = useParams();
@@ -19,12 +20,12 @@ export default function CategoryServices() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
-  const [cartItems, setCartItems] = useState([]);
 
+  const { cart, addToCart, removeFromCart } = useCart(); // ✅ global cart
   const isLoggedIn = !!localStorage.getItem("token");
-
   const roundPrice = (p) => Number(Number(p).toFixed(2));
 
+  // fetch services
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -41,9 +42,6 @@ export default function CategoryServices() {
         });
         setSubCategories(subs);
         setVarieties(vars);
-
-        const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
-        setCartItems(savedCart);
       } catch (err) {
         console.error("❌ Fetch services error:", err);
         toast.error("Failed to load services");
@@ -60,30 +58,33 @@ export default function CategoryServices() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleAddToCart = (service) => {
+  const handleAddToCartClick = async (service) => {
     if (!isLoggedIn) {
       toast("Please login first", { icon: "🔑" });
       navigate("/login");
       return;
     }
-    let updatedCart = [...cartItems];
-    const existing = updatedCart.find((item) => item._id === service._id);
-    if (existing) existing.quantity += 1;
-    else updatedCart.push({ ...service, quantity: 1 });
-    setCartItems(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-    toast.success(`${service.name} added to cart`);
+    try {
+      await addToCart(service._id); // ✅ use global context
+      toast.success(`${service.name} added to cart`);
+    } catch (err) {
+      console.error("❌ Add to cart failed:", err);
+      toast.error("Could not add to cart");
+    }
   };
 
-  const handleRemoveFromCart = (serviceId) => {
-    const updatedCart = cartItems.filter((item) => item._id !== serviceId);
-    setCartItems(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-    toast.error("Removed from cart");
+  const handleRemoveFromCartClick = async (serviceId) => {
+    try {
+      await removeFromCart(serviceId); // ✅ use global context
+      toast.error("Removed from cart");
+    } catch (err) {
+      console.error("❌ Remove failed:", err);
+      toast.error("Could not remove from cart");
+    }
   };
 
   const isInCart = (serviceId) =>
-    cartItems.some((item) => item._id === serviceId);
+    cart.some((item) => item.service._id === serviceId);
 
   const filteredServices = services.filter(
     (s) =>
@@ -92,30 +93,19 @@ export default function CategoryServices() {
   );
 
   const columns = [
-    {
-      title: "S.No.",
-      render: (_, __, index) => index + 1,
-      width: 70,
-      align: "center",
-    },
+    { title: "S.No.", render: (_, __, index) => index + 1, width: 70, align: "center" },
     {
       title: "Service",
       dataIndex: "name",
       width: 270,
       render: (_, record) => (
         <div className="service-cell">
-          <img
-            src={record.imageUrl || "/placeholder.png"}
-            alt={record.name}
-            className="service-thumb"
-          />
+          <img src={record.imageUrl || "/placeholder.png"} alt={record.name} className="service-thumb" />
           <div className="service-info">
             <h3 className="service-name">{record.name}</h3>
             <p className="service-duration">
               {record.duration
-                ? `${Math.floor(record.duration / 60)} hr ${
-                    record.duration % 60
-                  } mins`
+                ? `${Math.floor(record.duration / 60)} hr ${record.duration % 60} mins`
                 : "N/A"}
             </p>
           </div>
@@ -130,9 +120,7 @@ export default function CategoryServices() {
         <div className="price-cell">
           <span className="price">₹{roundPrice(record.price)}</span>
           {record.originalPrice > record.price && (
-            <span className="old-price">
-              ₹{roundPrice(record.originalPrice)}
-            </span>
+            <span className="old-price">₹{roundPrice(record.originalPrice)}</span>
           )}
         </div>
       ),
@@ -140,33 +128,18 @@ export default function CategoryServices() {
     {
       title: "Discount",
       dataIndex: "discount",
-      render: (discount) =>
-        discount ? (
-          <Tag color="green">{discount}% OFF</Tag>
-        ) : (
-          <Tag>—</Tag>
-        ),
+      render: (discount) => discount ? <Tag color="green">{discount}% OFF</Tag> : <Tag>—</Tag>,
     },
     {
       title: "Action",
       render: (_, record) => (
         <div className="action-buttons">
           {isInCart(record._id) ? (
-            <Button
-              danger
-              shape="round"
-              size="small"
-              onClick={() => handleRemoveFromCart(record._id)}
-            >
+            <Button danger shape="round" size="small" onClick={() => handleRemoveFromCartClick(record._id)}>
               REMOVE
             </Button>
           ) : (
-            <Button
-              type="primary"
-              shape="round"
-              size="small"
-              onClick={() => handleAddToCart(record)}
-            >
+            <Button type="primary" shape="round" size="small" onClick={() => handleAddToCartClick(record)}>
               ADD
             </Button>
           )}
@@ -206,9 +179,7 @@ export default function CategoryServices() {
             {subCategories.map((sub) => (
               <div
                 key={sub._id}
-                className={`subcat-card ${
-                  selectedSubCat === sub._id ? "active" : ""
-                }`}
+                className={`subcat-card ${selectedSubCat === sub._id ? "active" : ""}`}
                 onClick={() => {
                   setSelectedSubCat(sub._id);
                   setSelectedVariety(null);
@@ -226,9 +197,7 @@ export default function CategoryServices() {
               {varieties.map((v) => (
                 <button
                   key={v._id}
-                  className={`chip ${
-                    selectedVariety === v._id ? "active" : ""
-                  }`}
+                  className={`chip ${selectedVariety === v._id ? "active" : ""}`}
                   onClick={() => setSelectedVariety(v._id)}
                 >
                   {v.name}
@@ -237,56 +206,26 @@ export default function CategoryServices() {
             </div>
           )}
 
-          {/* Services List */}
           {isMobile ? (
             <div className="mobile-services">
               {filteredServices.map((service) => (
                 <div key={service._id} className="mobile-service-card">
-                  <img
-                    src={service.imageUrl || "/placeholder.png"}
-                    alt={service.name}
-                    className="mobile-service-img"
-                  />
+                  <img src={service.imageUrl || "/placeholder.png"} alt={service.name} className="mobile-service-img" />
                   <div className="mobile-service-info">
                     <h3>{service.name}</h3>
-                    <p>
-                      {service.duration
-                        ? `${Math.floor(service.duration / 60)} hr ${
-                            service.duration % 60
-                          } mins`
-                        : "N/A"}
-                    </p>
                     <div className="price-section">
-                      <span className="price">
-                        ₹{roundPrice(service.price)}
-                      </span>
-                      {service.originalPrice > service.price && (
-                        <span className="old-price">
-                          ₹{roundPrice(service.originalPrice)}
-                        </span>
-                      )}
+                      <span className="price">₹{roundPrice(service.price)}</span>
                     </div>
                     <div className="mobile-buttons">
                       {isInCart(service._id) ? (
-                        <Button
-                          danger
-                          shape="round"
-                          size="small"
-                          onClick={() => handleRemoveFromCart(service._id)}
-                        >
+                        <Button danger shape="round" size="small" onClick={() => handleRemoveFromCartClick(service._id)}>
                           REMOVE
                         </Button>
                       ) : (
-                        <Button
-                          type="primary"
-                          shape="round"
-                          size="small"
-                          onClick={() => handleAddToCart(service)}
-                        >
+                        <Button type="primary" shape="round" size="small" onClick={() => handleAddToCartClick(service)}>
                           ADD
                         </Button>
-                      )}
-                      <Button
+                      )}<Button
                         size="small"
                         className="view-btn"
                         onClick={() => {
@@ -302,13 +241,7 @@ export default function CategoryServices() {
               ))}
             </div>
           ) : (
-            <Table
-              dataSource={filteredServices}
-              columns={columns}
-              rowKey="_id"
-              pagination={false}
-              scroll={{ x: true }}
-            />
+            <Table dataSource={filteredServices} columns={columns} rowKey="_id" pagination={false} scroll={{ x: true }} />
           )}
 
           {drawerOpen && selectedService && (
@@ -316,7 +249,7 @@ export default function CategoryServices() {
               open={drawerOpen}
               onClose={() => setDrawerOpen(false)}
               service={selectedService}
-              isMobile={isMobile} // ✅ pass prop
+              isMobile={isMobile}
             />
           )}
         </>

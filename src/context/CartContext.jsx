@@ -1,57 +1,56 @@
-// src/context/CartContext.jsx
+// src/components/context/CartContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
-import { io } from "socket.io-client";
-
-// ✅ Same backend URL logic as api.js
-const backendURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+import api from "../../api";
 
 const CartContext = createContext();
-const socket = io(backendURL, { withCredentials: true });
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
-  const userId = localStorage.getItem("userId"); // saved after login/register
+  const [lastUpdated, setLastUpdated] = useState(Date.now()); // for badge animation
+
+  const fetchCart = async () => {
+    try {
+      const res = await api.get("/api/cart");
+      setCart(res.data.items || []);
+      setLastUpdated(Date.now());
+    } catch (err) {
+      console.error("❌ Fetch cart failed:", err);
+    }
+  };
+
+  const addToCart = async (serviceId) => {
+    const res = await api.post("/api/cart/add", { serviceId, quantity: 1 });
+    setCart(res.data.items);
+    setLastUpdated(Date.now());
+  };
+
+  const removeFromCart = async (serviceId) => {
+    const res = await api.delete(`/api/cart/${serviceId}`);
+    setCart(res.data.items);
+    setLastUpdated(Date.now());
+  };
+
+  const updateQuantity = async (serviceId, qty) => {
+    const res = await api.put(`/api/cart/${serviceId}`, { quantity: qty });
+    setCart(res.data.items);
+    setLastUpdated(Date.now());
+  };
 
   useEffect(() => {
-    if (!userId) return;
-
-    // Join user's cart room and fetch cart
-    socket.emit("joinCart", { userId });
-    socket.emit("getCart", { userId });
-
-    // Listen for updates
-    socket.on("cartUpdated", (updatedCart) => {
-      setCart(updatedCart?.items || []);
-    });
-
-    socket.on("cartError", (msg) => {
-      console.error("❌ Cart error:", msg);
-    });
-
-    return () => {
-      socket.off("cartUpdated");
-      socket.off("cartError");
-    };
-  }, [userId]);
-
-  // Cart actions
-  const addToCart = (serviceId, quantity = 1) => {
-    if (!userId) return alert("Please login first!");
-    socket.emit("addToCart", { userId, serviceId, quantity });
-  };
-
-  const updateQuantity = (serviceId, quantity) => {
-    if (!userId) return;
-    socket.emit("updateQuantity", { userId, serviceId, quantity });
-  };
-
-  const removeFromCart = (serviceId) => {
-    if (!userId) return;
-    socket.emit("removeFromCart", { userId, serviceId });
-  };
+    fetchCart();
+  }, []);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        fetchCart,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        lastUpdated,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
