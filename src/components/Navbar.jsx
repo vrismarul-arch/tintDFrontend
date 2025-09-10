@@ -3,6 +3,7 @@ import { useLocation, Link, useNavigate } from "react-router-dom";
 import { ShoppingCartOutlined, HomeOutlined, ProfileOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Dropdown, Menu, Badge, message } from "antd";
 import LocationSearch from "./LocationSearch/LocationSearch";
+import SearchBar from "./searchbar/SearchBar";
 import api from "../../api";
 import { useCart } from "../context/CartContext";
 import "./Navbar.css";
@@ -24,19 +25,18 @@ const ResponsiveNavbar = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const { cart, fetchCart, lastUpdated } = useCart();
 
-  // Cart from context
-  const { cart, lastUpdated } = useCart();
   const totalCartQuantity = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
 
-  // Handle mobile resize
+  // ----------------- Handle window resize -----------------
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Animate badge when cart changes
+  // ----------------- Animate badge on cart update -----------------
   useEffect(() => {
     if (cart.length >= 0) {
       setAnimateBadge(true);
@@ -45,7 +45,12 @@ const ResponsiveNavbar = () => {
     }
   }, [lastUpdated]);
 
-  // Fetch logged-in user
+  // ----------------- Fetch latest cart on mount (refresh safe) -----------------
+  useEffect(() => {
+    fetchCart(); // ensures badge is correct even after page refresh or payment success
+  }, []);
+
+  // ----------------- Fetch user profile -----------------
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -81,26 +86,22 @@ const ResponsiveNavbar = () => {
 
   const profileMenu = (
     <Menu>
-      <Menu.Item key="profile">
-        <Link to="/profile">Profile</Link>
-      </Menu.Item>
-      <Menu.Item key="bookings">
-        <Link to="/booking-history">My Bookings</Link>
-      </Menu.Item>
-      <Menu.Item key="logout" onClick={handleLogout}>
-        Logout
-      </Menu.Item>
+      <Menu.Item key="profile"><Link to="/profile">Profile</Link></Menu.Item>
+      <Menu.Item key="bookings"><Link to="/booking-history">My Bookings</Link></Menu.Item>
+      <Menu.Item key="logout" onClick={handleLogout}>Logout</Menu.Item>
     </Menu>
   );
 
-  // Mobile navbar
+  // ------------------- MOBILE NAVBAR -------------------
   if (isMobile) {
     return (
       <>
         <div className="mobile-top-bar">
           <Link to="/"><img src="/tintD.png" alt="Logo" className="uc-logo-mobile" /></Link>
           {!isLoggedIn ? (
-            <Link to="/login"><Avatar size={36} icon={<UserOutlined />} style={{ backgroundColor: "#a066e1" }} /></Link>
+            <Link to="/login">
+              <Avatar size={36} icon={<UserOutlined />} style={{ backgroundColor: "#a066e1" }} />
+            </Link>
           ) : (
             <Dropdown overlay={profileMenu} trigger={["click"]} placement="bottomRight">
               <Avatar size={36} src={userAvatar || undefined} icon={<UserOutlined />} style={{ backgroundColor: "#a066e1", cursor: "pointer" }} />
@@ -108,7 +109,10 @@ const ResponsiveNavbar = () => {
           )}
         </div>
 
-        <div className="mobile-top-bar"><LocationSearch /></div>
+        <div className="mobile-middle-bar">
+          <LocationSearch />
+          <SearchBar />
+        </div>
 
         <div className="mobile-bottom-navbar">
           {menuData.mobileNav.map((item, index) => {
@@ -132,11 +136,14 @@ const ResponsiveNavbar = () => {
     );
   }
 
-  // Desktop navbar
+  // ------------------- DESKTOP NAVBAR -------------------
   return (
     <div className="desktop-navbar">
       <div className="nav-left"><Link to="/"><img src="/tintD.png" alt="Logo" className="uc-logo" /></Link></div>
-      <div className="nav-middle"><LocationSearch isMobile={isMobile} /></div>
+      <div className="nav-middle">
+        <LocationSearch isMobile={isMobile} />
+        <SearchBar />
+      </div>
       <div className="nav-right">
         <Link to="/cart" className="nav-link">
           <Badge count={totalCartQuantity} offset={[0, 0]} showZero={false} className={animateBadge ? "badge-pulse" : ""}>

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../../../api";
 import { message, Spin, Button, Card, Radio, Modal } from "antd";
 
-// Import images from assets folder
+// Import images
 import onlinePaymentIcon from "../payment/icon/bank.png";
 import codPaymentIcon from "../payment/icon/afterpay.png";
 
@@ -17,6 +17,7 @@ export default function PaymentPage() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
 
+  // Load pending booking from localStorage
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("pendingBooking"));
     if (!stored) {
@@ -27,103 +28,114 @@ export default function PaymentPage() {
     setPendingBooking(stored);
   }, [navigate]);
 
-  const handleOnlinePayment = () => {
+  // ✅ Clear backend cart
+  const clearCartBackend = async () => {
+    try {
+      await api.delete("/api/cart", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      console.log("Backend cart cleared");
+    } catch (err) {
+      console.error("Failed to clear backend cart:", err);
+    }
+  };
+
+  // ✅ Handle online payment
+  const handleOnlinePayment = async () => {
     if (!pendingBooking) return;
-
     setLoading(true);
-    api
-      .post("/api/payment/create-order", {
-        amount: pendingBooking.totalAmount,
-        bookingData: pendingBooking,
-      })
-      .then((res) => {
-        const { orderId, amount, currency } = res.data;
 
-        const options = {
-          key: "rzp_test_RByvKNCLagLArF",
-          amount: amount.toString(),
-          currency,
-          name: "Salon Booking",
-          description: "Service Booking Payment",
-          order_id: orderId,
-          handler: async function (response) {
-            try {
-              const verifyRes = await api.post("/api/payment/verify", {
-                ...response,
-                bookingData: pendingBooking,
-              });
+    try {
+      const { data } = await api.post("/api/payment/create-order", {
+        ...pendingBooking,
+        paymentMethod: "online",
+      });
 
-              if (verifyRes.data.success) {
-                message.success("Payment successful!");
-                // Save booking details for success page
-                localStorage.setItem(
-                  "successBooking",
-                  JSON.stringify({
-                    name: pendingBooking.name,
-                    email: pendingBooking.email,
-                    phone: pendingBooking.phone,
-                    totalAmount: pendingBooking.totalAmount,
-                    paymentMethod: "online",
-                  })
-                );
-                localStorage.removeItem("cart");
-                localStorage.removeItem("pendingBooking");
-                navigate("/success");
-              } else {
-                message.error("Payment verification failed!");
-                navigate("/failure");
-              }
-            } catch (err) {
-              console.error("Verify error:", err);
+      const { orderId, amount, currency, bookingId } = data;
+
+      const options = {
+        key: "rzp_test_RByvKNCLagLArF",
+        amount: amount.toString(),
+        currency,
+        name: "Salon Booking",
+        description: "Service Booking Payment",
+        order_id: orderId,
+        handler: async (response) => {
+          try {
+            const verifyRes = await api.post("/api/payment/verify", {
+              ...response,
+              bookingId,
+            });
+
+            if (verifyRes.data.success) {
+              message.success("Payment successful!");
+
+              // Save booking success
+              localStorage.setItem(
+                "successBooking",
+                JSON.stringify({ ...pendingBooking, paymentMethod: "online" })
+              );
+
+              // Clear local and backend cart
+              localStorage.removeItem("cart");
+              localStorage.removeItem("pendingBooking");
+              await clearCartBackend();
+
+              navigate("/success");
+            } else {
               message.error("Payment verification failed!");
               navigate("/failure");
             }
-          },
-          prefill: {
-            name: pendingBooking.name,
-            email: pendingBooking.email,
-            contact: pendingBooking.phone,
-          },
-          theme: { color: "#3399cc" },
-        };
+          } catch (err) {
+            console.error("Verify error:", err);
+            message.error("Payment verification failed!");
+            navigate("/failure");
+          }
+        },
+        prefill: {
+          name: pendingBooking.name,
+          email: pendingBooking.email,
+          contact: pendingBooking.phone,
+        },
+        theme: { color: "#3399cc" },
+      };
 
-        setLoading(false);
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-      })
-      .catch((err) => {
-        console.error("Order creation error:", err);
-        message.error("Failed to create payment order");
-        setLoading(false);
-        navigate("/checkout");
-      });
+      setLoading(false);
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error("Order creation error:", err);
+      message.error("Failed to create payment order");
+      setLoading(false);
+      navigate("/checkout");
+    }
   };
 
+  // ✅ Handle COD booking
   const handleCOD = async () => {
     if (!pendingBooking) return;
+    setLoading(true);
+
     try {
-      setLoading(true);
       await api.post(
         "/api/bookings",
         { ...pendingBooking, paymentMethod: "cod" },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
+
       message.success("Booking placed with Cash on Delivery!");
-      // Save booking details for success page
+
+      // Save booking success
       localStorage.setItem(
         "successBooking",
-        JSON.stringify({
-          name: pendingBooking.name,
-          email: pendingBooking.email,
-          phone: pendingBooking.phone,
-          totalAmount: pendingBooking.totalAmount,
-          paymentMethod: "cod",
-        })
+        JSON.stringify({ ...pendingBooking, paymentMethod: "cod" })
       );
+
+      // Clear local and backend cart
       localStorage.removeItem("cart");
       localStorage.removeItem("pendingBooking");
+      await clearCartBackend();
+
       navigate("/success");
     } catch (err) {
       console.error("COD booking error:", err);
@@ -135,17 +147,15 @@ export default function PaymentPage() {
   };
 
   const handleProceed = () => {
-    if (paymentMethod === "online") {
-      handleOnlinePayment();
-    } else {
-      handleCOD();
-    }
+    if (paymentMethod === "online") handleOnlinePayment();
+    else handleCOD();
   };
 
+  // Cancel booking
   const confirmCancel = async () => {
     try {
       setCancelLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       message.info("Booking cancelled, returning to cart.");
       localStorage.removeItem("pendingBooking");
       navigate("/cart");
@@ -158,13 +168,12 @@ export default function PaymentPage() {
     }
   };
 
-  if (!pendingBooking) {
+  if (!pendingBooking)
     return (
       <div className="payment-container">
         <Spin size="large" />
       </div>
     );
-  }
 
   return (
     <>
@@ -194,33 +203,19 @@ export default function PaymentPage() {
               value={paymentMethod}
             >
               <Radio value="online">
-                <img
-                  src={onlinePaymentIcon}
-                  alt="Online Payment"
-                  style={{ marginRight: "8px", verticalAlign: "middle" }}
-                />
+                <img src={onlinePaymentIcon} alt="Online" style={{ marginRight: 8 }} />
                 Online Payment
               </Radio>
               <Radio value="cod">
-                <img
-                  src={codPaymentIcon}
-                  alt="Cash on Delivery"
-                  style={{ marginRight: "8px", verticalAlign: "middle" }}
-                />
+                <img src={codPaymentIcon} alt="COD" style={{ marginRight: 8 }} />
                 Cash on Delivery
               </Radio>
             </Radio.Group>
           </div>
 
           <div className="payment-buttons">
-            <Button className="btn-danger" onClick={() => setShowCancelModal(true)}>
-              ← Go Back to Cart
-            </Button>
-            <Button
-              className="btn-primary"
-              onClick={handleProceed}
-              loading={loading}
-            >
+            <Button onClick={() => setShowCancelModal(true)}>← Go Back to Cart</Button>
+            <Button onClick={handleProceed} loading={loading} type="primary">
               Confirm & Proceed with {paymentMethod === "online" ? "Online Payment" : "COD"}
             </Button>
           </div>
@@ -232,26 +227,13 @@ export default function PaymentPage() {
         open={showCancelModal}
         onCancel={() => setShowCancelModal(false)}
         footer={[
-          <Button key="no" onClick={() => setShowCancelModal(false)}>
-            No
-          </Button>,
-          <Button
-            key="yes"
-            danger
-            loading={cancelLoading}
-            onClick={confirmCancel}
-          >
+          <Button key="no" onClick={() => setShowCancelModal(false)}>No</Button>,
+          <Button key="yes" danger loading={cancelLoading} onClick={confirmCancel}>
             Yes, Cancel
           </Button>,
         ]}
       >
-        {cancelLoading ? (
-          <div className="payment-container">
-            <Spin size="large" />
-          </div>
-        ) : (
-          <p>Are you sure you want to cancel this booking and return to your cart?</p>
-        )}
+        {cancelLoading ? <Spin size="large" /> : <p>Are you sure you want to cancel this booking?</p>}
       </Modal>
     </>
   );

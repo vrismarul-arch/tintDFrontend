@@ -1,9 +1,11 @@
+// src/components/pages/CheckoutPage.jsx
 import { useEffect, useState } from "react";
 import { Form, Input, Button, Card, DatePicker, Radio } from "antd";
 import { useNavigate } from "react-router-dom";
-import api from "../../../api";
 import dayjs from "dayjs";
 import toast from "react-hot-toast";
+import { useCart } from "../../context/CartContext";
+import api from "../../../api";
 import "./CheckoutPage.css";
 
 const generateTimeSlots = () => {
@@ -23,47 +25,39 @@ export default function CheckoutPage() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [location, setLocation] = useState(null);
-  const [cart, setCart] = useState([]);
   const [services, setServices] = useState([]);
+  const { cart } = useCart();
   const navigate = useNavigate();
   const timeSlots = generateTimeSlots();
 
-  // Load cart + service details
+  // Fetch service details from backend
   useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(storedCart);
-
-    if (storedCart.length > 0) {
-      const ids = storedCart.map((i) => i._id);
+    if (cart.length > 0) {
+      const ids = cart.map((i) => i.service._id);
       api
         .post("/api/admin/services/byIds", { ids })
         .then((res) => setServices(res.data))
         .catch(() => toast.error("Failed to fetch service details"));
     }
-  }, []);
+  }, [cart]);
 
-  // Load profile
+  // Load profile if logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       api
         .get("/api/profile", { headers: { Authorization: `Bearer ${token}` } })
-        .then((res) => {
-          form.setFieldsValue(res.data);
-        })
+        .then((res) => form.setFieldsValue(res.data))
         .catch(() => toast("Could not fetch profile", { icon: "⚠️" }));
     }
   }, [form]);
 
-  // Get location
+  // Get user location
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) =>
-          setLocation({
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          }),
+          setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
         () => toast("Could not fetch location", { icon: "⚠️" })
       );
     }
@@ -71,23 +65,22 @@ export default function CheckoutPage() {
 
   const handleSubmit = (values) => {
     if (!location) return toast.error("Location not available");
-
     setLoading(true);
 
     const totalAmount = cart.reduce((sum, item) => {
-      const srv = services.find((s) => s._id === item._id);
-      return sum + (srv?.price || item.price || 0) * item.quantity;
+      const srv = services.find((s) => s._id === item.service._id);
+      return sum + (srv?.price || item.service.price || 0) * item.quantity;
     }, 0);
 
     const payload = {
       ...values,
       location,
       services: cart.map((item) => {
-        const srv = services.find((s) => s._id === item._id);
+        const srv = services.find((s) => s._id === item.service._id);
         return {
-          serviceId: item._id,
-          name: srv?.name || item.name,
-          price: srv?.price || item.price,
+          serviceId: item.service._id,
+          name: srv?.name || item.service.name,
+          price: srv?.price || item.service.price,
           quantity: item.quantity,
           imageUrl: srv?.imageUrl || "/placeholder.png",
         };
@@ -96,7 +89,6 @@ export default function CheckoutPage() {
     };
 
     localStorage.setItem("pendingBooking", JSON.stringify(payload));
-
     toast.success("Booking details saved! Redirecting to payment…");
 
     setTimeout(() => {
@@ -126,9 +118,7 @@ export default function CheckoutPage() {
           layout="vertical"
           form={form}
           onFinish={handleSubmit}
-          onFinishFailed={() =>
-            toast.error("Please fill all required fields")
-          }
+          onFinishFailed={() => toast.error("Please fill all required fields")}
         >
           <Form.Item name="name" label="Name" rules={[{ required: true }]}>
             <Input placeholder="Enter your name" />
@@ -150,7 +140,6 @@ export default function CheckoutPage() {
           >
             <Input.TextArea rows={2} placeholder="Enter your address" />
           </Form.Item>
-
           <Form.Item
             name="selectedDate"
             label="Select Date"
@@ -174,7 +163,6 @@ export default function CheckoutPage() {
               ))}
             </Radio.Group>
           </Form.Item>
-
           {location && (
             <p className="location-info">
               📍 {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
@@ -186,16 +174,16 @@ export default function CheckoutPage() {
       <Card className="order-summary">
         <h3>Order Summary</h3>
         {cart.map((item) => {
-          const srv = services.find((s) => s._id === item._id);
-          const price = srv?.price || item.price;
+          const srv = services.find((s) => s._id === item.service._id);
+          const price = srv?.price || item.service.price;
           return (
-            <div key={item._id} className="order-item">
+            <div key={item.service._id} className="order-item">
               <img
                 src={srv?.imageUrl || "/placeholder.png"}
-                alt={srv?.name || item.name}
+                alt={srv?.name || item.service.name}
               />
               <div>
-                <p className="item-name">{srv?.name || item.name}</p>
+                <p className="item-name">{srv?.name || item.service.name}</p>
                 <p className="item-price">
                   {item.quantity} × ₹{price} = ₹{item.quantity * price}
                 </p>
@@ -207,9 +195,7 @@ export default function CheckoutPage() {
           Total: ₹
           {cart.reduce(
             (s, i) =>
-              s +
-              (services.find((srv) => srv._id === i._id)?.price || i.price) *
-                i.quantity,
+              s + (services.find((srv) => srv._id === i.service._id)?.price || i.service.price) * i.quantity,
             0
           )}
         </p>

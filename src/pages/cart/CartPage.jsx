@@ -1,19 +1,55 @@
 import { useEffect, useState } from "react";
-import { Table, Button, message } from "antd";
+import { Table, Button, message as antdMessage } from "antd";
 import { DeleteOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../../context/CartContext"; // ✅ use cart context
+import { useCart } from "../../context/CartContext";
+import api from "../../../api";
 import "./CartPage.css";
 
 export default function CartPage() {
-  const { cart, updateQuantity, removeFromCart } = useCart(); // ✅ global cart
+  const { cart, setCart, updateQuantity, removeFromCart } = useCart();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
 
+  // ✅ Fetch latest cart from backend
+  const fetchCart = async (showMessage = false) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return setCart([]);
+      const { data } = await api.get("/api/cart", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCart(data?.items || []);
+      if (showMessage && data?.success) {
+        antdMessage.success(data.message || "Cart updated successfully");
+      }
+    } catch (err) {
+      console.error("Failed to fetch cart:", err);
+      antdMessage.error("Could not update cart. Try refreshing.");
+      setCart([]);
+    }
+  };
+
+  // Handle window resize
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Auto-refresh cart on mount
+  useEffect(() => {
+    fetchCart();
+  }, []);
+
+  // Clear cart after successful payment
+  useEffect(() => {
+    const successBooking = localStorage.getItem("successBooking");
+    if (successBooking) {
+      localStorage.removeItem("cart");
+      localStorage.removeItem("successBooking");
+      fetchCart(true); // refresh cart and show success message
+    }
   }, []);
 
   const subtotal = cart.reduce((sum, item) => sum + item.service.price * item.quantity, 0);
@@ -33,7 +69,10 @@ export default function CartPage() {
               type="text"
               danger
               icon={<DeleteOutlined />}
-              onClick={() => removeFromCart(item.service._id)}
+              onClick={async () => {
+                await removeFromCart(item.service._id);
+                fetchCart();
+              }}
             >
               Remove
             </Button>
@@ -45,9 +84,24 @@ export default function CartPage() {
       title: "Quantity",
       render: (_, item) => (
         <div className="qty-box">
-          <Button onClick={() => updateQuantity(item.service._id, item.quantity - 1)}>-</Button>
+          <Button
+            onClick={async () => {
+              await updateQuantity(item.service._id, item.quantity - 1);
+              fetchCart();
+            }}
+            disabled={item.quantity <= 1}
+          >
+            -
+          </Button>
           <span>{item.quantity}</span>
-          <Button onClick={() => updateQuantity(item.service._id, item.quantity + 1)}>+</Button>
+          <Button
+            onClick={async () => {
+              await updateQuantity(item.service._id, item.quantity + 1);
+              fetchCart();
+            }}
+          >
+            +
+          </Button>
         </div>
       ),
     },
@@ -80,15 +134,20 @@ export default function CartPage() {
                 <p>Price: ₹{item.service.price}</p>
                 <p>Total: ₹{item.service.price * item.quantity}</p>
                 <div className="qty-box">
-                  <Button onClick={() => updateQuantity(item.service._id, item.quantity - 1)}>-</Button>
+                  <Button
+                    onClick={async () => { await updateQuantity(item.service._id, item.quantity - 1); fetchCart(); }}
+                    disabled={item.quantity <= 1}
+                  >-</Button>
                   <span>{item.quantity}</span>
-                  <Button onClick={() => updateQuantity(item.service._id, item.quantity + 1)}>+</Button>
+                  <Button
+                    onClick={async () => { await updateQuantity(item.service._id, item.quantity + 1); fetchCart(); }}
+                  >+</Button>
                 </div>
                 <Button
                   type="text"
                   danger
                   icon={<DeleteOutlined />}
-                  onClick={() => removeFromCart(item.service._id)}
+                  onClick={async () => { await removeFromCart(item.service._id); fetchCart(); }}
                 >
                   Remove
                 </Button>

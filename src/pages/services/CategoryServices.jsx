@@ -9,7 +9,7 @@ import { useCart } from "../../context/CartContext"; // ✅ use global cart cont
 
 export default function CategoryServices() {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const navigate = useNavigate();   
 
   const [services, setServices] = useState([]);
   const [subCategories, setSubCategories] = useState([]);

@@ -9,7 +9,7 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <App />
-      <Toaster position="top-right" reverseOrder={false} /> {/* ✅ toast container */}
+      <Toaster position="top-center" reverseOrder={false} /> {/* ✅ toast container */}
     </GoogleOAuthProvider>
   </StrictMode>
 );
