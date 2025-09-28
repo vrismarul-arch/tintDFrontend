@@ -5,22 +5,19 @@ import {
   Drawer,
   Form,
   Input,
+  Row,
+  Col,
   InputNumber,
   Select,
   Upload,
-  message,
   Dropdown,
   Menu,
   Tabs,
   Spin,
 } from "antd";
-import {
-  UploadOutlined,
-  MoreOutlined,
-  EditOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
+import { UploadOutlined, MoreOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import api from "../../../../api";
+import toast, { Toaster } from "react-hot-toast"; // ✅ import hot toast
 import "./services.css";
 
 const { TabPane } = Tabs;
@@ -30,6 +27,8 @@ export default function ServicesPage() {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [varieties, setVarieties] = useState([]);
+  const [filteredSubCategories, setFilteredSubCategories] = useState([]);
+  const [filteredVarieties, setFilteredVarieties] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDetailsDrawerOpen, setIsDetailsDrawerOpen] = useState(false);
   const [form] = Form.useForm();
@@ -73,18 +72,23 @@ export default function ServicesPage() {
     setServices(res.data || []);
   };
 
-  // Antd Upload normalizer
-  const normalizeUpload = (e) => {
-    if (Array.isArray(e)) return e;
-    return e && e.fileList ? e.fileList : [];
+  const normalizeUpload = (e) => (Array.isArray(e) ? e : e?.fileList || []);
+
+  const handleCategoryChange = (categoryId) => {
+    form.setFieldsValue({ subCategory: null, variety: null });
+    setFilteredSubCategories(subCategories.filter((sc) => sc.category?._id === categoryId));
+    setFilteredVarieties([]);
+  };
+
+  const handleSubCategoryChange = (subCategoryId) => {
+    form.setFieldsValue({ variety: null });
+    setFilteredVarieties(varieties.filter((v) => v.subCategory?._id === subCategoryId));
   };
 
   const handleSave = async () => {
     try {
       setSaving(true);
-
       const values = await form.validateFields();
-
       const duration = (values.hours || 0) * 60 + (values.minutes || 0);
       values.duration = duration;
 
@@ -95,21 +99,18 @@ export default function ServicesPage() {
       }
 
       const formData = new FormData();
-
       Object.keys(values).forEach((key) => {
         if (["overview", "procedureSteps"].includes(key)) {
-  const arr = values[key].map((item, index) => {
-    if (item.img && item.img[0]?.originFileObj) {
-      formData.append(`${key}Images_${index}`, item.img[0].originFileObj);
-      return { ...item, img: item.img[0].name };
-    } else if (item.img && item.img[0]?.url) {
-      return { ...item, img: item.img[0].url };
-    }
-    return item;
-  });
-  formData.append(key, JSON.stringify(arr));
-
-
+          const arr = values[key].map((item, index) => {
+            if (item.img && item.img[0]?.originFileObj) {
+              formData.append(`${key}Images_${index}`, item.img[0].originFileObj);
+              return { ...item, img: item.img[0].name };
+            } else if (item.img && item.img[0]?.url) {
+              return { ...item, img: item.img[0].url };
+            }
+            return item;
+          });
+          formData.append(key, JSON.stringify(arr));
         } else if (
           ["thingsToKnow", "precautionsAftercare", "faqs"].includes(key)
         ) {
@@ -121,7 +122,6 @@ export default function ServicesPage() {
         }
       });
 
-      // Main image
       const mainImage = values.image?.[0]?.originFileObj;
       if (mainImage) {
         formData.append("image", mainImage);
@@ -129,10 +129,10 @@ export default function ServicesPage() {
 
       if (editingItem) {
         await api.put(`/api/admin/services/${editingItem._id}`, formData);
-        message.success("✅ Service updated successfully!");
+        toast.success("✅ Service updated successfully!"); // ✅ Hot toast
       } else {
         await api.post("/api/admin/services", formData);
-        message.success("✅ Service added successfully!");
+        toast.success("✅ Service added successfully!");
       }
 
       setIsDrawerOpen(false);
@@ -142,18 +142,22 @@ export default function ServicesPage() {
       fetchServices();
     } catch (err) {
       console.error(err);
-      message.error("❌ Something went wrong while saving service!");
+      toast.error("❌ Something went wrong while saving service!");
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id) => {
-    await api.delete(`/api/admin/services/${id}`);
-    fetchServices();
-    message.success("🗑️ Service deleted!");
+    try {
+      await api.delete(`/api/admin/services/${id}`);
+      fetchServices();
+      toast.success("🗑️ Service deleted!");
+    } catch (err) {
+      console.error(err);
+      toast.error("❌ Failed to delete service!");
+    }
   };
-
   const columns = [
     { title: "S.No", render: (_, __, index) => index + 1, width: 70 },
     {
@@ -187,7 +191,9 @@ export default function ServicesPage() {
       render: (op, record) =>
         op ? (
           <span
-            className={`${op > record.price ? "line-through text-gray-400" : "text-gray-600"}`}
+            className={`${
+              op > record.price ? "line-through text-gray-400" : "text-gray-600"
+            }`}
           >
             ₹{op?.toFixed(2)}
           </span>
@@ -212,12 +218,27 @@ export default function ServicesPage() {
               icon={<EditOutlined />}
               onClick={() => {
                 setEditingItem(record);
+
+                setFilteredSubCategories(
+                  subCategories.filter(
+                    (sc) => sc.category?._id === record.category?._id
+                  )
+                );
+                setFilteredVarieties(
+                  varieties.filter(
+                    (v) => v.subCategory?._id === record.subCategory?._id
+                  )
+                );
+
+                const hours = Math.floor((record.duration || 0) / 60);
+                const minutes = (record.duration || 0) % 60;
+
                 form.setFieldsValue({
                   name: record.name,
                   originalPrice: record.originalPrice,
                   price: record.price,
-                  hours: Math.floor((record.duration || 0) / 60),
-                  minutes: (record.duration || 0) % 60,
+                  hours,
+                  minutes,
                   category: record.category?._id,
                   subCategory: record.subCategory?._id,
                   variety: record.variety?._id,
@@ -235,19 +256,21 @@ export default function ServicesPage() {
                         ]
                       : [],
                   })),
-                  procedureSteps: (record.procedureSteps || []).map((item, idx) => ({
-                    ...item,
-                    img: item.img
-                      ? [
-                          {
-                            uid: `step-${idx}`,
-                            name: `step-${idx}.png`,
-                            status: "done",
-                            url: item.img,
-                          },
-                        ]
-                      : [],
-                  })),
+                  procedureSteps: (record.procedureSteps || []).map(
+                    (item, idx) => ({
+                      ...item,
+                      img: item.img
+                        ? [
+                            {
+                              uid: `step-${idx}`,
+                              name: `step-${idx}.png`,
+                              status: "done",
+                              url: item.img,
+                            },
+                          ]
+                        : [],
+                    })
+                  ),
                   thingsToKnow: record.thingsToKnow || [],
                   precautionsAftercare: record.precautionsAftercare || [],
                   faqs: record.faqs || [],
@@ -288,7 +311,7 @@ export default function ServicesPage() {
   ];
 
   return (
-    <div className="services-page">
+    <div className="services-page"> <Toaster position="top-right" reverseOrder={false} />
       <div className="header flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-gray-800">💇 Services</h2>
         <Button
@@ -298,6 +321,8 @@ export default function ServicesPage() {
             setIsDrawerOpen(true);
             setEditingItem(null);
             form.resetFields();
+            setFilteredSubCategories([]);
+            setFilteredVarieties([]);
           }}
         >
           + Add Service
@@ -335,99 +360,123 @@ export default function ServicesPage() {
       )}
 
       {/* Drawer for Add/Edit */}
-      <Drawer
-        title={`${editingItem ? "Edit" : "Add"} Service`}
-        open={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        width={520}
-        extra={
-          <div className="flex gap-2">
-            <Button onClick={() => setIsDrawerOpen(false)}>Cancel</Button>
-            <Button type="primary" onClick={handleSave} loading={saving}>
-              Save
-            </Button>
-          </div>
-        }
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true }]}> 
-            <Input placeholder="Enter service name" />
-          </Form.Item>
+     <Drawer
+  title={`${editingItem ? "Edit" : "Add"} Service`}
+  open={isDrawerOpen}
+  onClose={() => setIsDrawerOpen(false)}
+  width={600}
+  extra={
+    <div className="flex gap-2">
+      <Button onClick={() => setIsDrawerOpen(false)}>Cancel</Button>
+      <Button type="primary" onClick={handleSave} loading={saving}>
+        Save
+      </Button>
+    </div>
+  }
+>
+  <Form form={form} layout="vertical">
+    <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+      <Input placeholder="Enter service name" />
+    </Form.Item>
 
-          <Form.Item name="originalPrice" label="Original Price">
-            <InputNumber min={1} style={{ width: "100%" }} />
-          </Form.Item>
+    <Row gutter={16}>
+      <Col span={12}>
+        <Form.Item name="originalPrice" label="Original Price">
+          <InputNumber min={1} style={{ width: "100%" }} />
+        </Form.Item>
+      </Col>
+      <Col span={12}>
+        <Form.Item name="price" label="Final Price">
+          <InputNumber min={1} style={{ width: "100%" }} />
+        </Form.Item>
+      </Col>
+    </Row>
 
-          <Form.Item name="price" label="Final Price">
-            <InputNumber min={1} style={{ width: "100%" }} />
-          </Form.Item>
+    <Row gutter={16}>
+      <Col span={12}>
+        <Form.Item name="hours" label="Hours">
+          <InputNumber min={0} style={{ width: "100%" }} />
+        </Form.Item>
+      </Col>
+      <Col span={12}>
+        <Form.Item name="minutes" label="Minutes">
+          <InputNumber min={0} max={59} style={{ width: "100%" }} />
+        </Form.Item>
+      </Col>
+    </Row>
 
-          <Form.Item name="hours" label="Duration Hours">
-            <InputNumber min={0} style={{ width: "100%" }} />
-          </Form.Item>
-
-          <Form.Item name="minutes" label="Duration Minutes">
-            <InputNumber min={0} max={59} style={{ width: "100%" }} />
-          </Form.Item>
-
-          <Form.Item name="category" label="Category">
-            <Select placeholder="Select a category" allowClear>
-              {categories.map((c) => (
-                <Select.Option key={c._id} value={c._id}>
-                  {c.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="subCategory" label="SubCategory">
-            <Select placeholder="Select a subcategory (optional)" allowClear>
-              {subCategories.map((sc) => (
-                <Select.Option key={sc._id} value={sc._id}>
-                  {sc.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="variety" label="Variety">
-            <Select placeholder="Select a variety (optional)" allowClear>
-              {varieties.map((v) => (
-                <Select.Option key={v._id} value={v._id}>
-                  {v.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="description" label="Description">
-            <Input.TextArea rows={3} placeholder="Enter service details" />
-          </Form.Item>
-
-          <Form.Item
-            name="image"
-            label="Upload Image"
-            valuePropName="fileList"
-            getValueFromEvent={normalizeUpload}
+    <Row gutter={16}>
+      <Col span={8}>
+        <Form.Item name="category" label="Category">
+          <Select
+            placeholder="Select a category"
+            allowClear
+            onChange={handleCategoryChange}
           >
-            <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
-              <Button icon={<UploadOutlined />}>Upload</Button>
-            </Upload>
-          </Form.Item>
+            {categories.map((c) => (
+              <Select.Option key={c._id} value={c._id}>
+                {c.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </Col>
+      <Col span={8}>
+        <Form.Item name="subCategory" label="SubCategory">
+          <Select
+            placeholder="Select a subcategory"
+            allowClear
+            onChange={handleSubCategoryChange}
+          >
+            {filteredSubCategories.map((sc) => (
+              <Select.Option key={sc._id} value={sc._id}>
+                {sc.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </Col>
+      <Col span={8}>
+        <Form.Item name="variety" label="Variety">
+          <Select placeholder="Select a variety" allowClear>
+            {filteredVarieties.map((v) => (
+              <Select.Option key={v._id} value={v._id}>
+                {v.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </Col>
+    </Row>
 
-          {/* Open nested details drawer */}
-          <Button type="dashed" block onClick={() => setIsDetailsDrawerOpen(true)}>
-            Manage Service Details
-          </Button>
-        </Form>
-      </Drawer>
+    <Form.Item name="description" label="Description">
+      <Input.TextArea rows={3} placeholder="Enter service details" />
+    </Form.Item>
+
+    <Form.Item
+      name="image"
+      label="Upload Image"
+      valuePropName="fileList"
+      getValueFromEvent={normalizeUpload}
+    >
+      <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
+        <Button icon={<UploadOutlined />}>Upload</Button>
+      </Upload>
+    </Form.Item>
+
+    <Button type="dashed" block onClick={() => setIsDetailsDrawerOpen(true)}>
+      Manage Service Details
+    </Button>
+  </Form>
+</Drawer>
+
 
       {/* Nested Drawer for Service Details */}
       <Drawer
         title="Service Details"
         open={isDetailsDrawerOpen}
         onClose={() => setIsDetailsDrawerOpen(false)}
-        width={560}
+        width={650}
         extra={<Button type="primary" onClick={() => setIsDetailsDrawerOpen(false)}>Done</Button>}
       >
         <Form form={form} layout="vertical">
@@ -450,11 +499,7 @@ export default function ServicesPage() {
                             <Button icon={<UploadOutlined />}>Upload</Button>
                           </Upload>
                         </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          name={[name, "title"]}
-                          rules={[{ required: true, message: "Title required" }]}
-                        >
+                        <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}>
                           <Input placeholder="Title" />
                         </Form.Item>
                         <Button danger onClick={() => remove(name)}>Remove</Button>
@@ -475,21 +520,15 @@ export default function ServicesPage() {
                   <>
                     {fields.map(({ key, name, ...restField }) => (
                       <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
-                        <Form.Item
-                          {...restField}
-                          name={[name, "img"]}
-                          valuePropName="fileList"
-                          getValueFromEvent={normalizeUpload}
-                          rules={[{ required: true, message: "Image required" }]}
-                        >
+                        <Form.Item {...restField} name={[name, "img"]} valuePropName="fileList" getValueFromEvent={normalizeUpload} rules={[{ required: true }]}>
                           <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
                             <Button icon={<UploadOutlined />}>Upload</Button>
                           </Upload>
                         </Form.Item>
-                        <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}> 
+                        <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}>
                           <Input placeholder="Step Title" />
                         </Form.Item>
-                        <Form.Item {...restField} name={[name, "desc"]} rules={[{ required: true }]}> 
+                        <Form.Item {...restField} name={[name, "desc"]} rules={[{ required: true }]}>
                           <Input.TextArea placeholder="Step Description" />
                         </Form.Item>
                         <Button danger onClick={() => remove(name)}>Remove</Button>
@@ -510,10 +549,10 @@ export default function ServicesPage() {
                   <>
                     {fields.map(({ key, name, ...restField }) => (
                       <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
-                        <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}> 
+                        <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}>
                           <Input placeholder="Title" />
                         </Form.Item>
-                        <Form.Item {...restField} name={[name, "desc"]} rules={[{ required: true }]}> 
+                        <Form.Item {...restField} name={[name, "desc"]} rules={[{ required: true }]}>
                           <Input.TextArea placeholder="Description" />
                         </Form.Item>
                         <Button danger onClick={() => remove(name)}>Remove</Button>
@@ -527,17 +566,17 @@ export default function ServicesPage() {
               </Form.List>
             </TabPane>
 
-            {/* Precautions / Aftercare */}
+            {/* Precautions */}
             <TabPane tab="Precautions / Aftercare" key="precautions">
               <Form.List name="precautionsAftercare">
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, ...restField }) => (
                       <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
-                        <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}> 
+                        <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}>
                           <Input placeholder="Title" />
                         </Form.Item>
-                        <Form.Item {...restField} name={[name, "desc"]} rules={[{ required: true }]}> 
+                        <Form.Item {...restField} name={[name, "desc"]} rules={[{ required: true }]}>
                           <Input.TextArea placeholder="Description" />
                         </Form.Item>
                         <Button danger onClick={() => remove(name)}>Remove</Button>
@@ -558,10 +597,10 @@ export default function ServicesPage() {
                   <>
                     {fields.map(({ key, name, ...restField }) => (
                       <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
-                        <Form.Item {...restField} name={[name, "question"]} rules={[{ required: true }]}> 
+                        <Form.Item {...restField} name={[name, "question"]} rules={[{ required: true }]}>
                           <Input placeholder="Question" />
                         </Form.Item>
-                        <Form.Item {...restField} name={[name, "answer"]} rules={[{ required: true }]}> 
+                        <Form.Item {...restField} name={[name, "answer"]} rules={[{ required: true }]}>
                           <Input.TextArea placeholder="Answer" />
                         </Form.Item>
                         <Button danger onClick={() => remove(name)}>Remove</Button>

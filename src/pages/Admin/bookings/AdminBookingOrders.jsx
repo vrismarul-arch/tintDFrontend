@@ -2,86 +2,112 @@ import React, { useEffect, useState } from "react";
 import {
   Table,
   Tag,
-  Button,
-  Popconfirm,
   Spin,
-  message,
   Modal,
   Select,
   Drawer,
   Dropdown,
   Menu,
+  Tabs,
+  Popconfirm,
+  Button,
 } from "antd";
 import { EllipsisOutlined } from "@ant-design/icons";
+import toast from "react-hot-toast";
 import api from "../../../../api";
 import BookingDetails from "./BookingDetails";
 
 const { Option } = Select;
+const { TabPane } = Tabs;
 
 const AdminBookingOrders = () => {
   const [bookings, setBookings] = useState([]);
+  const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(false);
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [currentBooking, setCurrentBooking] = useState(null);
   const [newStatus, setNewStatus] = useState("");
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState(null);
+  const [activeTab, setActiveTab] = useState("all");
 
+  // Fetch bookings
   const fetchBookings = async () => {
     setLoading(true);
     try {
       const res = await api.get("/api/admin/bookings", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      setBookings(Array.isArray(res.data) ? res.data : res.data.bookings || []);
+      // bookings should be populated with assignedTo objects
+      setBookings(res.data.bookings || []);
     } catch (err) {
       console.error("Failed to fetch bookings:", err);
-      message.error("Failed to load bookings");
+      toast.error("Failed to load bookings");
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch approved partners
+  const fetchPartners = async () => {
+    try {
+      const res = await api.get("/api/admin/partners", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setPartners(res.data || []);
+    } catch (err) {
+      console.error("Failed to fetch partners:", err);
+      toast.error("Failed to load partners");
+    }
+  };
+
   useEffect(() => {
     fetchBookings();
+    fetchPartners();
   }, []);
 
+  // Cancel booking
   const handleCancelBooking = async (id) => {
     try {
       await api.delete(`/api/admin/bookings/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      message.success("Booking cancelled successfully");
+      toast.success("Booking cancelled successfully");
       fetchBookings();
     } catch (err) {
       console.error("Failed to cancel booking:", err);
-      message.error("Failed to cancel booking");
+      toast.error("Failed to cancel booking");
     }
   };
 
+  // Show update status modal
   const showUpdateModal = (record) => {
     setCurrentBooking(record);
     setNewStatus(record.status || "pending");
     setUpdateModalVisible(true);
   };
 
+  // Update status
   const handleUpdateStatus = async () => {
     if (!currentBooking) return;
     try {
-      await api.put(
+      const res = await api.put(
         `/api/admin/bookings/${currentBooking._id}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-      message.success("Booking status updated successfully");
+      toast.success("Booking status updated successfully");
       setUpdateModalVisible(false);
-      fetchBookings();
+      setBookings((prev) =>
+        prev.map((b) => (b._id === currentBooking._id ? res.data.booking : b))
+      );
     } catch (err) {
       console.error("Failed to update booking:", err);
-      message.error("Failed to update booking");
+      toast.error("Failed to update booking");
     }
   };
 
+  // Show booking drawer
   const showDrawer = (bookingId) => {
     setSelectedBookingId(bookingId);
     setDrawerVisible(true);
@@ -100,6 +126,9 @@ const AdminBookingOrders = () => {
       ? "-"
       : t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
+
+  const filteredBookings = (status) =>
+    bookings.filter((b) => (status === "all" ? true : b.status === status));
 
   const columns = [
     { title: "#", render: (_, __, index) => index + 1, width: 50 },
@@ -125,7 +154,6 @@ const AdminBookingOrders = () => {
           </div>
         );
       },
-      responsive: ["xs", "sm", "md", "lg", "xl"],
     },
     {
       title: "Services",
@@ -141,7 +169,6 @@ const AdminBookingOrders = () => {
         ) : (
           <span>-</span>
         ),
-      responsive: ["md", "lg", "xl"],
     },
     {
       title: "Date & Time",
@@ -153,16 +180,8 @@ const AdminBookingOrders = () => {
           {formatTime(record.selectedTime)}
         </div>
       ),
-      responsive: ["sm", "md", "lg", "xl"],
     },
-    {
-      title: "Assigned To",
-      dataIndex: "assignedTo",
-      key: "assignedTo",
-      render: (staff) =>
-        staff?.name || <span style={{ color: "#888" }}>Unassigned</span>,
-      responsive: ["md", "lg", "xl"],
-    },
+    
     {
       title: "Status",
       dataIndex: "status",
@@ -176,7 +195,6 @@ const AdminBookingOrders = () => {
             : "red";
         return <Tag color={color}>{status?.toUpperCase() || "N/A"}</Tag>;
       },
-      responsive: ["sm", "md", "lg", "xl"],
     },
     {
       title: "Action",
@@ -215,22 +233,75 @@ const AdminBookingOrders = () => {
           </Dropdown>
         );
       },
-      responsive: ["xs", "sm", "md", "lg", "xl"],
     },
   ];
 
   return (
     <>
-      {loading ? (
-        <Spin tip="Loading bookings..." />
-      ) : (
-        <Table
-          dataSource={bookings}
-          columns={columns}
-          rowKey="_id"
-          scroll={{ x: "max-content" }}
-        />
-      )}
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        type="line"
+        style={{ marginBottom: 16 }}
+      >
+        <TabPane tab={`All (${bookings.length})`} key="all">
+          {loading ? (
+            <Spin tip="Loading bookings..." />
+          ) : (
+            <Table
+              dataSource={filteredBookings("all")}
+              columns={columns}
+              rowKey="_id"
+              scroll={{ x: "max-content" }}
+            />
+          )}
+        </TabPane>
+        <TabPane
+          tab={`Pending (${filteredBookings("pending").length})`}
+          key="pending"
+        >
+          {loading ? (
+            <Spin tip="Loading bookings..." />
+          ) : (
+            <Table
+              dataSource={filteredBookings("pending")}
+              columns={columns}
+              rowKey="_id"
+              scroll={{ x: "max-content" }}
+            />
+          )}
+        </TabPane>
+        <TabPane
+          tab={`Confirmed (${filteredBookings("confirmed").length})`}
+          key="confirmed"
+        >
+          {loading ? (
+            <Spin tip="Loading bookings..." />
+          ) : (
+            <Table
+              dataSource={filteredBookings("confirmed")}
+              columns={columns}
+              rowKey="_id"
+              scroll={{ x: "max-content" }}
+            />
+          )}
+        </TabPane>
+        <TabPane
+          tab={`Cancelled (${filteredBookings("cancelled").length})`}
+          key="cancelled"
+        >
+          {loading ? (
+            <Spin tip="Loading bookings..." />
+          ) : (
+            <Table
+              dataSource={filteredBookings("cancelled")}
+              columns={columns}
+              rowKey="_id"
+              scroll={{ x: "max-content" }}
+            />
+          )}
+        </TabPane>
+      </Tabs>
 
       <Modal
         title="Update Booking Status"
