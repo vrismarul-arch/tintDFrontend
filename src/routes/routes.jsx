@@ -1,4 +1,3 @@
-// src/routes/AppRoutes.jsx
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
@@ -9,7 +8,6 @@ import CategoryServices from "../pages/services/CategoryServices";
 import Navbar from "../components/Navbar";
 import NotFoundPage from "../pages/NotFoundPage";
 
-// User pages
 import CartPage from "../pages/cart/CartPage";
 import CheckoutPage from "../pages/checkout/CheckoutPage";
 import PaymentPage from "../pages/payment/PaymentPage";
@@ -19,7 +17,7 @@ import SuccessPage from "../pages/payment/SuccessPage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 
-// Admin pages
+
 import AdminLayout from "../pages/Admin/AdminLayout";
 import ServicesPage from "../pages/Admin/categories/ServicesPage";
 import CategoriesPage from "../pages/Admin/categories/CategoriesPage";
@@ -29,14 +27,12 @@ import BookingDetails from "../pages/Admin/bookings/BookingDetails";
 import AdminProfile from "../pages/Admin/profile/AdminProfile";
 import AdminPartnersPage from "../pages/Admin/partner/AdminPartnersPage";
 
-// Partner pages
 import PartnerLayout from "../pages/partner/layout/PartnerLayout";
 import PartnerRegisterForm from "../pages/partner/home/PartnerRegisterForm";
 import Sendotp from "../pages/partner/otp/Sendotp";
 import VerifyOTP from "../pages/partner/otp/VerifyOTP";
 import PartnerLoginPage from "../pages/partner/login/PartnerLoginPage";
 
-// Partner App pages
 import PartnerAppLayout from "../pages/partner/layout/PartnerAppLayout";
 import PartnerDashboard from "../pages/partner/dashboard/PartnerDashboard";
 import PartnerProfile from "../pages/partner/home/profile/PartnerProfile";
@@ -45,7 +41,6 @@ import PartnerMessages from "../pages/partner/notification/PartnerMessages";
 import PartnerOrderHistory from "../pages/partner/home/history/PartnerOrderHistory";
 import BookingHistoryPage from "../pages/profile/BookingHistoryPage";
 
-// Wrapper for pages with Navbar
 function WithNavbar({ children }) {
   return (
     <>
@@ -58,7 +53,6 @@ function WithNavbar({ children }) {
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Public Routes */}
       <Route path="/" element={<WithNavbar><Home /></WithNavbar>} />
       <Route path="/home" element={<WithNavbar><Home /></WithNavbar>} />
       <Route path="/category/:id" element={<WithNavbar><CategoryServices /></WithNavbar>} />
@@ -68,7 +62,6 @@ export default function AppRoutes() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/success" element={<SuccessPage />} />
 
-      {/* Protected User Routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/cart" element={<WithNavbar><CartPage /></WithNavbar>} />
         <Route path="/checkout" element={<WithNavbar><CheckoutPage /></WithNavbar>} />
@@ -77,7 +70,6 @@ export default function AppRoutes() {
         <Route path="/profile/bookings/:id" element={<WithNavbar><UserBookingDetails /></WithNavbar>} />
       </Route>
 
-      {/* Admin Routes */}
       <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
         <Route path="profile" element={<AdminProfile />} />
         <Route path="categories" element={<CategoriesPage />} />
@@ -88,7 +80,6 @@ export default function AppRoutes() {
         <Route path="bookings/:id" element={<BookingDetails />} />
       </Route>
 
-      {/* Partner Public Routes */}
       <Route path="/partner" element={<PartnerLayout />}>
         <Route path="register" element={<PartnerRegisterForm />} />
         <Route path="sendotp" element={<Sendotp />} />
@@ -96,7 +87,6 @@ export default function AppRoutes() {
         <Route path="login" element={<PartnerLoginPage />} />
       </Route>
 
-      {/* Partner Protected App Routes */}
       <Route path="/partnerapp" element={<PartnerAppLayout />}>
         <Route element={<PartnerRoute />}>
           <Route path="dashboard" element={<PartnerDashboard />} />
@@ -107,7 +97,6 @@ export default function AppRoutes() {
         </Route>
       </Route>
 
-      {/* Fallback 404 */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

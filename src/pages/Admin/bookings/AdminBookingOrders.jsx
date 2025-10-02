@@ -24,9 +24,14 @@ const AdminBookingOrders = () => {
   const [bookings, setBookings] = useState([]);
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(false);
+
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [currentBooking, setCurrentBooking] = useState(null);
   const [newStatus, setNewStatus] = useState("");
+
+  const [assignModalVisible, setAssignModalVisible] = useState(false);
+  const [selectedPartner, setSelectedPartner] = useState(null);
+
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState(null);
   const [activeTab, setActiveTab] = useState("all");
@@ -38,7 +43,6 @@ const AdminBookingOrders = () => {
       const res = await api.get("/api/admin/bookings", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      // bookings should be populated with assignedTo objects
       setBookings(res.data.bookings || []);
     } catch (err) {
       console.error("Failed to fetch bookings:", err);
@@ -104,6 +108,36 @@ const AdminBookingOrders = () => {
     } catch (err) {
       console.error("Failed to update booking:", err);
       toast.error("Failed to update booking");
+    }
+  };
+
+  // Show assign staff modal
+  const showAssignModal = (record) => {
+    setCurrentBooking(record);
+    setSelectedPartner(record.assignedTo?._id || null);
+    setAssignModalVisible(true);
+  };
+
+  // Assign staff to booking
+  const handleAssignStaff = async () => {
+    if (!currentBooking || !selectedPartner) {
+      toast.error("Please select a partner to assign");
+      return;
+    }
+    try {
+      const res = await api.put(
+        `/api/admin/bookings/${currentBooking._id}/assign`,
+        { partnerId: selectedPartner },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      toast.success("Staff assigned successfully");
+      setAssignModalVisible(false);
+      setBookings((prev) =>
+        prev.map((b) => (b._id === currentBooking._id ? res.data.booking : b))
+      );
+    } catch (err) {
+      console.error("Failed to assign staff:", err);
+      toast.error("Failed to assign staff");
     }
   };
 
@@ -181,7 +215,12 @@ const AdminBookingOrders = () => {
         </div>
       ),
     },
-    
+    {
+      title: "Assigned Staff",
+      key: "assignedTo",
+      render: (_, record) =>
+        record.assignedTo?.name || <Tag color="red">Unassigned</Tag>,
+    },
     {
       title: "Status",
       dataIndex: "status",
@@ -209,7 +248,12 @@ const AdminBookingOrders = () => {
             </Menu.Item>
             <Menu.Item key="update">
               <Button type="text" onClick={() => showUpdateModal(record)}>
-                Update
+                Update Status
+              </Button>
+            </Menu.Item>
+            <Menu.Item key="assign">
+              <Button type="text" onClick={() => showAssignModal(record)}>
+                Assign Staff
               </Button>
             </Menu.Item>
             <Menu.Item key="cancel">
@@ -303,6 +347,7 @@ const AdminBookingOrders = () => {
         </TabPane>
       </Tabs>
 
+      {/* Update Status Modal */}
       <Modal
         title="Update Booking Status"
         open={updateModalVisible}
@@ -321,6 +366,29 @@ const AdminBookingOrders = () => {
         </Select>
       </Modal>
 
+      {/* Assign Staff Modal */}
+      <Modal
+        title="Assign Staff"
+        open={assignModalVisible}
+        onOk={handleAssignStaff}
+        onCancel={() => setAssignModalVisible(false)}
+        okText="Assign"
+      >
+        <Select
+          value={selectedPartner}
+          onChange={setSelectedPartner}
+          style={{ width: "100%" }}
+          placeholder="Select a partner"
+        >
+          {partners.map((p) => (
+            <Option key={p._id} value={p._id}>
+              {p.name} ({p.email})
+            </Option>
+          ))}
+        </Select>
+      </Modal>
+
+      {/* Drawer for Booking Details */}
       <Drawer
         title="Booking Details"
         open={drawerVisible}
