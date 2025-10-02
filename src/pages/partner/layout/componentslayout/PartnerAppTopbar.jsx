@@ -107,21 +107,15 @@ export default function PartnerAppTopbar({ extra }) {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <DutyToggle />
 
-          <Badge count={notifCount} size="small" offset={[0, 0]}>
+          {/* <Badge count={notifCount} size="small" offset={[0, 0]}>
             <BellOutlined
               style={{ fontSize: 20, cursor: "pointer" }}
               onClick={handleNotifOpen}
             />
-          </Badge>
+          </Badge> */}
 
-          <Badge size="small">
-            <MessageOutlined
-              style={{ fontSize: 20, cursor: "pointer" }}
-              onClick={() => setMsgOpen(!msgOpen)}
-            />
-          </Badge>
+         
 
           <Dropdown overlay={menu} placement="bottomRight" trigger={["click"]}>
             <Tooltip title={partner?.name || "Account"}>

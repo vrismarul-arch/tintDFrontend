@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Row,
   Col,
@@ -10,9 +10,10 @@ import {
   Button,
   Calendar,
   Badge,
-  Modal,
   List,
   Image,
+  notification,
+  Modal,
 } from "antd";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
@@ -27,41 +28,56 @@ export default function PartnerDashboard() {
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState(null);
   const [bookings, setBookings] = useState([]);
+  const [notificationsData, setNotificationsData] = useState([]);
   const [selectedDateBookings, setSelectedDateBookings] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  // Fetch partner data
+  const fetchData = async () => {
     if (!isAuthed) return;
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("partnerToken");
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("partnerToken");
+      const { data: profileData } = await api.get("/api/partners/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProfile(profileData);
 
-        // Fetch profile
-        const { data: profileData } = await api.get("/api/partners/profile", {
-          headers: { Authorization: `Bearer ${token}` },
+      const { data: bookingData } = await api.get(
+        "/api/partners/bookings/history",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setBookings(bookingData);
+
+      const { data: notificationsRes } = await api.get(
+        "/api/partners/notifications",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const pendingNotifs = notificationsRes.filter((n) => n.status === "pending");
+
+      pendingNotifs.forEach((n) => {
+        notification.info({
+          message: "New Booking Assigned",
+          description: n.text,
+          placement: "topRight",
+          duration: 5,
         });
-        setProfile(profileData);
+      });
 
-        // Fetch partner bookings
-        const { data: bookingData } = await api.get(
-          "/api/partners/bookings/history",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+      setNotificationsData(pendingNotifs);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        setBookings(bookingData);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     fetchData();
+    const interval = setInterval(fetchData, 15000);
+    return () => clearInterval(interval);
   }, [isAuthed]);
 
   if (loading)
@@ -78,22 +94,19 @@ export default function PartnerDashboard() {
     navigate("/partner/login");
   };
 
-  // Count cards
+  // Booking stats
   const totalBookings = bookings.length;
   const upcomingBookings = bookings.filter(
     (b) => dayjs(b.selectedDate).isAfter(dayjs()) && b.status !== "completed"
   ).length;
-  const completedBookings = bookings.filter((b) => b.status === "completed")
-    .length;
+  const completedBookings = bookings.filter((b) => b.status === "completed").length;
   const pendingBookings = bookings.filter((b) => b.status === "pending").length;
 
-  // Calendar: render bookings for each day
   const dateCellRender = (value) => {
     const dateStr = value.format("YYYY-MM-DD");
     const dayBookings = bookings.filter(
       (b) => dayjs(b.selectedDate).format("YYYY-MM-DD") === dateStr
     );
-
     return (
       <ul className="events">
         {dayBookings.map((b) => (
@@ -103,16 +116,14 @@ export default function PartnerDashboard() {
                 b.status === "pending"
                   ? "warning"
                   : b.status === "picked"
-                  ? "processing"
-                  : b.status === "confirmed"
-                  ? "success"
-                  : b.status === "completed"
-                  ? "default"
-                  : "error"
+                    ? "processing"
+                    : b.status === "confirmed"
+                      ? "success"
+                      : b.status === "completed"
+                        ? "default"
+                        : "error"
               }
-              text={`${b.user?.name || b.name} (${b.services
-                .map((s) => s.serviceId?.name)
-                .join(", ")})`}
+              text={`${b.user?.name || b.name}`}
             />
           </li>
         ))}
@@ -120,7 +131,6 @@ export default function PartnerDashboard() {
     );
   };
 
-  // Handle calendar date click
   const onSelectDate = (value) => {
     const dateStr = value.format("YYYY-MM-DD");
     const dayBookings = bookings.filter(
@@ -128,6 +138,16 @@ export default function PartnerDashboard() {
     );
     setSelectedDateBookings(dayBookings);
     setModalVisible(true);
+  };
+
+  // Action buttons
+  const startService = (bookingId) => {
+    console.log("Start service:", bookingId);
+  };
+
+  const contactCustomer = (phone) => {
+    if (!phone) return;
+    window.open(`tel:${phone}`, "_self");
   };
 
   return (
@@ -147,67 +167,44 @@ export default function PartnerDashboard() {
 
       <Divider />
 
-      {/* Count Cards */}
-      <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Text strong>Total Bookings</Text>
-            <Title level={3}>{totalBookings}</Title>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Text strong>Upcoming</Text>
-            <Title level={3}>{upcomingBookings}</Title>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Text strong>Completed</Text>
-            <Title level={3}>{completedBookings}</Title>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Text strong>Pending</Text>
-            <Title level={3}>{pendingBookings}</Title>
+      {/* Booking Stats */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        {[
+          { label: "Total Bookings", value: totalBookings },
+          { label: "Upcoming", value: upcomingBookings },
+          { label: "Completed", value: completedBookings },
+          { label: "Pending", value: pendingBookings },
+        ].map((card, i) => (
+          <Col xs={24} sm={12} md={6} key={i}>
+            <Card className="stat-card">
+              <Text strong>{card.label}</Text>
+              <Title level={3}>{card.value}</Title>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+
+
+      {/* Calendar */}
+      <Row gutter={[24, 24]}>
+        <Col xs={24} lg={24}>
+          <Card title="Booking Calendar">
+            <Calendar
+              dateCellRender={dateCellRender}
+              onSelect={onSelectDate}
+              fullscreen={false}
+            />
           </Card>
         </Col>
       </Row>
 
-      {/* Profile Info */}
-      <Card title="Profile Information" style={{ marginBottom: 24 }}>
-        <Row gutter={[24, 24]}>
-          <Col xs={24} sm={12}>
-            <Text strong>Name:</Text> {profile.name}
-          </Col>
-          <Col xs={24} sm={12}>
-            <Text strong>Email:</Text> {profile.email}
-          </Col>
-          <Col xs={24} sm={12}>
-            <Text strong>Phone:</Text> {profile.phone}
-          </Col>
-          <Col xs={24} sm={12}>
-            <Text strong>Status:</Text>{" "}
-            <Tag color={profile.status === "approved" ? "green" : "orange"}>
-              {profile.status?.toUpperCase()}
-            </Tag>
-          </Col>
-        </Row>
-      </Card>
-
-      {/* Booking Calendar */}
-      <Card title="Booking Calendar">
-        <Calendar dateCellRender={dateCellRender} onSelect={onSelectDate} />
-      </Card>
-
-      {/* Modal to show bookings on selected date */}
+      {/* Modal for selected date bookings */}
       <Modal
         title="Bookings on Selected Date"
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        width={800}
+        width={Math.min(window.innerWidth * 0.95, 800)}
       >
         {selectedDateBookings.length === 0 ? (
           <Text>No bookings for this date.</Text>
@@ -217,46 +214,141 @@ export default function PartnerDashboard() {
             dataSource={selectedDateBookings}
             renderItem={(b) => (
               <List.Item key={b._id}>
-                <Row gutter={[12, 12]} align="middle">
-                  <Col xs={24} sm={6}>
-                    <Image
-                      src={b.services[0]?.serviceId?.imageUrl}
-                      width={80}
-                      preview={false}
-                    />
-                  </Col>
-                  <Col xs={24} sm={18}>
-                    <Text strong>{b.user?.name || b.name}</Text> <br />
-                    <Text type="secondary">
-                      Services:{" "}
-                      {b.services.map((s) => s.serviceId?.name).join(", ")}
-                    </Text>
-                    <br />
-                    <Text>Total: ₹{b.totalAmount}</Text>
-                    <br />
-                    <Text>Payment: {b.paymentMethod.toUpperCase()}</Text>
-                    <br />
-                    <Tag
-                      color={
-                        b.status === "pending"
-                          ? "orange"
-                          : b.status === "picked"
-                          ? "blue"
-                          : b.status === "confirmed"
-                          ? "green"
-                          : "default"
-                      }
-                    >
-                      {b.status.toUpperCase()}
-                    </Tag>
-                  </Col>
-                </Row>
+                <Card className="booking-card" bordered>
+                  {/* Row 1: Service Image */} 
+<Row gutter={[24, 24]}>
+  <Col xs={24} sm={24} md={8} lg={6}>
+  <div style={{ 
+    height: "200px",
+    overflow: "hidden",
+    borderRadius: 8,
+    margin: "8px",      // space around image
+    background: "#fafafa" 
+  }}>
+    <Image
+      className="booking-img"
+      src={b.services[0]?.serviceId?.imageUrl}
+      preview={false}
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  </div>
+</Col>
+
+
+  {/* Map or fallback image */}
+ <Col xs={24} sm={24} md={8} lg={6}>
+  {b.location?.lat && b.location?.lng ? (
+    <iframe
+      title="Booking Location"
+      className="booking-map"
+      src={`https://www.google.com/maps?q=${b.location.lat},${b.location.lng}&z=15&output=embed`}
+      style={{
+        width: "100%",
+        height: "200px",
+        border: 0,
+        borderRadius: "8px",
+      }}
+      allowFullScreen
+      loading="lazy"
+      referrerPolicy="no-referrer-when-downgrade"
+    ></iframe>
+  ) : b.address ? (
+    <iframe
+      title="Booking Address Location"
+      className="booking-map"
+      src={`https://www.google.com/maps?q=${encodeURIComponent(
+        b.address
+      )}&output=embed`}
+      style={{
+        width: "100%",
+        height: "200px",
+        border: 0,
+        borderRadius: "8px",
+      }}
+      allowFullScreen
+      loading="lazy"
+      referrerPolicy="no-referrer-when-downgrade"
+    ></iframe>
+  ) : (
+    <div style={{ height: "200px", overflow: "hidden", borderRadius: 8 }}>
+      <Image
+        className="booking-img"
+        src={b.services[0]?.serviceId?.imageUrl}
+        preview={false}
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+    </div>
+  )}
+</Col>
+
+</Row>
+
+
+
+               {/* Row 2: Booking Details + Action Buttons */}
+<Row gutter={[16, 12]} style={{ marginTop: 12 }}>
+  {/* Left Column */}
+  <Col xs={24} md={12}>
+    <Text strong>Booking ID:</Text> {b.bookingId || b._id} <br />
+    <Text strong>Customer:</Text> {b.user?.name || b.name} <br />
+    <Text type="secondary">{b.user?.email}</Text> <br />
+    <Text type="secondary">{b.user?.phone || b.phone}</Text> <br />
+    {b.address && (
+      <>
+        <Text strong>Address:</Text> {b.address} <br />
+      </>
+    )}
+    <Text strong>Services:</Text>{" "}
+    {b.services
+      .map((s) => `${s.serviceId?.name} × ${s.quantity || 1}`)
+      .join(", ")}{" "}
+    <br />
+  </Col>
+
+  {/* Right Column */}
+  <Col xs={24} md={12}>
+    <Text strong>Date & Time:</Text> {dayjs(b.selectedDate).format("DD/MM/YYYY HH:mm")} <br />
+    <Text strong>Payment Method:</Text> {b.paymentMethod?.toUpperCase()} <br />
+    <Text strong>Total Amount:</Text> ₹{b.totalAmount} <br />
+    <Text strong>Status:</Text>{" "}
+    <Tag
+      color={
+        b.status === "pending"
+          ? "orange"
+          : b.status === "picked"
+          ? "blue"
+          : b.status === "confirmed"
+          ? "green"
+          : "default"
+      }
+    >
+      {b.status.toUpperCase()}
+    </Tag>
+    <br />
+
+    {/* Action Buttons */}
+    <div style={{ marginTop: 12 }}>
+      <Button
+        type="primary"
+        style={{ marginRight: 8 }}
+        onClick={() => startService(b._id)}
+      >
+        Comleted Service
+      </Button>
+      <Button onClick={() => contactCustomer(b.user?.phone)}>
+        Contact Customer
+      </Button>
+    </div>
+  </Col>
+</Row>
+
+                </Card>
               </List.Item>
             )}
           />
         )}
       </Modal>
+
     </div>
   );
 }
-  

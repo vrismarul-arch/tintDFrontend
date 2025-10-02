@@ -77,7 +77,11 @@ const AdminBookingOrders = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Booking cancelled successfully");
-      fetchBookings();
+      setBookings((prev) =>
+        prev.map((b) =>
+          b._id === id ? { ...b, status: "cancelled" } : b
+        )
+      );
     } catch (err) {
       console.error("Failed to cancel booking:", err);
       toast.error("Failed to cancel booking");
@@ -102,9 +106,14 @@ const AdminBookingOrders = () => {
       );
       toast.success("Booking status updated successfully");
       setUpdateModalVisible(false);
+
+      const updatedBooking = res.data.booking;
       setBookings((prev) =>
-        prev.map((b) => (b._id === currentBooking._id ? res.data.booking : b))
+        prev.map((b) =>
+          b._id === currentBooking._id ? updatedBooking : b
+        )
       );
+      setCurrentBooking(updatedBooking);
     } catch (err) {
       console.error("Failed to update booking:", err);
       toast.error("Failed to update booking");
@@ -118,28 +127,37 @@ const AdminBookingOrders = () => {
     setAssignModalVisible(true);
   };
 
-  // Assign staff to booking
-  const handleAssignStaff = async () => {
-    if (!currentBooking || !selectedPartner) {
-      toast.error("Please select a partner to assign");
-      return;
-    }
-    try {
-      const res = await api.put(
-        `/api/admin/bookings/${currentBooking._id}/assign`,
-        { partnerId: selectedPartner },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
-      toast.success("Staff assigned successfully");
-      setAssignModalVisible(false);
-      setBookings((prev) =>
-        prev.map((b) => (b._id === currentBooking._id ? res.data.booking : b))
-      );
-    } catch (err) {
-      console.error("Failed to assign staff:", err);
-      toast.error("Failed to assign staff");
-    }
-  };
+ // Assign staff to booking without changing status
+const handleAssignStaff = async () => {
+  if (!currentBooking || !selectedPartner) {
+    toast.error("Please select a partner to assign");
+    return;
+  }
+  try {
+    const res = await api.put(
+      `/api/admin/bookings/${currentBooking._id}/assign`,
+      { partnerId: selectedPartner },
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+
+    // ✅ Only update assignedTo, keep status as-is
+    const updatedBooking = res.data.booking;
+
+    toast.success("Staff assigned successfully");
+    setAssignModalVisible(false);
+
+    setBookings((prev) =>
+      prev.map((b) =>
+        b._id === currentBooking._id ? updatedBooking : b
+      )
+    );
+    setCurrentBooking(updatedBooking);
+  } catch (err) {
+    console.error("Failed to assign staff:", err);
+    toast.error("Failed to assign staff");
+  }
+};
+
 
   // Show booking drawer
   const showDrawer = (bookingId) => {
