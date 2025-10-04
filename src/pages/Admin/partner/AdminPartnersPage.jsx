@@ -12,6 +12,7 @@ import {
   Steps,
   Image,
 } from "antd";
+import { Link } from "react-router-dom";
 import {
   UserOutlined,
   FileTextOutlined,
@@ -68,8 +69,22 @@ export default function AdminPartnersPage() {
   }, []);
 
   /* ------------ Table Columns ------------ */
-  const columns = [ { title: "S.No", render: (_, __, index) => index + 1, width: 70 },
-    { title: "Name", dataIndex: "name", key: "name" },
+  const columns = [
+    {
+      title: "S.No",
+      render: (_, __, index) => index + 1,
+      width: 70,
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => (
+        <Link to={`/admin/partners/${record._id}`} style={{ color: "#1677ff" }}>
+          {text} ({record.partnerId || record._id})
+        </Link>
+      ),
+    },
     { title: "Email", dataIndex: "email", key: "email" },
     { title: "Phone", dataIndex: "phone", key: "phone" },
     {
@@ -160,7 +175,7 @@ export default function AdminPartnersPage() {
 
       {/* Drawer for Partner Details */}
       <Drawer
-        title={`Partner Details - ${selectedPartner?.name || ""}`}
+        title={`Partner Details - ${selectedPartner?.name || ""} (${selectedPartner?.partnerId || selectedPartner?._id})`}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         width={600}
@@ -221,85 +236,47 @@ export default function AdminPartnersPage() {
 
             {/* Personal Info */}
             <Descriptions bordered column={1} size="small" title="Personal Info">
-              <Descriptions.Item label="Name">
-                {selectedPartner.name}
-              </Descriptions.Item>
-              <Descriptions.Item label="Email">
-                {selectedPartner.email}
-              </Descriptions.Item>
-              <Descriptions.Item label="Phone">
-                {selectedPartner.phone}
-              </Descriptions.Item>
-              <Descriptions.Item label="City">
-                {selectedPartner.city || "-"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Gender">
-                {selectedPartner.gender || "-"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Profession">
-                {selectedPartner.profession || "-"}
-              </Descriptions.Item>
+              <Descriptions.Item label="Name">{selectedPartner.name}</Descriptions.Item>
+              <Descriptions.Item label="Email">{selectedPartner.email}</Descriptions.Item>
+              <Descriptions.Item label="Phone">{selectedPartner.phone}</Descriptions.Item>
+              <Descriptions.Item label="City">{selectedPartner.city || "-"}</Descriptions.Item>
+              <Descriptions.Item label="Gender">{selectedPartner.gender || "-"}</Descriptions.Item>
+              <Descriptions.Item label="Profession">{selectedPartner.profession || "-"}</Descriptions.Item>
+              <Descriptions.Item label="Partner ID">{selectedPartner.partnerId || selectedPartner._id}</Descriptions.Item>
             </Descriptions>
 
             {/* Bank Info */}
             <Descriptions bordered column={1} size="small" title="Bank Info">
-              <Descriptions.Item label="Bank Name">
-                {selectedPartner.bankName || "-"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Account Number">
-                {selectedPartner.accountNumber || "-"}
-              </Descriptions.Item>
-              <Descriptions.Item label="IFSC">
-                {selectedPartner.ifsc || "-"}
-              </Descriptions.Item>
+              <Descriptions.Item label="Bank Name">{selectedPartner.bankName || "-"}</Descriptions.Item>
+              <Descriptions.Item label="Account Number">{selectedPartner.accountNumber || "-"}</Descriptions.Item>
+              <Descriptions.Item label="IFSC">{selectedPartner.ifsc || "-"}</Descriptions.Item>
             </Descriptions>
 
             {/* Status */}
             <Descriptions bordered column={1} size="small" title="Status">
-              <Descriptions.Item label="Status">
-                <Tag>{selectedPartner.status}</Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Partner ID">
-                {selectedPartner.partnerId || "-"}
-              </Descriptions.Item>
+              <Descriptions.Item label="Status"><Tag>{selectedPartner.status}</Tag></Descriptions.Item>
             </Descriptions>
 
             {/* Documents */}
             <Descriptions bordered column={1} size="small" title="Documents">
               {selectedPartner.aadhaarFront && (
                 <Descriptions.Item label="Aadhaar Front">
-                  <Image
-                    src={selectedPartner.aadhaarFront}
-                    width={100}
-                    style={{ borderRadius: 4 }}
-                  />
+                  <Image src={selectedPartner.aadhaarFront} width={100} style={{ borderRadius: 4 }} />
                 </Descriptions.Item>
               )}
               {selectedPartner.aadhaarBack && (
                 <Descriptions.Item label="Aadhaar Back">
-                  <Image
-                    src={selectedPartner.aadhaarBack}
-                    width={100}
-                    style={{ borderRadius: 4 }}
-                  />
+                  <Image src={selectedPartner.aadhaarBack} width={100} style={{ borderRadius: 4 }} />
                 </Descriptions.Item>
               )}
               {selectedPartner.pan && (
                 <Descriptions.Item label="PAN Card">
-                  <Image
-                    src={selectedPartner.pan}
-                    width={100}
-                    style={{ borderRadius: 4 }}
-                  />
+                  <Image src={selectedPartner.pan} width={100} style={{ borderRadius: 4 }} />
                 </Descriptions.Item>
               )}
               {selectedPartner.professionalCert && (
                 <Descriptions.Item label="Professional Cert">
-                  <Image
-                    src={selectedPartner.professionalCert}
-                    width={100}
-                    style={{ borderRadius: 4 }}
-                  />
+                  <Image src={selectedPartner.professionalCert} width={100} style={{ borderRadius: 4 }} />
                 </Descriptions.Item>
               )}
             </Descriptions>

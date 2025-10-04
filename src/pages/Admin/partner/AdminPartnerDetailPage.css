@@ -1,0 +1,53 @@
+.partner-detail-page {
+  background: #f5f7fa;
+  min-height: 100vh;
+  padding-bottom: 50px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.partner-steps {
+  margin-bottom: 30px;
+}
+
+.action-buttons {
+  margin-bottom: 20px;
+}
+
+.info-row {
+  margin-bottom: 20px;
+}
+
+.info-card {
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  background: #fff;
+}
+
+.ledger-card {
+  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  background: #fff;
+}
+
+.ledger-card h4 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ledger-value {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.ant-descriptions-item-label {
+  font-weight: 600;
+}
