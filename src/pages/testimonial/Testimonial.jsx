@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import "./Testimonial.css";
 
 const testimonials = [
@@ -46,38 +46,42 @@ const Testimonial = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const prevSlide = () => setCurrent((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  const nextSlide = () => setCurrent((prev) => (prev + 1) % testimonials.length);
+  const prevSlide = () =>
+    setCurrent((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  const nextSlide = () =>
+    setCurrent((prev) => (prev + 1) % testimonials.length);
 
   return (
     <section className="testimonial-section">
-      {/* Testimonial Header */}
+      {/* Header */}
       <div className="testimonial-header-section">
         <h2 className="testimonial-title">Our Clients</h2>
         <hr className="testimonial-hr" />
       </div>
 
-      {/* Testimonial Cards with Arrows */}
+      {/* Cards + Arrows */}
       <div className="testimonial-container">
         <button className="testimonial-arrow left" onClick={prevSlide}>
-          <FaArrowLeft />
+          <LeftOutlined />
         </button>
 
         {testimonials.map((t, index) => (
           <div
             key={index}
-            className={`testimonial-card-wrapper ${index === current ? "active" : "inactive"}`}
+            className={`testimonial-card-wrapper ${
+              index === current ? "active" : "inactive"
+            }`}
           >
             <TestimonialItem testimonial={t} />
           </div>
         ))}
 
         <button className="testimonial-arrow right" onClick={nextSlide}>
-          <FaArrowRight />
+          <RightOutlined />
         </button>
       </div>
 
-      {/* Navigation Dots */}
+      {/* Dots */}
       <div className="testimonial-dots">
         {testimonials.map((_, index) => (
           <button

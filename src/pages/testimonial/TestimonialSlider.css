@@ -1,16 +1,14 @@
 .custom-slider-container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 40px 20px;
   text-align: center;
-  padding: 2rem 1rem;
-  position: relative;
-  font-family: "Roboto", sans-serif;
 }
 
 .custom-slider-container h2 {
-  font-size: 2.2rem;
+  font-size: 2rem;
+  margin-bottom: 30px;
   font-weight: 700;
-  margin-bottom: 2rem;
   color: #222;
 }
 
@@ -20,106 +18,76 @@
 }
 
 .slides-wrapper {
+  overflow: hidden;
+}
+
+.slides-inner {
   display: flex;
-  gap: 16px;
   transition: transform 0.5s ease-in-out;
 }
 
 .slide {
-  min-width: 286px;
-  height: 321px;
   cursor: pointer;
-  border-radius: 20px;
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  margin: 0 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex-shrink: 0;
 }
 
 .slide img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
   display: block;
+  border-radius: 10px;
 }
 
 .slide:hover {
   transform: scale(1.05);
-  box-shadow: 0 16px 32px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
 }
 
 .arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: #fff;
+  font-size: 2rem;
+  color: #333;
+  background: rgba(255,255,255,0.85);
   border: none;
-  border-radius: 50%;
-  font-size: 1.8rem;
-  width: 50px;
-  height: 50px;
+  padding: 10px;
   cursor: pointer;
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-  transition: all 0.3s;
+  border-radius: 50%;
+  z-index: 10;
 }
 
 .arrow:hover {
-  background: #333;
-  color: #fff;
-  transform: translateY(-50%) scale(1.1);
+  background: rgba(255,255,255,1);
 }
 
-.arrow.prev { left: 10px; }
-.arrow.next { right: 10px; }
+.arrow.prev {
+  left: 10px;
+}
 
+.arrow.next {
+  right: 10px;
+}
+
+/* Responsive adjustments */
 @media (max-width: 1024px) {
-  .slide { min-width: 250px; height: 280px; }
+  .slide {
+    margin: 0 8px;
+  }
 }
 
 @media (max-width: 768px) {
-  .slide { min-width: 220px; height: 280px; }
+  .slide {
+    margin: 0 6px;
+  }
 }
 
 @media (max-width: 480px) {
-  .slide { min-width: 90%; height: auto; }
-  .arrow { display: none; }
+  .slide {
+    margin: 0 4px;
+  }
 }
-
-/* Instagram modal (if needed) */
-.insta-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.insta-modal-content {
-  position: relative;
-  background: #fff;
-  border-radius: 15px;
-  padding: 15px;
-  max-width: 400px;
-  width: 90%;
-}
-
-.insta-modal-content .close {
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  font-size: 26px;
-  cursor: pointer;
-  font-weight: bold;
-  color: #333;
-  transition: color 0.3s;
-}
-
-.insta-modal-content .close:hover { color: #ff0000; }
