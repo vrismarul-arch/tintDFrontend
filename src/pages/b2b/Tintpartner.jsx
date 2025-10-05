@@ -43,7 +43,7 @@ const Tintpartner = () => {
             <Title level={2} className="b2b-title" style={{ marginTop: 12, color: "#333" }}>
               Expand Your Salon Services to Customers’ Doorsteps
             </Title>
-            {/*  */}
+            {/*  dddfd*/}
             <Text className="b2b-description" style={{ display: "block", margin: "20px 0", color: "#ffffffff", lineHeight: 1.6 }}>
               Partner with us to offer your beauty and wellness services directly at clients’ homes. 
               Boost your bookings, grow your client base, and enjoy special benefits as part of our trusted network.
