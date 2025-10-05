@@ -8,7 +8,6 @@
 /* Ant Design Input component styling */
 .ant-input-affix-wrapper {
   border-radius: 12px !important;
-  background-color: #f5f5f5 !important;
   border: none !important;
   box-shadow: none !important;
   padding: 8px 12px !important;
@@ -16,7 +15,6 @@
 }
 
 .ant-input-affix-wrapper:focus-within {
-  background-color: #fff !important;
   box-shadow: 0 0 0 2px rgba(160, 102, 225, 0.2) !important;
 }
 

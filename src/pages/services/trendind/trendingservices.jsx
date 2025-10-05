@@ -33,7 +33,10 @@ export default function TrendingServices() {
 
   return (
     <div className="trending-container">
-      <h2 className="home-title" style={{ marginTop: "3rem", textAlign: "left" }}>Saloon At Home For Women</h2>
+      <div className="category-header">
+        <h2 className="home-title" style={{ marginTop: "3rem", textAlign: "left" }}>Saloon At Home For Women</h2>
+        <hr className="custom-hr" />
+      </div>
 
       {loading ? (
         <div className="skeleton-grid">

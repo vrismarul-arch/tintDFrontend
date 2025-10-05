@@ -68,13 +68,10 @@ export default function LoginPage() {
       {/* Right side with form */}
       <div className="auth-right">
         <div className="auth-box">
-          <h2 className="title">Login to Doorstep</h2>
+          <img src="/tintD.png" alt="Logo" className="uc-logo" />
+          <h2 className="title text-center">Login to Doorstep</h2>
 
-          {/* Toggle buttons */}
-          <div className="toggle-btns">
-            <button className="active">Login</button>
-            <button onClick={() => navigate("/register")}>Sign Up</button>
-          </div>
+         
 
           {/* Form */}
           <Form onFinish={onFinish} className="auth-form">
@@ -100,11 +97,7 @@ export default function LoginPage() {
               />
             </Form.Item>
 
-            <div className="form-options">
-              <Checkbox>Remember me</Checkbox>
-              <a href="#">Forgot Password?</a>
-            </div>
-
+        
             <Button
               type="primary"
               htmlType="submit"
@@ -116,7 +109,7 @@ export default function LoginPage() {
             </Button>
           </Form>
 
-          <div className="divider">Or login with</div>
+          <div className="divider"> Google user login </div>
 
           <div className="social-btns">
             <GoogleLogin
@@ -125,10 +118,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <p className="bottom-link">
-            Don’t have an account?{" "}
-            <a onClick={() => navigate("/register")}>Create an account</a>
-          </p>
+        
         </div>
       </div>
     </div>

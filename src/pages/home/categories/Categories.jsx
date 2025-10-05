@@ -33,7 +33,11 @@ export default function Categories() {
 
   return (
     <div className="categories-container">
-      <h2 className="categories-title">Explore Our Categories</h2>
+<div className="category-header">
+  <h2 className="categories-title">Explore Our Categories</h2>
+  <hr className="custom-hr" />
+</div>
+
 
       <div className="category-grid">
         {loading

@@ -5,12 +5,27 @@
   padding: 1rem;
 }
 
-.categories-title {
-  font-size: 25px;
-  font-weight: 600;
-  text-align: left;
-  margin-bottom: 1.5rem;
+/* Custom CSS */
+.category-header {
+  text-align: left; /* left-align the title and line */
+  margin-bottom: 2rem; /* spacing below the block */
 }
+
+.categories-title {
+  font-size: 2rem; /* title size */
+  font-weight: bold;
+  margin-bottom: 0.5rem; /* spacing between title and line */
+}
+
+.custom-hr {
+  width: 100px; /* custom width */
+  height: 4px; /* thickness */
+  background: linear-gradient(to right, #9155d7, #9155d7); /* gradient color */
+  border: none; /* remove default hr border */
+  border-radius: 2px; /* rounded edges */
+  margin: 0; /* align to left */
+}
+
 
 /* Default Grid (Desktop-first) */
 .category-grid {
