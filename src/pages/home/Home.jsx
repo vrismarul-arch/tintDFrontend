@@ -6,7 +6,7 @@ import Categories from "./categories/Categories";
 import Hero from "./hero/Hero";
 import Testimonial from "../testimonial/Testimonial";
 import TestimonialSlider from "../testimonial/TestimonialSlider";
-import Tintpartner from "../b2b/tintpartner";
+import Tintpartner from "../b2b/Tintpartner";
 
 export default function Home() {
   return (
