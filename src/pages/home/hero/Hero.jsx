@@ -14,7 +14,7 @@ import { StarOutlined, TeamOutlined } from "@ant-design/icons";
 
 const categories = [
   { name: "BOOK NOW", icon: facialleft },
-  { name: "Salon for Women", icon: facialleft },
+  { name: "Salon for Women", icon: SareeDraping },
   { name: "Waxing Service", icon: waxing },
   { name: "Manicure", icon: Manicure },
   { name: "Saree Draping", icon: waxingleft },
