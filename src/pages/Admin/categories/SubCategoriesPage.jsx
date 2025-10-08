@@ -348,16 +348,7 @@ export default function SubCategoriesPage() {
             </Select>
           </Form.Item>
           
-          {/* Display current image during edit mode */}
-          {editingItem && editingItem.imageUrl && (
-            <Form.Item label="Current Image">
-                <img 
-                    src={editingItem.imageUrl} 
-                    alt="Current Subcategory" 
-                    className="w-24 h-24 object-cover rounded-lg mb-2 border" 
-                />
-            </Form.Item>
-          )}
+        
 
           <Form.Item
             name="image"
