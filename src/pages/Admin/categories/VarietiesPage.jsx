@@ -172,7 +172,7 @@ export default function VarietiesPage() {
       <Table
         dataSource={filteredVarieties} // Use filtered data
         rowKey="_id"
-        pagination={{ pageSize: 5 }}
+        pagination={{ pageSize: 10 }}
         columns={[
           { title: "S.No", render: (_, __, index) => index + 1 },
           {
