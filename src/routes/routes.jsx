@@ -41,6 +41,7 @@ import PartnerMessages from "../pages/partner/notification/PartnerMessages";
 import PartnerOrderHistory from "../pages/partner/home/history/PartnerOrderHistory";
 import BookingHistoryPage from "../pages/profile/BookingHistoryPage";
 import AdminPartnerDetailPage from "../pages/Admin/partner/AdminPartnerDetailPage";
+import AdminDashboard from "../pages/Admin/dashbord/AdminDashboard";
 
 function WithNavbar({ children }) {
   return (
@@ -73,6 +74,7 @@ export default function AppRoutes() {
 
       <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
         <Route path="profile" element={<AdminProfile />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="services" element={<ServicesPage />} />
         <Route path="banners" element={<BannersPage />} />

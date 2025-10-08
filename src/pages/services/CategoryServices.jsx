@@ -192,7 +192,7 @@ export default function CategoryServices() {
           </div>
 
           {/* Variety Chips */}
-          {selectedSubCat && varieties.length > 0 && (
+          {/* {selectedSubCat && varieties.length > 0 && (
             <div className="variety-chips">
               {varieties.map((v) => (
                 <button
@@ -204,7 +204,7 @@ export default function CategoryServices() {
                 </button>
               ))}
             </div>
-          )}
+          )} */}
 
           {isMobile ? (
             <div className="mobile-services">
