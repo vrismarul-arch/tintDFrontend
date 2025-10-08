@@ -1,12 +1,12 @@
 import React from "react";
 import { Carousel } from "antd";
 import "./Hero.css";
-import facial from "./banner/Facial.jpg";
-import waxing from "./banner/waxing.jpg";
-import Manicure from "./banner/Manicure.png";
-import SareeDraping from "./banner/SareeDraping.png";
-import facialleft from "./banner/Facial.jpg";
-import waxingleft from "./banner/Facial.jpg";
+import facial from "./banner/banner1.png";
+import waxing from "./banner/banner2.png";
+import Manicure from "./banner/banner3.png";
+import SareeDraping from "./banner/banner4.png";
+import facialleft from "./banner/banner2.png";
+import waxingleft from "./banner/banner5.png";
 import { StarOutlined, TeamOutlined } from "@ant-design/icons";
 
 const categories = [

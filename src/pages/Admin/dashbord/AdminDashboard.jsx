@@ -15,14 +15,9 @@ import {
   DollarCircleOutlined,
   PhoneOutlined,
 } from "@ant-design/icons";
-import {
-  LineChart,
-  Line,
-  ResponsiveContainer,
-} from "recharts";
 import "./Dashboard.css";
 
-// ===== Dummy Stats Data =====
+// Sample stats data (replace with API later)
 const sampleStats = {
   totalBookings: 268,
   bookingsChange: 12, // % change vs yesterday
@@ -34,7 +29,7 @@ const sampleStats = {
   leadsChange: 9.5,
 };
 
-// ===== Dummy Table Data =====
+// Sample table rows (replace with API later)
 const sampleRows = [
   {
     key: "1",
@@ -68,17 +63,7 @@ const sampleRows = [
   },
 ];
 
-// ===== Dummy Chart Data =====
-const bookingTrend = [
-  { day: "Mon", value: 180 },
-  { day: "Tue", value: 200 },
-  { day: "Wed", value: 220 },
-  { day: "Thu", value: 250 },
-  { day: "Fri", value: 268 },
-];
-
 export default function AdminDashboard({ stats = sampleStats, rows = sampleRows }) {
-  // === Table Columns ===
   const columns = useMemo(() => [
     {
       title: "Customer",
@@ -129,7 +114,7 @@ export default function AdminDashboard({ stats = sampleStats, rows = sampleRows 
     },
   ], []);
 
-  // === Helper: Trend Text ===
+  // Helper function for trend text
   const TrendText = ({ change }) => {
     const isPositive = change >= 0;
     return (
@@ -150,7 +135,7 @@ export default function AdminDashboard({ stats = sampleStats, rows = sampleRows 
 
   return (
     <div className="dashboard-container">
-      {/* ==== STATS CARDS ==== */}
+      {/* Stats cards */}
       <Row gutter={[16, 16]}>
         {/* Total Bookings */}
         <Col xs={24} sm={12} md={6}>
@@ -203,32 +188,9 @@ export default function AdminDashboard({ stats = sampleStats, rows = sampleRows 
         </Col>
       </Row>
 
-      {/* ==== TABLE + MINI CHART ==== */}
+      {/* Table */}
       <Card className="table-card" title="Recent Bookings / Leads">
-        {/* Dummy Mini Line Chart */}
-        <div style={{ height: 80, marginBottom: 16 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={bookingTrend}>
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke="#3f8600"
-                strokeWidth={2}
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-          <div style={{ fontSize: 12, color: "#8c8c8c", marginTop: -8 }}>
-            Weekly booking trend
-          </div>
-        </div>
-
-        {/* Bookings Table */}
-        <Table
-          columns={columns}
-          dataSource={rows}
-          pagination={{ pageSize: 5 }}
-        />
+        <Table columns={columns} dataSource={rows} pagination={{ pageSize: 5 }} />
       </Card>
     </div>
   );
