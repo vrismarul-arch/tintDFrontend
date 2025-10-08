@@ -301,7 +301,7 @@ export default function VarietiesPage() {
             label="Upload Image"
             valuePropName="fileList"
             getValueFromEvent={normFile}
-            rules={editingItem ? [] : [{ required: true, message: "Please upload an image" }]}
+            rules={editingItem ? [] : [{ required: false, message: "Please upload an image" }]}
           >
             <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
               <Button icon={<UploadOutlined />}>Upload New</Button>
