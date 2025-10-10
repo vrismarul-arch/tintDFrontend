@@ -77,7 +77,9 @@ export default function TrendingServices() {
             <SwiperSlide key={item._id}>
               <div
                 className="trending-card"
-                onClick={() => navigate(`/category/${item.category?._id}`)}
+                // 💡 CORRECTION: Pass the subcategory ID as a query parameter
+                // This assumes `item.category?._id` is the Category ID and `item._id` is the Subcategory ID.
+                onClick={() => navigate(`/category/${item.category?._id}?subcat=${item._id}`)}
               >
                 <img
                   src={item.imageUrl || "/placeholder.png"}

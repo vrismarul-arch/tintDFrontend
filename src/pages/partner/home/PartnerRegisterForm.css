@@ -201,7 +201,7 @@
     PRIMARY BUTTON
   -------------------------- */
   .ant-btn-primary {
-    background: #9254de !important;
+    background: #9254de ;
     border-radius: 12px !important;
     font-weight: 600;
     height: 42px;

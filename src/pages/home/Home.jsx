@@ -13,8 +13,10 @@ export default function Home() {
     <div
       className="home-container"
      
-    >
-      <Hero />
+    >        <Adsbanner />
+
+      {/* <Hero /> */}
+
       <Categories toast={toast} />
       {/* Trending */}
       {/* Banner */}
@@ -24,12 +26,7 @@ export default function Home() {
       >
       <TrendingServices toast={toast} />
       </div>
-      <div
-        className="addbanner"
-        style={{ marginTop: "2rem", marginBottom: "2rem" }}
-      >
-        <Adsbanner />
-      </div>
+     
       <div
         className="addbanner"
         style={{ marginTop: "2rem", marginBottom: "2rem" }}

@@ -1,27 +1,31 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom"; // 💡 Import useLocation
 import { Skeleton, Button, Table, Tag } from "antd";
 import api from "../../../api";
 import "../../css/CategoryServices.css";
 import Salonservicesdrawer from "./details/Salonservicesdrawer";
 import toast from "react-hot-toast";
-import { useCart } from "../../context/CartContext"; // ✅ use global cart context
+import { useCart } from "../../context/CartContext";
 
 export default function CategoryServices() {
   const { id } = useParams();
-  const navigate = useNavigate();   
+  const navigate = useNavigate();
+  const location = useLocation(); // 💡 Initialize useLocation
+  const queryParams = new URLSearchParams(location.search);
+  const initialSubCat = queryParams.get("subcat"); // 💡 Get the subcat ID from URL
 
   const [services, setServices] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [varieties, setVarieties] = useState([]);
-  const [selectedSubCat, setSelectedSubCat] = useState(null);
+  // 💡 Use the ID from the URL as the initial state
+  const [selectedSubCat, setSelectedSubCat] = useState(initialSubCat); 
   const [selectedVariety, setSelectedVariety] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
 
-  const { cart, addToCart, removeFromCart } = useCart(); // ✅ global cart
+  const { cart, addToCart, removeFromCart } = useCart();
   const isLoggedIn = !!localStorage.getItem("token");
   const roundPrice = (p) => Number(Number(p).toFixed(2));
 
@@ -52,6 +56,14 @@ export default function CategoryServices() {
     fetchData();
   }, [id]);
 
+  // 💡 Add an effect to update selectedSubCat if the URL changes (e.g., from another link)
+  useEffect(() => {
+    const newSubCat = queryParams.get("subcat");
+    if (newSubCat !== selectedSubCat) {
+      setSelectedSubCat(newSubCat);
+    }
+  }, [location.search]);
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
@@ -65,7 +77,7 @@ export default function CategoryServices() {
       return;
     }
     try {
-      await addToCart(service._id); // ✅ use global context
+      await addToCart(service._id);
       toast.success(`${service.name} added to cart`);
     } catch (err) {
       console.error("❌ Add to cart failed:", err);
@@ -75,7 +87,7 @@ export default function CategoryServices() {
 
   const handleRemoveFromCartClick = async (serviceId) => {
     try {
-      await removeFromCart(serviceId); // ✅ use global context
+      await removeFromCart(serviceId);
       toast.error("Removed from cart");
     } catch (err) {
       console.error("❌ Remove failed:", err);
@@ -86,6 +98,7 @@ export default function CategoryServices() {
   const isInCart = (serviceId) =>
     cart.some((item) => item.service._id === serviceId);
 
+  // Filter services logic remains the same and correctly uses selectedSubCat
   const filteredServices = services.filter(
     (s) =>
       (!selectedSubCat || s.subCategory?._id === selectedSubCat) &&
@@ -191,7 +204,7 @@ export default function CategoryServices() {
             ))}
           </div>
 
-          {/* Variety Chips */}
+          {/* Variety Chips (Keep commented out or uncomment if needed) */}
           {/* {selectedSubCat && varieties.length > 0 && (
             <div className="variety-chips">
               {varieties.map((v) => (

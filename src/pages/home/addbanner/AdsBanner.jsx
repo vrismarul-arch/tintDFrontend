@@ -4,12 +4,47 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./AdsBanner.css";
 import api from "../../../../api";
+import { ChevronLeft, ChevronRight } from "lucide-react"; // Lucide icons
+
+// Custom Arrow Components
+const PrevArrow = ({ className, style, onClick }) => (
+  <button
+    className={`custom-arrow prev ${className}`}
+    style={{ ...style }}
+    onClick={onClick}
+    aria-label="Previous Slide"
+  >
+    <ChevronLeft size={28} />
+  </button>
+);
+
+const NextArrow = ({ className, style, onClick }) => (
+  <button
+    className={`custom-arrow next ${className}`}
+    style={{ ...style }}
+    onClick={onClick}
+    aria-label="Next Slide"
+  >
+    <ChevronRight size={28} />
+  </button>
+);
 
 export default function AdsBanner() {
   const [banners, setBanners] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     fetchBanners();
+    
+    // Set initial screen size and add a listener for changes
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    // Clean up the event listener on component unmount
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const fetchBanners = async () => {
@@ -18,8 +53,10 @@ export default function AdsBanner() {
       const now = new Date();
       const activeBanners = res.data.filter((b) => {
         if (!b.isActive) return false;
-        if (b.schedule?.startDate && new Date(b.schedule.startDate) > now) return false;
-        if (b.schedule?.endDate && new Date(b.schedule.endDate) < now) return false;
+        if (b.schedule?.startDate && new Date(b.schedule.startDate) > now)
+          return false;
+        if (b.schedule?.endDate && new Date(b.schedule.endDate) < now)
+          return false;
         return true;
       });
       setBanners(activeBanners);
@@ -31,43 +68,53 @@ export default function AdsBanner() {
   const settings = {
     dots: true,
     infinite: true,
-    speed: 600,
+    speed: 700,
     autoplay: true,
-    autoplaySpeed: 4000,
+    autoplaySpeed: 5000,
     slidesToShow: 1,
     slidesToScroll: 1,
-    arrows: true,
-    responsive: [
-      { breakpoint: 768, settings: { slidesToShow: 1 } },
-      { breakpoint: 1024, settings: { slidesToShow: 1 } },
-    ],
+    fade: true,
+    prevArrow: <PrevArrow />,
+    nextArrow: <NextArrow />,
+    appendDots: (dots) => (
+      <ul
+        style={{
+          margin: 0,
+          position: "absolute",
+          bottom: "20px",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          zIndex: 3,
+        }}
+      >
+        {dots}
+      </ul>
+    ),
   };
 
   return (
-    <div className="ads-banner-container" >
+    <div className="ads-banner-container">
       <Slider {...settings} className="ads-slick-slider">
-        {banners.map((banner, i) => (
-          <div key={i} className="ads-slide">
-            <div className="ads-slide-bg">
-              <img
-                src={banner.imageUrl || "/placeholder.png"}
-                alt={banner.title}
-                className="ads-slide-img"
-                onError={(e) => (e.target.src = "/placeholder.png")}
-              />
-              <div className="ads-overlay" />
-              <div className="ads-slide-content">
-                {banner.subtitle && <p className="ads-subtitle">{banner.subtitle}</p>}
-                <h2 className="ads-title">{banner.title}</h2>
-                {banner.btnText && (
-                  <a href={banner.btnLink || "#"} className="ads-btn">
-                    {banner.btnText}
-                  </a>
-                )}
+        {banners.map((banner, i) => {
+          // Choose the image based on screen size
+          const imageUrl = isMobile && banner.mobileImageUrl 
+            ? banner.mobileImageUrl 
+            : banner.imageUrl || "/placeholder.png";
+
+          return (
+            <div key={i} className="ads-slide">
+              <div
+                className="ads-slide-bg"
+                style={{
+                  backgroundImage: `url(${imageUrl})`,
+                }}
+              >
+                
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </Slider>
     </div>
   );

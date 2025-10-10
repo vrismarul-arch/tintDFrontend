@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import ModalVideo from "react-modal-video";
 import "react-modal-video/css/modal-video.min.css";
+// Ensure you have a file named TestimonialSlider.css in the same directory
 import "./TestimonialSlider.css";
 
 const testimonials = [
@@ -14,9 +15,10 @@ const testimonials = [
 const TestimonialSlider = () => {
   const [isOpen, setOpen] = useState(false);
   const [currentVideo, setCurrentVideo] = useState("");
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // currentIndex represents the index of the first visible slide
+  const [currentIndex, setCurrentIndex] = useState(0); 
   const [slidesToShow, setSlidesToShow] = useState(4);
-  const sliderRef = useRef();
+  // sliderRef is not strictly necessary for this logic but kept for potential future use
 
   // Responsive slides count
   const updateSlidesToShow = () => {
@@ -32,38 +34,61 @@ const TestimonialSlider = () => {
     return () => window.removeEventListener("resize", updateSlidesToShow);
   }, []);
 
+  // Calculate the maximum index the slider can translate to
+  const maxIndex = Math.max(0, testimonials.length - slidesToShow);
+
   const nextSlide = () => {
+    // Scrolls one slide at a time, up to the maximum index
     setCurrentIndex((prev) =>
-      prev + 1 >= testimonials.length ? 0 : prev + 1
+      Math.min(prev + 1, maxIndex)
     );
   };
 
   const prevSlide = () => {
+    // Scrolls one slide at a time, down to index 0
     setCurrentIndex((prev) =>
-      prev === 0 ? testimonials.length - 1 : prev - 1
+      Math.max(prev - 1, 0)
     );
   };
 
   const handleOpen = (url) => {
-    const videoId = url.split("youtu.be/")[1];
-    setCurrentVideo(videoId);
-    setOpen(true);
+    // Extracts video ID from common YouTube short and long URLs
+    const videoIdMatch = url.match(/(?:youtu\.be\/|v=)([^&]+)/);
+    const videoId = videoIdMatch ? videoIdMatch[1] : null;
+
+    if (videoId) {
+      setCurrentVideo(videoId);
+      setOpen(true);
+    }
   };
+
+  // Determine if the next/prev buttons should be disabled
+  const isPrevDisabled = currentIndex === 0;
+  const isNextDisabled = currentIndex >= maxIndex;
 
   return (
     <div className="custom-slider-container">
       <h2>Customer Testimonials</h2>
 
       <div className="custom-slider">
-        <button className="arrow prev" onClick={prevSlide}>
+        <button
+          className="arrow prev"
+          onClick={prevSlide}
+          disabled={isPrevDisabled}
+          // The "disabled" attribute will be styled in the CSS
+        >
           &#10094;
         </button>
 
-        <div className="slides-wrapper" ref={sliderRef}>
+        <div className="slides-wrapper">
           <div
             className="slides-inner"
             style={{
+              // Width must be 100% of the number of slides * one slide's proportional width (100 / slidesToShow)
+              // (e.g. 5 slides / 4 visible slides) * 100% = 125% width
               width: `${(testimonials.length / slidesToShow) * 100}%`,
+              // Translate by the currentIndex multiplied by the visible width of one slide (100 / testimonials.length)%
+              // This is the percentage relative to the slides-inner width.
               transform: `translateX(-${(currentIndex * 100) / testimonials.length}%)`,
             }}
           >
@@ -71,16 +96,22 @@ const TestimonialSlider = () => {
               <div
                 key={idx}
                 className="slide"
+                // Each slide's width is 100% / total number of slides
                 style={{ width: `${100 / testimonials.length}%` }}
                 onClick={() => handleOpen(item.video)}
               >
                 <img src={item.thumb} alt={`Testimonial ${idx + 1}`} />
+                <div className="play-icon">&#9654;</div> {/* Play button visual */}
               </div>
             ))}
           </div>
         </div>
 
-        <button className="arrow next" onClick={nextSlide}>
+        <button
+          className="arrow next"
+          onClick={nextSlide}
+          disabled={isNextDisabled}
+        >
           &#10095;
         </button>
       </div>
