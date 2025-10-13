@@ -39,6 +39,7 @@ const TestimonialItem = ({ testimonial }) => (
 const Testimonial = () => {
   const [current, setCurrent] = useState(0);
 
+  // Auto-slide functionality
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % testimonials.length);
@@ -46,6 +47,7 @@ const Testimonial = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Navigation handlers
   const prevSlide = () =>
     setCurrent((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   const nextSlide = () =>

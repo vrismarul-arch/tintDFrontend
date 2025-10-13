@@ -33,45 +33,45 @@ export default function Categories() {
 
   return (
     <div className="categories-container">
-<div className="category-header">
-  <h2 className="categories-title">Explore Our Categories</h2>
-  <hr className="custom-hr" />
-</div>
+      <div className="category-header">
+        <h2 className="categories-title">Explore Our Categories</h2>
+        <hr className="custom-hr" />
+      </div>
 
 
       <div className="category-grid">
         {loading
           ? Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="category-card">
-                <Skeleton.Image
-                  active
-                  style={{ width: "100%", height: 150, borderRadius: 8 }}
-                />
-                <Skeleton
-                  active
-                  paragraph={false}
-                  title={{ width: "80%" }}
-                  style={{ marginTop: 10 }}
-                />
-              </div>
-            ))
+            <div key={i} className="category-card">
+              <Skeleton.Image
+                active
+                style={{ width: "100%", height: 150, borderRadius: 8 }}
+              />
+              <Skeleton
+                active
+                paragraph={false}
+                title={{ width: "80%" }}
+                style={{ marginTop: 10 }}
+              />
+            </div>
+          ))
           : categories.map((cat) => (
-              <div
-                key={cat._id}
-                className="category-card"
-                onClick={() => handleCategoryClick(cat._id)}
-              >
-                <img
-                  src={cat.imageUrl || "/placeholder.png"}
-                  alt={cat.name}
-                  onError={(e) => (e.target.src = "/placeholder.png")}
-                />
-                <div className="category-info">
-                  {/* <h3>{cat.name}</h3> */}
-                  <span className="category-badge">New</span>
-                </div>
+            <div
+              key={cat._id}
+              className="category-card"
+              onClick={() => handleCategoryClick(cat._id)}
+            >
+              <img
+                src={cat.imageUrl || "/placeholder.png"}
+                alt={cat.name}
+                onError={(e) => (e.target.src = "/placeholder.png")}
+              />
+              <div className="category-info">
+                  <h3>{cat.name}</h3>
+                <span className="category-badge">New</span>
               </div>
-            ))}
+            </div>
+          ))}
       </div>
     </div>
   );

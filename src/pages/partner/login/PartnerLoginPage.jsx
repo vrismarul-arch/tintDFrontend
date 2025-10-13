@@ -50,7 +50,7 @@ export default function PartnerLoginPage() {
       <div className="partner-login-right">
         <div className="partner-login-card">
           <img
-            src="https://cdn-icons-png.flaticon.com/512/3062/3062634.png"
+            src="/tintD.png"
             alt="Partner Logo"
             className="logo"
           />

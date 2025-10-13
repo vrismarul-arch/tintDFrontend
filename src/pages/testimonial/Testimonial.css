@@ -1,11 +1,15 @@
 /* Container */
 .testimonial-section {
+  /* Retain core styling */
   background-color: #1a1a1a;
   padding: 2rem 1rem;
+  border-radius: 20px;
   color: #fff;
   text-align: center;
   position: relative;
-  overflow: hidden;
+  /* Max width for overall content on very large screens */
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* Header */
@@ -13,44 +17,53 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 7rem;
+  /* Adjusted margin for better spacing */
+  margin-bottom: 4rem; 
 }
 
 .testimonial-title {
   font-size: 2.5rem;
   font-weight: 800;
+  letter-spacing: 1px;
 }
 
 .testimonial-hr {
   width: 120px;
-  height: 4px; 
-
+  height: 4px;
   border: none;
-  background: linear-gradient(90deg, #7b2ff7, #2c3e50);
+  /* More vibrant gradient */
+  background: linear-gradient(90deg, #a770ff, #7b2ff7, #2c3e50);
   border-radius: 2px;
   margin: 0 auto;
-  transition: all 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smoother transition */
 }
 
 .testimonial-header-section:hover .testimonial-hr {
   width: 150px;
-  background: linear-gradient(90deg, #ffffff, #000000);
+  /* Subtle hover gradient */
+  background: linear-gradient(90deg, #ffc107, #ff6f00); 
 }
 
 /* Testimonial container */
 .testimonial-container {
   position: relative;
   max-width: 900px;
+  /* Centering the container */
   margin: 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
+  /* Add padding to ensure arrows have space and don't overlap with screen edges on smaller devices */
+  padding: 0 4rem; 
 }
 
 /* Wrapper for sliding effect */
 .testimonial-card-wrapper {
   position: absolute;
-  transition: transform 0.7s ease, opacity 0.7s ease;
+  /* Using a more modern easing function for the transition */
+  transition: transform 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.7s ease;
+  /* Ensure a minimum width to prevent collapse */
+  min-width: 300px; 
 }
 
 .testimonial-card-wrapper.active {
@@ -62,46 +75,59 @@
 .testimonial-card-wrapper.inactive {
   opacity: 0;
   z-index: 10;
-  transform: scale(0.75);
+  /* Increase scale slightly for a smoother "out" effect */
+  transform: scale(0.9); 
+  /* Prevent interaction when inactive */
+  pointer-events: none;
 }
 
 /* Testimonial Card */
 .testimonial-card {
-  background: linear-gradient(135deg, #7b2ff7, #2c3e50);
-  border-radius: 2rem;
+  /* Updated gradient for a softer look */
+  background: linear-gradient(135deg, #8a2be2, #4b0082); 
+  border-radius: 1.5rem; /* Slightly reduced border-radius */
   padding: 2rem;
   max-width: 400px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+  /* Refined shadow for depth */
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); 
   color: #fff;
+  text-align: left;
 }
 
 .testimonial-card-header {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem; /* Increased margin */
 }
 
 .testimonial-card img {
-  width: 64px;
-  height: 64px;
+  width: 68px; /* Slightly larger avatar */
+  height: 68px;
   border-radius: 50%;
-  border: 4px solid #fff;
-  margin-right: 1rem;
+  /* Added a subtle ring color */
+  border: 4px solid #f0f0f0; 
+  margin-right: 1.2rem;
+  object-fit: cover;
 }
 
 .testimonial-card h3 {
-  font-size: 1.25rem;
+  font-size: 1.4rem; /* Slightly larger name */
   font-weight: 700;
+  margin-bottom: 0.1rem;
 }
 
 .testimonial-card span {
-  font-size: 0.85rem;
-  opacity: 0.8;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  font-weight: 300;
 }
 
 .testimonial-card p {
-  font-style: italic;
-  opacity: 0.9;
+  font-style: normal; /* Removed italic for a cleaner look */
+  line-height: 1.6;
+  font-size: 1.05rem;
+  opacity: 0.95;
+  margin: 0;
 }
 
 /* Arrows */
@@ -109,90 +135,149 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(255,255,255,0.2);
+  /* Changed background to a soft, semi-transparent dark circle */
+  background-color: rgba(255, 255, 255, 0.15); 
+  backdrop-filter: blur(5px);
   color: #fff;
   border: none;
-  font-size: 2rem;
-  padding: 0.5rem 1rem;
-  border-radius:180px;
+  font-size: 1.5rem; /* Slightly smaller icon */
+  padding: 0.8rem;
+  border-radius: 50%; /* Perfect circle */
   cursor: pointer;
   z-index: 30;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  /* Added a subtle shadow */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
 }
 
 .testimonial-arrow:hover {
-  background-color: rgba(255,255,255,0.5);
-  transform: translateY(-50%) scale(1.1);
+  background-color: rgba(255, 255, 255, 0.3);
+  /* Hover effect on scale is slightly toned down */
+  transform: translateY(-50%) scale(1.05); 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
+/* Positioning the arrows relative to the testimonial-container's padding */
 .testimonial-arrow.left {
-  left: -2rem;
+  left: 0; 
 }
 
 .testimonial-arrow.right {
-  right: -2rem;
+  right: 0;
 }
 
-/* Dots */
+/* Dots - FIX: Adjusted to center the dots horizontally relative to the main content */
 .testimonial-dots {
+  /* Max width should match the testimonial container */
+  max-width: 900px;
+  /* Centering the dots under the testimonial container */
+  margin: 2rem auto 0 auto; 
   display: flex;
-  justify-content: left;
-  margin-top: 6rem;
-  gap: 0.5rem;
+  justify-content: center; /* Center the dots themselves */
+  gap: 0.75rem; /* Increased gap */
 }
 
 .testimonial-dots button {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  border: none;
-  background-color: #555;
+  border: 2px solid #555; /* Added a subtle border */
+  background-color: transparent;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
 .testimonial-dots button.active {
-  background-color: #7b2ff7;
+  width: 12px;
+  height: 12px;
+  background-color: #a770ff;
+  border-color: #a770ff;
+  transform: scale(1.1); /* Slight emphasis on active dot */
 }
 
+/* --- */
 /* Responsive */
 @media (max-width: 1024px) {
-  .testimonial-card {
-    max-width: 350px;
-    padding: 1.8rem;
+  /* Tighter arrow placement on medium screens */
+  .testimonial-container {
+    padding: 0 2rem;
   }
-  .testimonial-arrow {
-    font-size: 1.8rem;
-    padding: 0.4rem 0.8rem;
-  }
-  .testimonial-arrow.left { left: -1.5rem; }
-  .testimonial-arrow.right { right: -1.5rem; }
 }
 
 @media (max-width: 768px) {
-  .testimonial-card { max-width: 300px; padding: 1.5rem; }
-  .testimonial-title { font-size: 2rem; }
-  .testimonial-hr { width: 100px;
-  margin-bottom: 60px; }
-  .testimonial-arrow {
-    font-size: 1.5rem;
-    padding: 0.3rem 0.6rem;
+  .testimonial-header-section {
+    margin-bottom: 3rem;
   }
-  .testimonial-arrow.left { left: -1rem; }
-  .testimonial-arrow.right { right: -1rem; }
+  .testimonial-title {
+    font-size: 2rem;
+  }
+  .testimonial-hr {
+    width: 100px;
+  }
+
+  /* Testimonial Card adjustments */
+  .testimonial-card {
+    max-width: 90%; /* Allow card to take up more width */
+    padding: 1.5rem;
+    min-height: 200px; /* Ensure a minimum height */
+  }
+  .testimonial-card-header img {
+    width: 56px;
+    height: 56px;
+  }
+  .testimonial-card h3 {
+    font-size: 1.2rem;
+  }
+  .testimonial-card p {
+    font-size: 1rem;
+  }
+
+  /* Arrows: Increased padding for the container and adjusted arrow size/position */
+  .testimonial-container {
+    padding: 0 1rem;
+    max-width: 100%; /* Full width container */
+  }
+  .testimonial-arrow {
+    font-size: 1.25rem;
+    padding: 0.6rem;
+    /* Move arrows closer to the card on smaller screens */
+    opacity: 0.8;
+  }
+  .testimonial-arrow.left {
+    left: 0.5rem;
+  }
+  .testimonial-arrow.right {
+    right: 0.5rem;
+  }
+
+  /* Dots */
+  .testimonial-dots {
+    margin-top: 3rem;
+  }
 }
 
 @media (max-width: 480px) {
-  .testimonial-card { max-width: 260px; padding: 1.2rem; }
-  .testimonial-card img { width: 50px; height: 50px; }
-  .testimonial-card h3 { font-size: 1rem; }
-  .testimonial-card span { font-size: 0.75rem; }
-  .testimonial-card p { font-size: 0.85rem; }
-  .testimonial-arrow {
-    font-size: 1.2rem;
-    padding: 0.25rem 0.5rem;
+  .testimonial-title {
+    font-size: 1.75rem;
   }
-  .testimonial-arrow.left { left: -0.8rem; }
-  .testimonial-arrow.right { right: -0.8rem; }
-  .testimonial-dots button { width: 10px; height: 10px; }
+  /* Card takes full width minus padding */
+  .testimonial-card {
+    max-width: 95%;
+    padding: 1rem;
+  }
+
+  /* Arrows: Make arrows slightly smaller and very close to the card edge */
+  .testimonial-arrow {
+    font-size: 1rem;
+    padding: 0.5rem;
+  }
+  .testimonial-arrow.left {
+    left: 0;
+  }
+  .testimonial-arrow.right {
+    right: 0;
+  }
+  
+  /* Hide the arrows on very small screens if they are too intrusive */
+  /* .testimonial-arrow { display: none; } */
 }

@@ -210,7 +210,7 @@
   }
 
   .ant-btn-primary:hover {
-    background: #7b35d2 !important;
+    background: #7b35d2 ;
   }
 :where(.css-dev-only-do-not-override-l9pxc0).ant-card .ant-card-body{
   padding: 0px;

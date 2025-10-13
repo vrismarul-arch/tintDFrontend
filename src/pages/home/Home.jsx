@@ -12,11 +12,10 @@ export default function Home() {
   return (
     <div
       className="home-container"
-     
-    >        <Adsbanner />
+ >       
+  {/* <Adsbanner /> */}
 
-      {/* <Hero /> */}
-
+      <Hero />
       <Categories toast={toast} />
       {/* Trending */}
       {/* Banner */}
