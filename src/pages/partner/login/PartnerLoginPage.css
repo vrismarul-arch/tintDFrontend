@@ -1,96 +1,64 @@
 .partner-login-wrapper {
   display: flex;
-  min-height: 100vh; /* full viewport height */
+  height: 100vh;
   width: 100%;
   overflow: hidden;
 }
 
+/* Left side with background */
 .partner-login-left {
   flex: 1;
   position: relative;
-  min-height: 100vh; /* ensure full height */
 }
 
 .bg-image {
   width: 100%;
-  height: 100vh; /* full viewport height */
-  object-fit: cover; /* cover without distortion */
+  height: 100%;
+  object-fit: cover;
 }
 
+/* Right side with login card */
 .partner-login-right {
-  flex: 1;
+  /* flex: 1; */
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #f0f2f5;
+  background: #ffffff; /* optional light background */
   padding: 2rem;
 }
 
 .partner-login-card {
   width: 100%;
   max-width: 400px;
-  background: #fff;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border-radius: 16px;
   text-align: center;
 }
 
 .partner-login-card .logo {
-  width: 80px;
+  width: 100px;
   margin-bottom: 1rem;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.mb-4 {
-  margin-bottom: 1rem;
-}
-
-.rounded-lg {
-  border-radius: 8px !important;
 }
 
 .forgot-password {
   margin-top: 1rem;
 }
 
-/* ------------------ MOBILE ------------------ */
-@media (max-width: 991px) {
+@media (max-width: 768px) {
   .partner-login-wrapper {
     flex-direction: column;
   }
 
-  .partner-login-left {
-    display: none; /* hide image on small screens */
+  .partner-login-left,
+  .partner-login-right {
+    flex: none;
+    width: 100%;
+    height: 50vh;
   }
 
   .partner-login-right {
-    width: 100%;
-    padding: 2rem 1.5rem;
-  }
-
-  .partner-login-card {
-    box-shadow: none;
-    padding: 1.5rem;
-    border-radius: 8px;
-  }
-}
-
-/* Extra small screens */
-@media (max-width: 575px) {
-  .partner-login-card {
+    height: auto;
     padding: 1rem;
-  }
-
-  .partner-login-card .logo {
-    width: 60px;
-    margin-bottom: 0.5rem;
-  }
-
-  .rounded-lg {
-    border-radius: 6px !important;
   }
 }
