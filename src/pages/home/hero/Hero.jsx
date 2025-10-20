@@ -26,7 +26,7 @@ const Hero = () => {
     <section className="hero-container">
       {/* Left Section */}
       <div className="hero-left">
-        <h1 className="hero-title"><span className="brand">Tintd</span> services at your doorstep</h1>
+        <h1 className="hero-title"><img src="/tintD.png" alt="Logo" className="uc-logo-mobile" /> services at your doorstep</h1>
 
         <Carousel autoplay dots className="hero-carousel">
           {categories.map((cat, index) => (

@@ -40,76 +40,74 @@ export default function PaymentPage() {
     }
   };
 
-  // ✅ Handle online payment
-  const handleOnlinePayment = async () => {
-    if (!pendingBooking) return;
-    setLoading(true);
+// ✅ Handle online payment
+const handleOnlinePayment = async () => {
+  if (!pendingBooking) return;
+  setLoading(true);
 
-    try {
-      const { data } = await api.post("/api/payment/create-order", {
-        ...pendingBooking,
-        paymentMethod: "online",
-      });
+  try {
+    const { data } = await api.post("/api/payment/create-order", {
+      totalAmount: pendingBooking.totalAmount,
+    });
 
-      const { orderId, amount, currency, bookingId } = data;
+    const { orderId, amount, currency } = data;
 
-      const options = {
-        key: "rzp_test_RByvKNCLagLArF",
-        amount: amount.toString(),
-        currency,
-        name: "Salon Booking",
-        description: "Service Booking Payment",
-        order_id: orderId,
-        handler: async (response) => {
-          try {
-            const verifyRes = await api.post("/api/payment/verify", {
-              ...response,
-              bookingId,
-            });
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_RByvKNCLagLArF",
+      amount: amount.toString(),
+      currency,
+      name: "Salon Booking",
+      description: "Service Booking Payment",
+      order_id: orderId,
+      handler: async (response) => {
+        try {
+          const verifyRes = await api.post("/api/payment/verify", {
+            ...response,
+            bookingData: pendingBooking, // ✅ send booking details now
+          });
 
-            if (verifyRes.data.success) {
-              message.success("Payment successful!");
+          if (verifyRes.data.success) {
+            message.success("Payment successful!");
 
-              // Save booking success
-              localStorage.setItem(
-                "successBooking",
-                JSON.stringify({ ...pendingBooking, paymentMethod: "online" })
-              );
+            localStorage.setItem(
+              "successBooking",
+              JSON.stringify({ ...pendingBooking, paymentMethod: "online" })
+            );
 
-              // Clear local and backend cart
-              localStorage.removeItem("cart");
-              localStorage.removeItem("pendingBooking");
-              await clearCartBackend();
+            localStorage.removeItem("cart");
+            localStorage.removeItem("pendingBooking");
+            await clearCartBackend();
 
-              navigate("/success");
-            } else {
-              message.error("Payment verification failed!");
-              navigate("/failure");
-            }
-          } catch (err) {
-            console.error("Verify error:", err);
+            navigate("/success");
+          } else {
             message.error("Payment verification failed!");
             navigate("/failure");
           }
-        },
-        prefill: {
-          name: pendingBooking.name,
-          email: pendingBooking.email,
-          contact: pendingBooking.phone,
-        },
-        theme: { color: "#3399cc" },
-      };
+        } catch (err) {
+          console.error("Verify error:", err);
+          message.error("Payment verification failed!");
+          navigate("/failure");
+        }
+      },
+      prefill: {
+        name: pendingBooking.name,
+        email: pendingBooking.email,
+        contact: pendingBooking.phone,
+      },
+      theme: { color: "#3399cc" },
+    };
 
-      setLoading(false);
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (err) {
-      console.error("Order creation error:", err);
-      message.error("Failed to create payment order");
-      setLoading(false);
-      navigate("/checkout");
-    }
-  };
+    setLoading(false);
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  } catch (err) {
+    console.error("Order creation error:", err);
+    message.error("Failed to create payment order");
+    setLoading(false);
+    navigate("/checkout");
+  }
+};
+
 
   // ✅ Handle COD booking
   const handleCOD = async () => {
