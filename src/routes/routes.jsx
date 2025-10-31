@@ -6,8 +6,10 @@ import PartnerRoute from "./PartnerRoute";
 import Home from "../pages/home/Home";
 import CategoryServices from "../pages/services/CategoryServices";
 import Navbar from "../components/Navbar";
+import Footer from "../components/footer/Footer";
 import NotFoundPage from "../pages/NotFoundPage";
 
+// User Pages
 import CartPage from "../pages/cart/CartPage";
 import CheckoutPage from "../pages/checkout/CheckoutPage";
 import PaymentPage from "../pages/payment/PaymentPage";
@@ -16,8 +18,9 @@ import UserBookingDetails from "../pages/profile/UserBookingDetails";
 import SuccessPage from "../pages/payment/SuccessPage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
+import BookingHistoryPage from "../pages/profile/BookingHistoryPage";
 
-
+// Admin Pages
 import AdminLayout from "../pages/Admin/AdminLayout";
 import ServicesPage from "../pages/Admin/categories/ServicesPage";
 import CategoriesPage from "../pages/Admin/categories/CategoriesPage";
@@ -26,7 +29,10 @@ import AdminBookingOrders from "../pages/Admin/bookings/AdminBookingOrders";
 import BookingDetails from "../pages/Admin/bookings/BookingDetails";
 import AdminProfile from "../pages/Admin/profile/AdminProfile";
 import AdminPartnersPage from "../pages/Admin/partner/AdminPartnersPage";
+import AdminPartnerDetailPage from "../pages/Admin/partner/AdminPartnerDetailPage";
+import AdminDashboard from "../pages/Admin/dashbord/AdminDashboard";
 
+// Partner Pages
 import PartnerLayout from "../pages/partner/layout/PartnerLayout";
 import PartnerRegisterForm from "../pages/partner/home/PartnerRegisterForm";
 import Sendotp from "../pages/partner/otp/Sendotp";
@@ -39,15 +45,18 @@ import PartnerProfile from "../pages/partner/home/profile/PartnerProfile";
 import PartnerNotifications from "../pages/partner/notification/PartnerNotifications";
 import PartnerMessages from "../pages/partner/notification/PartnerMessages";
 import PartnerOrderHistory from "../pages/partner/home/history/PartnerOrderHistory";
-import BookingHistoryPage from "../pages/profile/BookingHistoryPage";
-import AdminPartnerDetailPage from "../pages/Admin/partner/AdminPartnerDetailPage";
-import AdminDashboard from "../pages/Admin/dashbord/AdminDashboard";
 
-function WithNavbar({ children }) {
+// Policy Pages
+import RefundPolicy from "../pages/policies/RefundPolicy";
+import PrivacyPolicy from "../pages/policies/PrivacyPolicy";
+import TermsConditions from "../pages/policies/TermsConditions";
+
+function WithNavbarFooter({ children }) {
   return (
     <>
       <Navbar />
       {children}
+      <Footer />
     </>
   );
 }
@@ -55,23 +64,30 @@ function WithNavbar({ children }) {
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<WithNavbar><Home /></WithNavbar>} />
-      <Route path="/home" element={<WithNavbar><Home /></WithNavbar>} />
-      <Route path="/category/:id" element={<WithNavbar><CategoryServices /></WithNavbar>} />
-      <Route path="/category" element={<WithNavbar><CategoryServices /></WithNavbar>} />
-      <Route path="/booking-history" element={<WithNavbar><BookingHistoryPage /></WithNavbar>} />
+      {/* Public Routes */}
+      <Route path="/" element={<WithNavbarFooter><Home /></WithNavbarFooter>} />
+      <Route path="/home" element={<WithNavbarFooter><Home /></WithNavbarFooter>} />
+      <Route path="/category/:id" element={<WithNavbarFooter><CategoryServices /></WithNavbarFooter>} />
+      <Route path="/booking-history" element={<WithNavbarFooter><BookingHistoryPage /></WithNavbarFooter>} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/success" element={<SuccessPage />} />
 
+      {/* Policy Pages */}
+      <Route path="/refund-policy" element={<WithNavbarFooter><RefundPolicy /></WithNavbarFooter>} />
+      <Route path="/privacy-policy" element={<WithNavbarFooter><PrivacyPolicy /></WithNavbarFooter>} />
+      <Route path="/terms-conditions" element={<WithNavbarFooter><TermsConditions /></WithNavbarFooter>} />
+
+      {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/cart" element={<WithNavbar><CartPage /></WithNavbar>} />
-        <Route path="/checkout" element={<WithNavbar><CheckoutPage /></WithNavbar>} />
-        <Route path="/payment" element={<WithNavbar><PaymentPage /></WithNavbar>} />
-        <Route path="/profile" element={<WithNavbar><ProfilePage /></WithNavbar>} />
-        <Route path="/profile/bookings/:id" element={<WithNavbar><UserBookingDetails /></WithNavbar>} />
+        <Route path="/cart" element={<WithNavbarFooter><CartPage /></WithNavbarFooter>} />
+        <Route path="/checkout" element={<WithNavbarFooter><CheckoutPage /></WithNavbarFooter>} />
+        <Route path="/payment" element={<WithNavbarFooter><PaymentPage /></WithNavbarFooter>} />
+        <Route path="/profile" element={<WithNavbarFooter><ProfilePage /></WithNavbarFooter>} />
+        <Route path="/profile/bookings/:id" element={<WithNavbarFooter><UserBookingDetails /></WithNavbarFooter>} />
       </Route>
 
+      {/* Admin Routes */}
       <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
         <Route path="profile" element={<AdminProfile />} />
         <Route path="dashboard" element={<AdminDashboard />} />
@@ -79,12 +95,12 @@ export default function AppRoutes() {
         <Route path="services" element={<ServicesPage />} />
         <Route path="banners" element={<BannersPage />} />
         <Route path="partners" element={<AdminPartnersPage />} />
-        
-<Route path="/admin/partners/:id" element={<AdminPartnerDetailPage />} />
+        <Route path="partners/:id" element={<AdminPartnerDetailPage />} />
         <Route path="bookings" element={<AdminBookingOrders />} />
         <Route path="bookings/:id" element={<BookingDetails />} />
       </Route>
 
+      {/* Partner Routes */}
       <Route path="/partner" element={<PartnerLayout />}>
         <Route path="register" element={<PartnerRegisterForm />} />
         <Route path="sendotp" element={<Sendotp />} />
@@ -102,6 +118,7 @@ export default function AppRoutes() {
         </Route>
       </Route>
 
+      {/* Fallback */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

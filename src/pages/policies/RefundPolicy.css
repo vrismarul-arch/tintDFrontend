@@ -1,0 +1,48 @@
+.a4-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+  background-color: #f7f7f7;
+  min-height: 100vh;
+}
+
+.a4-page {
+  background: white;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 30mm;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  font-family: "Segoe UI", sans-serif;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.a4-page h1 {
+  text-align: center;
+  color: #0b2e78;
+  margin-bottom: 10px;
+}
+
+.a4-page h3 {
+  color: #0b2e78;
+  margin-top: 25px;
+}
+
+.a4-page h4 {
+  color: #444;
+  margin-top: 15px;
+}
+
+.a4-page ul {
+  margin-left: 20px;
+}
+
+.a4-page a {
+  color: #0b2e78;
+  text-decoration: none;
+}
+
+.a4-page a:hover {
+  text-decoration: underline;
+}
