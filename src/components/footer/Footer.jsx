@@ -18,7 +18,7 @@ export default function Footer() {
         <div className="footer-column">
           <h2 className="footer-logo">TINTD</h2>
           <p className="footer-tagline">
-           Expert makeup artists at your doorstep. Serving Chennai with on-demand beauty services.
+            Experience personalized beauty on your own terms. TINTD provides on-demand doorstep makeup services for weddings, parties, photoshoots, or any day you want to feel special. Our professional artists are ready to serve you anywhere in Chennai.
           </p>
         </div>
 
