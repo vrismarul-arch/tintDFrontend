@@ -32,7 +32,6 @@ const Hero = () => {
           {categories.map((cat, index) => (
             <div key={index} className="hero-category-card">
               <img src={cat.icon} alt={cat.name} />
-              <button className="hero-btn">Explore Now</button>
             </div>
           ))}
         </Carousel>
