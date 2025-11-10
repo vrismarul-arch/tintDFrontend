@@ -13,7 +13,14 @@
   padding: 10px 0; 
   margin-bottom: 20px;
 }
+.discount-text {
+  color: green;
+  font-weight: 500;
+}
 
+.no-discount {
+  color: #888;
+}
 .subcat-card {
   cursor: pointer;
  

@@ -18,7 +18,7 @@ export default function CategoryServices() {
   const [subCategories, setSubCategories] = useState([]);
   const [varieties, setVarieties] = useState([]);
   // 💡 Use the ID from the URL as the initial state
-  const [selectedSubCat, setSelectedSubCat] = useState(initialSubCat); 
+  const [selectedSubCat, setSelectedSubCat] = useState(initialSubCat);
   const [selectedVariety, setSelectedVariety] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -228,7 +228,13 @@ export default function CategoryServices() {
                     <h3>{service.name}</h3>
                     <div className="price-section">
                       <span className="price">₹{roundPrice(service.price)}</span>
+                      {service.discount ? (
+                        <span className="discount-text">{service.discount}% OFF</span>
+                      ) : (
+                        <span className="no-discount">—</span>
+                      )}
                     </div>
+
                     <div className="mobile-buttons">
                       {isInCart(service._id) ? (
                         <Button danger shape="round" size="small" onClick={() => handleRemoveFromCartClick(service._id)}>

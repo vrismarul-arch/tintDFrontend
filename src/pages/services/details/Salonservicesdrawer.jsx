@@ -3,23 +3,25 @@ import "./Salonservicesdrawer.css";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { Collapse, Spin, Button } from "antd";
 import api from "../../../../api";
-import toast from "react-hot-toast"; // ✅ added toast
+import toast from "react-hot-toast";
+import { useCart } from "../../../context/CartContext"; // ✅ CART CONTEXT ADDED
 
 const { Panel } = Collapse;
 
 export default function Salonservicesdrawer({
   open,
   onClose,
-  service,   // expects { _id, name, price, ... }
-  count = 0,
-  onCountChange
+  service,
 }) {
   const sliderRef = useRef(null);
+  const { cart, addToCart, removeFromCart } = useCart(); // ✅ USE CART
   const [showLeft, setShowLeft] = useState(false);
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch service details when drawer opens
+  const isInCart = (serviceId) =>
+    cart.some((item) => item.service._id === serviceId);
+
   useEffect(() => {
     const fetchDetails = async () => {
       if (service?._id && open) {
@@ -28,8 +30,7 @@ export default function Salonservicesdrawer({
           const res = await api.get(`/api/admin/services/${service._id}`);
           setDetails(res.data);
         } catch (err) {
-          console.error("❌ Failed to fetch service details", err);
-          toast.error("Failed to fetch service details"); // ✅ show toast error
+          toast.error("Failed to fetch service details");
         } finally {
           setLoading(false);
         }
@@ -50,53 +51,70 @@ export default function Salonservicesdrawer({
   };
 
   const handleScroll = () => {
-    if (sliderRef.current) {
-      setShowLeft(sliderRef.current.scrollLeft > 10);
+    if (sliderRef.current) setShowLeft(sliderRef.current.scrollLeft > 10);
+  };
+
+  const handleAdd = async () => {
+    try {
+      await addToCart(service._id);
+      toast.success(`${service.name} added to cart`);
+    } catch {
+      toast.error("Could not add to cart");
+    }
+  };
+
+  const handleRemove = async () => {
+    try {
+      await removeFromCart(service._id);
+      toast.error("Removed from cart");
+    } catch {
+      toast.error("Could not remove from cart");
     }
   };
 
   return (
-    <div
-      className={`drawer-overlay ${open ? "show" : ""}`}
-      onClick={onClose}
-      style={{ padding: "20px", marginTop: "50px" }}
-    >
-      <div
-        className={`drawer-content ${open ? "open" : ""}`}
-        style={{ padding: "20px", marginTop: "80px" }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className={`drawer-overlay ${open ? "show" : ""}`} onClick={onClose}>
+      <div className={`drawer-content ${open ? "open" : ""}`} onClick={(e) => e.stopPropagation()}>
         {loading ? (
           <div className="flex justify-center items-center h-full">
             <Spin size="large" />
           </div>
         ) : details ? (
           <>
-            {/* Header */}
             <div className="drawer-top">
-              <div>
-                <h2 className="service-title">{details.name}</h2>
-                <p className="service-subtitle">{details.description}</p>
-                <div className="price-row">
-                  <span className="price">₹{details.price}</span>
-                  {details.originalPrice && (
-                    <>
-                      <span className="old-price">₹{details.originalPrice}</span>
-                      <span className="discount">{details.discount}% OFF</span>
-                    </>
-                  )}
-                </div>
+              <h2 className="service-title">{details.name}</h2>
+              <p className="service-subtitle">{details.description}</p>
+              <div className="price-row">
+                <span className="price">₹{details.price}</span>
+                {details.originalPrice && (
+                  <>
+                    <span className="old-price">₹{details.originalPrice}</span>
+                    <span className="discount">{details.discount}% OFF</span>
+                  </>
+                )}
+                
+              {isInCart(service._id) ? (
+                <Button danger shape="round" size="large" onClick={handleRemove}>
+                  REMOVE
+                </Button>
+              ) : (
+                <Button type="primary" shape="round" size="large" onClick={handleAdd}>
+                  ADD
+                </Button>
+              )}
+             
+            
               </div>
+                
             </div>
 
-            {/* Overview */}
             {details.overview?.length > 0 && (
               <>
                 <h3 className="section-title">Overview</h3>
                 <div className="overview-grid">
                   {details.overview.map((item, idx) => (
                     <div className="overview-item" key={idx}>
-                      {item.img && <img src={item.img} alt={item.title} />} <br />
+                      {item.img && <img src={item.img} alt={item.title} />}
                       <span>{item.title}</span>
                     </div>
                   ))}
@@ -104,32 +122,19 @@ export default function Salonservicesdrawer({
               </>
             )}
 
-            {/* Procedure */}
             {details.procedureSteps?.length > 0 && (
               <>
                 <h3 className="section-title">Procedure</h3>
                 <div className="procedure-slider-container">
-                  <button
-                    className={`scroll-btn left ${showLeft ? "show" : ""}`}
-                    onClick={() => scroll("left")}
-                    aria-label="Scroll left"
-                  >
+                  <button className={`scroll-btn left ${showLeft ? "show" : ""}`} onClick={() => scroll("left")}>
                     <LeftOutlined />
                   </button>
 
-                  <div
-                    className="procedure-slider"
-                    ref={sliderRef}
-                    onScroll={handleScroll}
-                  >
+                  <div className="procedure-slider" ref={sliderRef} onScroll={handleScroll}>
                     {details.procedureSteps.map((step, index) => (
                       <div className="procedure-card" key={index}>
                         {step.img && (
-                          <img
-                            src={step.img}
-                            alt={step.title}
-                            className="procedure-img"
-                          />
+                          <img src={step.img} alt={step.title} className="procedure-img" />
                         )}
                         <h4 className="procedure-title">{step.title}</h4>
                         <p className="procedure-desc">{step.desc}</p>
@@ -140,36 +145,16 @@ export default function Salonservicesdrawer({
                     ))}
                   </div>
 
-                  <button
-                    className="scroll-btn right"
-                    onClick={() => scroll("right")}
-                    aria-label="Scroll right"
-                  >
+                  <button className="scroll-btn right" onClick={() => scroll("right")}>
                     <RightOutlined />
                   </button>
                 </div>
               </>
             )}
 
-            {/* Things To Know */}
-            {details.thingsToKnow?.length > 0 && (
-              <>
-                <h3 className="section-title">Things To Know</h3>
-                <div className="things-grid">
-                  {details.thingsToKnow.map((item, idx) => (
-                    <div className="things-card" key={idx}>
-                      <h4 className="things-title">{item.title}</h4>
-                      <p className="things-desc">{item.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {/* FAQ Section */}
             {details.faqs?.length > 0 && (
               <>
-                <h3 className="section-title">Frequently Asked Questions</h3>
+                <h3 className="section-title">FAQs</h3>
                 <Collapse accordion>
                   {details.faqs.map((faq, idx) => (
                     <Panel header={faq.question} key={idx}>
@@ -179,9 +164,7 @@ export default function Salonservicesdrawer({
                 </Collapse>
               </>
             )}
-
-            {/* Precautions & Aftercare */}
-            {details.precautionsAftercare?.length > 0 && (
+ {details.precautionsAftercare?.length > 0 && (
               <>
                 <h3 className="section-title precautions-title">
                   Precautions & Aftercare
@@ -198,13 +181,9 @@ export default function Salonservicesdrawer({
                 </div>
               </>
             )}
-
-            {/* Footer */}
-            <div className="drawer-footer">
-              <Button type="primary" shape="round" onClick={onClose}>
-                Done
-              </Button>
-            </div>
+            
+            {/* ✅ FOOTER WITH ADD / REMOVE BUTTON */}
+            
           </>
         ) : (
           <p className="text-center p-4">Service details not found</p>
