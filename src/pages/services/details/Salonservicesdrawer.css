@@ -14,14 +14,14 @@
 }
 
 /* Drawer content */
-.drawer-content {
+/* .drawer-content {
   position: fixed;
   background: white;
   z-index: 1000;
   transition: transform 0.3s ease-in-out;
   overflow-y: auto;
   border-radius: 12px 12px 0 0;
-}
+} */
 
 /* Desktop - slide from right */
 @media (min-width: 768px) {
@@ -109,6 +109,7 @@
   gap: 12px;
   padding: 0 16px 16px;
 }
+
 
 .overview-item {
   background: #f9f6f4;
@@ -275,7 +276,8 @@
     flex: 0 0 260px;
   }
 }
-  .drawer-content {
+  .drawer-content {  top: 80px;
+
   background: #fff;
   border-radius: 10px 10px 0 0;
   overflow-y: auto;
@@ -355,17 +357,16 @@
   right: 16px;
   background: #fff;
   border: none;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   color: #333;
   cursor: pointer;
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   transition: all 0.2s;
   z-index: 1001;
 }

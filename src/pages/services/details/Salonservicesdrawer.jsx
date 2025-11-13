@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import "./Salonservicesdrawer.css";
-import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import { LeftOutlined, RightOutlined, CloseOutlined } from "@ant-design/icons";
 import { Collapse, Spin, Button } from "antd";
 import api from "../../../../api";
 import toast from "react-hot-toast";
@@ -8,11 +8,7 @@ import { useCart } from "../../../context/CartContext"; // ✅ CART CONTEXT ADDE
 
 const { Panel } = Collapse;
 
-export default function Salonservicesdrawer({
-  open,
-  onClose,
-  service,
-}) {
+export default function Salonservicesdrawer({ open, onClose, service }) {
   const sliderRef = useRef(null);
   const { cart, addToCart, removeFromCart } = useCart(); // ✅ USE CART
   const [showLeft, setShowLeft] = useState(false);
@@ -73,8 +69,19 @@ export default function Salonservicesdrawer({
   };
 
   return (
-    <div className={`drawer-overlay ${open ? "show" : ""}`} onClick={onClose}>
-      <div className={`drawer-content ${open ? "open" : ""}`} onClick={(e) => e.stopPropagation()}>
+    <div
+      className={`drawer-overlay ${open ? "show" : ""}`}
+      onClick={onClose}
+    >
+      <div
+        className={`drawer-content ${open ? "open" : ""}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* ✅ Close Button */}
+        <button className="drawer-close-btn" onClick={onClose}>
+          <CloseOutlined />
+        </button>
+
         {loading ? (
           <div className="flex justify-center items-center h-full">
             <Spin size="large" />
@@ -84,6 +91,7 @@ export default function Salonservicesdrawer({
             <div className="drawer-top">
               <h2 className="service-title">{details.name}</h2>
               <p className="service-subtitle">{details.description}</p>
+
               <div className="price-row">
                 <span className="price">₹{details.price}</span>
                 {details.originalPrice && (
@@ -92,20 +100,27 @@ export default function Salonservicesdrawer({
                     <span className="discount">{details.discount}% OFF</span>
                   </>
                 )}
-                
-              {isInCart(service._id) ? (
-                <Button danger shape="round" size="large" onClick={handleRemove}>
-                  REMOVE
-                </Button>
-              ) : (
-                <Button type="primary" shape="round" size="large" onClick={handleAdd}>
-                  ADD
-                </Button>
-              )}
-             
-            
+
+                {isInCart(service._id) ? (
+                  <Button
+                    danger
+                    shape="round"
+                    size="large"
+                    onClick={handleRemove}
+                  >
+                    REMOVE
+                  </Button>
+                ) : (
+                  <Button
+                    type="primary"
+                    shape="round"
+                    size="large"
+                    onClick={handleAdd}
+                  >
+                    ADD
+                  </Button>
+                )}
               </div>
-                
             </div>
 
             {details.overview?.length > 0 && (
@@ -126,15 +141,26 @@ export default function Salonservicesdrawer({
               <>
                 <h3 className="section-title">Procedure</h3>
                 <div className="procedure-slider-container">
-                  <button className={`scroll-btn left ${showLeft ? "show" : ""}`} onClick={() => scroll("left")}>
+                  <button
+                    className={`scroll-btn left ${showLeft ? "show" : ""}`}
+                    onClick={() => scroll("left")}
+                  >
                     <LeftOutlined />
                   </button>
 
-                  <div className="procedure-slider" ref={sliderRef} onScroll={handleScroll}>
+                  <div
+                    className="procedure-slider"
+                    ref={sliderRef}
+                    onScroll={handleScroll}
+                  >
                     {details.procedureSteps.map((step, index) => (
                       <div className="procedure-card" key={index}>
                         {step.img && (
-                          <img src={step.img} alt={step.title} className="procedure-img" />
+                          <img
+                            src={step.img}
+                            alt={step.title}
+                            className="procedure-img"
+                          />
                         )}
                         <h4 className="procedure-title">{step.title}</h4>
                         <p className="procedure-desc">{step.desc}</p>
@@ -145,7 +171,10 @@ export default function Salonservicesdrawer({
                     ))}
                   </div>
 
-                  <button className="scroll-btn right" onClick={() => scroll("right")}>
+                  <button
+                    className="scroll-btn right"
+                    onClick={() => scroll("right")}
+                  >
                     <RightOutlined />
                   </button>
                 </div>
@@ -164,7 +193,8 @@ export default function Salonservicesdrawer({
                 </Collapse>
               </>
             )}
- {details.precautionsAftercare?.length > 0 && (
+
+            {details.precautionsAftercare?.length > 0 && (
               <>
                 <h3 className="section-title precautions-title">
                   Precautions & Aftercare
@@ -181,9 +211,6 @@ export default function Salonservicesdrawer({
                 </div>
               </>
             )}
-            
-            {/* ✅ FOOTER WITH ADD / REMOVE BUTTON */}
-            
           </>
         ) : (
           <p className="text-center p-4">Service details not found</p>

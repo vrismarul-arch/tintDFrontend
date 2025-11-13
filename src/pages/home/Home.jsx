@@ -7,6 +7,7 @@ import Hero from "./hero/Hero";
 import Testimonial from "../testimonial/Testimonial";
 import TestimonialSlider from "../testimonial/TestimonialSlider";
 import Tintpartner from "../b2b/Tintpartner";
+import Footer from "../../components/footer/Footer";
 
 export default function Home() {
   return (
@@ -47,6 +48,8 @@ export default function Home() {
 
         <Tintpartner/>
       </div>
+
+      <Footer/>
     </div>
   );
 }

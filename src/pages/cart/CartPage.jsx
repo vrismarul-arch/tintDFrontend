@@ -54,7 +54,7 @@ export default function CartPage() {
 
   const subtotal = cart.reduce((sum, item) => sum + item.service.price * item.quantity, 0);
   const delivery = cart.length > 0 ? 5 : 0;
-  const total = subtotal + delivery;
+  const total = subtotal ;
 
   const columns = [
     {
@@ -156,7 +156,6 @@ export default function CartPage() {
           ))}
           <div className="cart-summary">
             <div className="summary-row"><span>Sub Total</span><span>₹{subtotal}</span></div>
-            <div className="summary-row"><span>Delivery Fee</span><span>₹{delivery}</span></div>
             <div className="summary-row total"><span>Total</span><span>₹{total}</span></div>
             <Button type="primary" className="checkout-btn" onClick={() => navigate("/checkout")}>
               Checkout
@@ -168,7 +167,6 @@ export default function CartPage() {
           <Table dataSource={cart} columns={columns} rowKey={(item) => item.service._id} pagination={false} />
           <div className="cart-summary">
             <div className="summary-row"><span>Sub Total</span><span>₹{subtotal}</span></div>
-            <div className="summary-row"><span>Delivery Fee</span><span>₹{delivery}</span></div>
             <div className="summary-row total"><span>Total</span><span>₹{total}</span></div>
             <Button type="primary" className="checkout-btn" onClick={() => navigate("/checkout")}>
               Checkout

@@ -56,7 +56,7 @@ const handleOnlinePayment = async () => {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_RByvKNCLagLArF",
       amount: amount.toString(),
       currency,
-      name: "Salon Booking",
+      name: "Tintd",
       description: "Service Booking Payment",
       order_id: orderId,
       handler: async (response) => {
@@ -69,10 +69,7 @@ const handleOnlinePayment = async () => {
           if (verifyRes.data.success) {
             message.success("Payment successful!");
 
-            localStorage.setItem(
-              "successBooking",
-              JSON.stringify({ ...pendingBooking, paymentMethod: "online" })
-            );
+          
 
             localStorage.removeItem("cart");
             localStorage.removeItem("pendingBooking");

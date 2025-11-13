@@ -6,7 +6,6 @@ import PartnerRoute from "./PartnerRoute";
 import Home from "../pages/home/Home";
 import CategoryServices from "../pages/services/CategoryServices";
 import Navbar from "../components/Navbar";
-import Footer from "../components/footer/Footer";
 import NotFoundPage from "../pages/NotFoundPage";
 
 // User Pages
@@ -56,7 +55,6 @@ function WithNavbarFooter({ children }) {
     <>
       <Navbar />
       {children}
-      <Footer />
     </>
   );
 }

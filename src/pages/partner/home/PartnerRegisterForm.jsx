@@ -32,6 +32,7 @@ const PartnerRegisterForm = () => {
   const [partnerData, setPartnerData] = useState(null);
   const [approvalModal, setApprovalModal] = useState(false);
   const [loadingFiles, setLoadingFiles] = useState({});
+  const [submitLoading, setSubmitLoading] = useState(false); // ✅ Added
 
   const toFileList = (url) => url ? [{ uid: "-1", name: "Uploaded", status: "done", url, thumbUrl: url }] : [];
 
@@ -91,10 +92,12 @@ const PartnerRegisterForm = () => {
   };
 
   const handleFinish = async (values) => {
+    setSubmitLoading(true); // ✅ start loading
     try {
       if (selectedStep.step === "Step 2") {
         if (!values.aadhaarFront?.length || !values.aadhaarBack?.length || !values.pan?.length) {
           toast.error("All documents are mandatory!");
+          setSubmitLoading(false);
           return;
         }
       }
@@ -117,11 +120,9 @@ const PartnerRegisterForm = () => {
 
       if (!partnerId) setPartnerId(data._id);
       setPartnerData(data);
-
       setStepsData(prev => prev.map(s => s.step === selectedStep.step ? { ...s, completed: true } : s));
 
       toast.success(`${selectedStep.title} completed successfully!`);
-
       setOpen(false);
 
       if (selectedStep.step === "Step 4") {
@@ -133,6 +134,8 @@ const PartnerRegisterForm = () => {
       }
     } catch (err) {
       toast.error(`❌ Failed to submit ${selectedStep?.step || "form"}. Please try again.`);
+    } finally {
+      setSubmitLoading(false); // ✅ stop loading
     }
   };
 
@@ -169,10 +172,7 @@ const PartnerRegisterForm = () => {
         return <>
           <Form.Item name="name" rules={[{ required: true }]}><Input placeholder="Name" /></Form.Item>
           <Form.Item name="phone" rules={[{ required: true }]}><Input placeholder="Phone" /></Form.Item>
-          <Form.Item name="email" rules={[{ required: true, type: "email" }]}>
-            <Input placeholder="Email" />
-          </Form.Item>
-
+          <Form.Item name="email" rules={[{ required: true, type: "email" }]}><Input placeholder="Email" /></Form.Item>
           <Form.Item name="city" rules={[{ required: true }]}><Input placeholder="City" /></Form.Item>
           <Form.Item name="gender" rules={[{ required: true }]}><Select placeholder="Select Gender">
             <Option value="Male">Male</Option>
@@ -203,7 +203,6 @@ const PartnerRegisterForm = () => {
           <p><strong>Name:</strong> {form.getFieldValue("name")}</p>
           <p><strong>Phone:</strong> {form.getFieldValue("phone")}</p>
           <p><strong>Email:</strong> {form.getFieldValue("email")}</p>
-
           <p><strong>City:</strong> {form.getFieldValue("city")}</p>
           <p><strong>Gender:</strong> {form.getFieldValue("gender")}</p>
           <p><strong>Profession:</strong> {form.getFieldValue("profession")}</p>
@@ -211,7 +210,6 @@ const PartnerRegisterForm = () => {
           <p><strong>Account Number:</strong> {form.getFieldValue("accountNumber")}</p>
           <p><strong>IFSC:</strong> {form.getFieldValue("ifsc")}</p>
 
-          {/* ✅ Image Preview Group */}
           <Image.PreviewGroup>
             {["aadhaarFront", "aadhaarBack", "pan", "professionalCert"].map(field => {
               const file = form.getFieldValue(field)?.[0];
@@ -267,7 +265,12 @@ const PartnerRegisterForm = () => {
             {stepsData.map((item, index) => {
               const isLocked = index > 0 && !stepsData[index - 1].completed;
               return (
-                <Card key={index} hoverable={!isLocked} onClick={() => handleCardClick(item, index)} className={`step-card ${item.completed ? "completed-step" : ""}`}>
+                <Card
+                  key={index}
+                  hoverable={!isLocked}
+                  onClick={() => handleCardClick(item, index)}
+                  className={`step-card ${item.completed ? "completed-step" : ""}`}
+                >
                   <div className="step-header">
                     <span>{item.step} {item.completed
                       ? <CheckCircleTwoTone twoToneColor="#52c41a" />
@@ -294,7 +297,15 @@ const PartnerRegisterForm = () => {
       >
         <Form form={form} layout="vertical" onFinish={handleFinish}>
           {renderStepForm()}
-          <Button type="primary" htmlType="submit" block style={{ marginTop: 12 }}>Submit</Button>
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            style={{ marginTop: 12 }}
+            loading={submitLoading} // ✅ shows spinner
+          >
+            {submitLoading ? "Submitting..." : "Submit"} {/* ✅ dynamic text */}
+          </Button>
         </Form>
       </Drawer>
 
@@ -306,7 +317,6 @@ const PartnerRegisterForm = () => {
         okText="OK"
       >
         <p>🎉 Congratulations! Your partner request has been approved.</p>
-
       </Modal>
     </div>
   );
