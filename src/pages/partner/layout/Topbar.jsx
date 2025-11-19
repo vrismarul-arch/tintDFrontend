@@ -38,7 +38,7 @@ export default function Topbar({ user, onToggleSidebar }) {
     >
       {/* Left side: Hamburger + Logo */}
      <div className="topbar-left">
-        <img src="/tintD.png" alt="Logo" className="uc-logo" />
+    <a href="/partner">    <img src="/tintD.png" alt="Logo" className="uc-logo" /></a>
       </div>
 
       {/* Right side: User Avatar */}

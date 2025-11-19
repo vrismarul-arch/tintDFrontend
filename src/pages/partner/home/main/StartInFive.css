@@ -1,0 +1,115 @@
+/* MAIN WRAPPER */
+.start-five {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 70px;
+  padding: 70px 40px;
+  background: radial-gradient(circle at right, #f3c8ff, #ffffff 60%);
+}
+
+/* LEFT SIDE IMAGE */
+.left-block-img img {
+  width: 350px;      /* Desktop size */
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* MOBILE IMAGE SIZE */
+@media (max-width: 768px) {
+  .left-block-img img {
+    width: 250px;
+  }
+}
+
+/* =========================
+      RIGHT SIDE TIMELINE
+   ========================= */
+
+.right-block {
+  position: relative;
+  padding-left: 40px; /* space for vertical line */
+}
+
+/* Vertical line */
+.right-block::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: 3px;
+  width: 3px;
+  height: 100%;
+  background: #7a3cff;
+  border-radius: 10px;
+}
+
+/* Remove default bullets */
+.right-block ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Timeline item text */
+.right-block li {
+  font-size: 20px;
+  font-weight: 600;
+  color: #3d2355;
+  margin-bottom: 25px;
+  position: relative;
+  padding-left: 20px;
+}
+
+/* Circle bullet */
+.right-block li::before {
+  content: "";
+  position: absolute;
+  left: -28px;
+  top: 3px;
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border: 4px solid #7a3cff;
+  border-radius: 50%;
+}
+
+/* Last item spacing fix */
+.right-block li:last-child {
+  margin-bottom: 0;
+}
+
+
+/* =========================
+      MOBILE RESPONSIVE
+   ========================= */
+
+@media (max-width: 768px) {
+  .start-five {
+    flex-direction: column;
+    text-align: center;
+    gap: 30px;
+    padding: 40px 20px;
+  }
+
+  /* Timeline alignment */
+  .right-block {
+    padding-left: 25px;
+    margin-top: 20px;
+    text-align: left;
+  }
+
+  .right-block::before {
+    left: 15px;
+  }
+
+  .right-block li {
+    font-size: 18px;
+    padding-left: 20px;
+  }
+
+  .right-block li::before {
+    left: -18px;
+    width: 12px;
+    height: 12px;
+  }
+}

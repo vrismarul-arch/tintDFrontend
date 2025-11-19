@@ -1,0 +1,107 @@
+:root{
+  --purple-1: #653798;
+  --purple-2: #ae68ff;
+  --purple-3: #8454ba;
+  --card-bg: #fff;
+  --muted: #5b4b7a;
+}
+
+/* Card wrapper */
+.td-card{
+  width: 640px;                 /* desktop width like screenshot */
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--card-bg);
+  border: 2px solid rgba(101,55,152,0.12);
+  box-shadow: 0 8px 28px rgba(69,22,110,0.08);
+  margin: 20px auto;
+  font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Top purple band */
+.td-card-top{
+  background: linear-gradient(90deg, var(--purple-1), var(--purple-2) 60%, var(--purple-3));
+  color: #fff;
+  font-weight: 700;
+  padding: 14px 20px;
+  text-align: center;
+  font-size: 18px;
+}
+
+/* Body */
+
+
+/* Title */
+.td-card-title{
+  font-size: 22px;
+  margin: 6px 0 14px;
+  color: #2e1c44;
+  text-align: center;
+  font-weight: 800;
+}
+
+/* Lines container */
+.td-card-lines{
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 10px;
+  text-align: left;
+}
+
+/* Emphasized parts */
+.td-card-lines strong{
+  color: #2e1c44;
+  font-weight: 800;
+}
+
+/* subtle rounded border inside (optional thin inner stroke like screenshot) */
+.td-card::after{
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Smaller screens */
+@media (max-width: 820px){
+  .td-card{
+    width: calc(100% - 40px);
+    margin: 16px;
+  }
+
+  .td-card-top{
+    font-size: 16px;
+    padding: 12px 14px;
+  }
+
+  .td-card-title{
+    font-size: 20px;
+  }
+
+  .td-card-lines{
+    font-size: 15px;
+  }
+}
+
+/* Very small / mobile */
+@media (max-width: 420px){
+  .td-card{
+    border-radius: 12px;
+  }
+  .td-card-top{
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  .td-card-body{
+    padding: 16px 18px 20px;
+  }
+  .td-card-title{
+    font-size: 18px;
+  }
+  .td-card-lines{
+    font-size: 14px;
+  }
+}

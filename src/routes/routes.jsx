@@ -49,6 +49,7 @@ import PartnerOrderHistory from "../pages/partner/home/history/PartnerOrderHisto
 import RefundPolicy from "../pages/policies/RefundPolicy";
 import PrivacyPolicy from "../pages/policies/PrivacyPolicy";
 import TermsConditions from "../pages/policies/TermsConditions";
+import PartnerHome from "../pages/partner/home/main/PartnerHome";
 
 function WithNavbarFooter({ children }) {
   return (
@@ -99,12 +100,13 @@ export default function AppRoutes() {
       </Route>
 
       {/* Partner Routes */}
-      <Route path="/partner" element={<PartnerLayout />}>
-        <Route path="register" element={<PartnerRegisterForm />} />
-        <Route path="sendotp" element={<Sendotp />} />
-        <Route path="verifyotp" element={<VerifyOTP />} />
-        <Route path="login" element={<PartnerLoginPage />} />
-      </Route>
+    <Route path="/partner" element={<PartnerLayout />}>
+    <Route index element={<PartnerHome />} />  {/* Accesses PartnerHome at /partner */}
+    <Route path="register" element={<PartnerRegisterForm />} />
+    <Route path="sendotp" element={<Sendotp />} />
+    <Route path="verifyotp" element={<VerifyOTP />} />
+    <Route path="login" element={<PartnerLoginPage />} />
+</Route>
 
       <Route path="/partnerapp" element={<PartnerAppLayout />}>
         <Route element={<PartnerRoute />}>

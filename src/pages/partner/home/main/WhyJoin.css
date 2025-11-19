@@ -1,0 +1,37 @@
+.why-join {
+  text-align: center;
+  padding:20px;
+}
+
+/* Main Title */
+.why-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 25px;
+}
+
+.why-title span {
+  color: #7a3cff;
+  font-weight: 700;
+}
+
+/* Purple Earnings Pill */
+.earning-pill {
+  display: inline-block;
+  padding: 14px 40px;
+  font-size: 26px;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(90deg, #7b3cff, #c37bff);
+  border-radius: 50px;
+  box-shadow: 0 6px 18px rgba(120, 60, 255, 0.25);
+  margin-bottom: 25px;
+}
+
+/* Subtitle text */
+.why-subtext {
+  font-size: 18px;
+  line-height: 1.6;
+  color: #6a6a6a;
+}

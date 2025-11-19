@@ -1,3 +1,4 @@
+// ServicesPage.jsx
 import { useEffect, useState } from "react";
 import {
   Button,
@@ -14,13 +15,22 @@ import {
   Menu,
   Tabs,
   Spin,
+  Space,
+  Modal,
 } from "antd";
-import { UploadOutlined, MoreOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  UploadOutlined,
+  MoreOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import api from "../../../../api";
-import toast, { Toaster } from "react-hot-toast"; // ✅ import hot toast
+import toast, { Toaster } from "react-hot-toast";
 import "./services.css";
 
 const { TabPane } = Tabs;
+const { confirm } = Modal;
 
 export default function ServicesPage() {
   const [services, setServices] = useState([]);
@@ -35,45 +45,69 @@ export default function ServicesPage() {
   const [editingItem, setEditingItem] = useState(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("all"); // all | active | inactive
 
+  // initial load
   useEffect(() => {
     (async () => {
       setLoading(true);
       try {
-        await Promise.all([
-          fetchServices(),
-          fetchCategories(),
-          fetchSubCategories(),
-          fetchVarieties(),
-        ]);
+        await Promise.all([fetchServices(activeFilter), fetchCategories(), fetchSubCategories(), fetchVarieties()]);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // fetchers
   const fetchCategories = async () => {
-    const res = await api.get("/api/admin/categories");
-    setCategories(res.data || []);
+    try {
+      const res = await api.get("/api/admin/categories");
+      setCategories(res.data || []);
+    } catch (err) {
+      console.error("fetchCategories", err);
+    }
   };
 
   const fetchSubCategories = async () => {
-    const res = await api.get("/api/admin/subcategories");
-    setSubCategories(res.data || []);
+    try {
+      const res = await api.get("/api/admin/subcategories");
+      setSubCategories(res.data || []);
+    } catch (err) {
+      console.error("fetchSubCategories", err);
+    }
   };
 
   const fetchVarieties = async () => {
-    const res = await api.get("/api/admin/varieties");
-    setVarieties(res.data || []);
+    try {
+      const res = await api.get("/api/admin/varieties");
+      setVarieties(res.data || []);
+    } catch (err) {
+      console.error("fetchVarieties", err);
+    }
   };
 
-  const fetchServices = async () => {
-    const res = await api.get("/api/admin/services");
-    setServices(res.data || []);
+  // Fetch services with status param
+  const fetchServices = async (status = "all") => {
+    try {
+      setLoading(true);
+      const res = await api.get(`/api/admin/services?status=${status}`);
+      setServices(res.data || []);
+    } catch (err) {
+      console.error("fetchServices", err);
+      toast.error("Failed to fetch services");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // normalization helper for Upload components
   const normalizeUpload = (e) => (Array.isArray(e) ? e : e?.fileList || []);
 
+  // handle cascading selects
   const handleCategoryChange = (categoryId) => {
     form.setFieldsValue({ subCategory: null, variety: null });
     setFilteredSubCategories(subCategories.filter((sc) => sc.category?._id === categoryId));
@@ -85,79 +119,131 @@ export default function ServicesPage() {
     setFilteredVarieties(varieties.filter((v) => v.subCategory?._id === subCategoryId));
   };
 
+  // Save (create or update)
   const handleSave = async () => {
     try {
       setSaving(true);
       const values = await form.validateFields();
+
+      // convert hours/minutes to duration minutes
       const duration = (values.hours || 0) * 60 + (values.minutes || 0);
       values.duration = duration;
 
-      if (values.originalPrice && values.price) {
-        values.discount = Math.round(
-          ((values.originalPrice - values.price) / values.originalPrice) * 100
-        );
+      // Ensure status default
+      if (!editingItem) {
+        values.status = values.status || "active";
+      } else {
+        values.status = values.status ?? editingItem.status;
       }
 
+      // calculate discount if both prices provided
+      if (values.originalPrice && values.price) {
+        values.discount = Math.round(((values.originalPrice - values.price) / values.originalPrice) * 100);
+      }
+
+      // prepare formData for file uploads
       const formData = new FormData();
+
+      // iterate keys
       Object.keys(values).forEach((key) => {
-        if (["overview", "procedureSteps"].includes(key)) {
+        // nested arrays that include image upload components
+        if (["overview", "procedureSteps"].includes(key) && Array.isArray(values[key])) {
           const arr = values[key].map((item, index) => {
+            // item.img is fileList
             if (item.img && item.img[0]?.originFileObj) {
-              formData.append(`${key}Images_${index}`, item.img[0].originFileObj);
+              // append file under convention used by backend: overviewImages_<index> or procedureStepsImages_<index>
+              const fileFieldName = key === "overview" ? `overviewImages_${index}` : `procedureStepsImages_${index}`;
+              formData.append(fileFieldName, item.img[0].originFileObj);
+              // replace img with filename placeholder (backend parses JSON and replaces using files)
               return { ...item, img: item.img[0].name };
             } else if (item.img && item.img[0]?.url) {
+              // keep existing url
               return { ...item, img: item.img[0].url };
             }
             return item;
           });
           formData.append(key, JSON.stringify(arr));
-        } else if (
-          ["thingsToKnow", "precautionsAftercare", "faqs"].includes(key)
-        ) {
+        } else if (["thingsToKnow", "precautionsAftercare", "faqs"].includes(key)) {
           formData.append(key, JSON.stringify(values[key] || []));
+        } else if (key === "status") {
+          formData.append(key, values[key]);
         } else if (Array.isArray(values[key]) || typeof values[key] === "object") {
-          formData.append(key, JSON.stringify(values[key] ?? null));
+          // if it's an object but not handled above, attempt to append JSON
+          formData.append(key, JSON.stringify(values[key]));
         } else if (values[key] !== undefined && values[key] !== null) {
           formData.append(key, values[key]);
         }
       });
 
+      // handle main image
       const mainImage = values.image?.[0]?.originFileObj;
       if (mainImage) {
         formData.append("image", mainImage);
       }
 
       if (editingItem) {
-        await api.put(`/api/admin/services/${editingItem._id}`, formData);
-        toast.success("✅ Service updated successfully!"); // ✅ Hot toast
+        await api.put(`/api/admin/services/${editingItem._id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        toast.success("✅ Service updated successfully!");
       } else {
-        await api.post("/api/admin/services", formData);
+        await api.post("/api/admin/services", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         toast.success("✅ Service added successfully!");
       }
 
+      // cleanup UI
       setIsDrawerOpen(false);
       setIsDetailsDrawerOpen(false);
       form.resetFields();
       setEditingItem(null);
-      fetchServices();
+      await fetchServices(activeFilter);
     } catch (err) {
-      console.error(err);
+      console.error("handleSave", err);
       toast.error("❌ Something went wrong while saving service!");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (id) => {
+  // Confirm hard delete
+  const confirmHardDelete = (id) => {
+    confirm({
+      title: "Delete Service",
+      icon: <ExclamationCircleOutlined />,
+      content: "This will permanently delete the service. Are you sure?",
+      okText: "Yes, Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        try {
+          await api.delete(`/api/admin/services/${id}`);
+          toast.success("🗑️ Service permanently deleted!");
+          fetchServices(activeFilter);
+        } catch (err) {
+          console.error("deleteService", err);
+          toast.error("❌ Failed to delete service!");
+        }
+      },
+    });
+  };
+
+  // Soft toggle status
+  const handleStatusToggle = async (id, currentStatus) => {
+    const newStatus = currentStatus === "active" ? "inactive" : "active";
+    const action = newStatus === "active" ? "Activated" : "Deactivated";
     try {
-      await api.delete(`/api/admin/services/${id}`);
-      fetchServices();
-      toast.success("🗑️ Service deleted!");
+      await api.put(`/api/admin/services/${id}`, { status: newStatus });
+      toast.success(`✅ Service ${action} successfully!`);
+      fetchServices(activeFilter);
     } catch (err) {
-      console.error(err);
-      toast.error("❌ Failed to delete service!");
+      console.error("handleStatusToggle", err);
+      toast.error(`❌ Failed to ${action.toLowerCase()} service!`);
     }
   };
+
+  // Table columns
   const columns = [
     { title: "S.No", render: (_, __, index) => index + 1, width: 70 },
     {
@@ -169,46 +255,66 @@ export default function ServicesPage() {
             src={url}
             alt={record.name}
             className="w-16 h-16 object-cover rounded-lg shadow-sm border serviceimage"
+            style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 8 }}
           />
         ) : (
           <span className="text-gray-400">No Image</span>
         ),
     },
-    { title: "Name", dataIndex: "name" },
+    { title: "Name", dataIndex: "name", sorter: (a, b) => (a.name || "").localeCompare(b.name || "") },
     { title: "Category", dataIndex: ["category", "name"] },
     { title: "SubCategory", dataIndex: ["subCategory", "name"] },
     { title: "Variety", dataIndex: ["variety", "name"] },
     {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => (
+        <span
+          style={{
+            fontWeight: 600,
+            padding: "4px 8px",
+            borderRadius: 16,
+            fontSize: 12,
+            background: status === "active" ? "#ECFDF5" : "#FFF1F2",
+            color: status === "active" ? "#065F46" : "#9A1C1C",
+            border: "1px solid rgba(0,0,0,0.04)",
+          }}
+        >
+          {status?.toUpperCase() || "N/A"}
+        </span>
+      ),
+      filters: [
+        { text: "Active", value: "active" },
+        { text: "Inactive", value: "inactive" },
+      ],
+      onFilter: (value, record) => record.status === value,
+    },
+    {
       title: "Final Price",
       dataIndex: "price",
-      render: (p) => (
-        <span className="font-semibold text-green-600">₹{p?.toFixed(2)}</span>
-      ),
+      render: (p) => <span style={{ fontWeight: 700 }}>₹{typeof p === "number" ? p.toFixed(2) : p}</span>,
     },
     {
       title: "Original Price",
       dataIndex: "originalPrice",
       render: (op, record) =>
         op ? (
-          <span
-            className={`${
-              op > record.price ? "line-through text-gray-400" : "text-gray-600"
-            }`}
-          >
-            ₹{op?.toFixed(2)}
+          <span style={{ textDecoration: op > record.price ? "line-through" : "none", color: "#6b7280" }}>
+            ₹{typeof op === "number" ? op.toFixed(2) : op}
           </span>
         ) : (
-          <span className="text-gray-400">-</span>
+          <span style={{ color: "#9ca3af" }}>-</span>
         ),
     },
     {
       title: "Duration",
       dataIndex: "duration",
-      render: (d) => `${Math.floor(d / 60)}h ${d % 60}m`,
+      render: (d) => `${Math.floor((d || 0) / 60)}h ${d ? d % 60 : 0}m`,
     },
     {
       title: "Actions",
-      width: 80,
+      width: 140,
       align: "center",
       render: (_, record) => {
         const menu = (
@@ -219,20 +325,14 @@ export default function ServicesPage() {
               onClick={() => {
                 setEditingItem(record);
 
-                setFilteredSubCategories(
-                  subCategories.filter(
-                    (sc) => sc.category?._id === record.category?._id
-                  )
-                );
-                setFilteredVarieties(
-                  varieties.filter(
-                    (v) => v.subCategory?._id === record.subCategory?._id
-                  )
-                );
+                // prepare dependent selects
+                setFilteredSubCategories(subCategories.filter((sc) => sc.category?._id === record.category?._id));
+                setFilteredVarieties(varieties.filter((v) => v.subCategory?._id === record.subCategory?._id));
 
                 const hours = Math.floor((record.duration || 0) / 60);
                 const minutes = (record.duration || 0) % 60;
 
+                // populate form
                 form.setFieldsValue({
                   name: record.name,
                   originalPrice: record.originalPrice,
@@ -243,6 +343,7 @@ export default function ServicesPage() {
                   subCategory: record.subCategory?._id,
                   variety: record.variety?._id,
                   description: record.description,
+                  status: record.status,
                   overview: (record.overview || []).map((item, idx) => ({
                     ...item,
                     img: item.img
@@ -256,21 +357,19 @@ export default function ServicesPage() {
                         ]
                       : [],
                   })),
-                  procedureSteps: (record.procedureSteps || []).map(
-                    (item, idx) => ({
-                      ...item,
-                      img: item.img
-                        ? [
-                            {
-                              uid: `step-${idx}`,
-                              name: `step-${idx}.png`,
-                              status: "done",
-                              url: item.img,
-                            },
-                          ]
-                        : [],
-                    })
-                  ),
+                  procedureSteps: (record.procedureSteps || []).map((item, idx) => ({
+                    ...item,
+                    img: item.img
+                      ? [
+                          {
+                            uid: `step-${idx}`,
+                            name: `step-${idx}.png`,
+                            status: "done",
+                            url: item.img,
+                          },
+                        ]
+                      : [],
+                  })),
                   thingsToKnow: record.thingsToKnow || [],
                   precautionsAftercare: record.precautionsAftercare || [],
                   faqs: record.faqs || [],
@@ -285,18 +384,23 @@ export default function ServicesPage() {
                       ]
                     : [],
                 });
+
                 setIsDrawerOpen(true);
               }}
             >
-              Edit
+              Edit Details
             </Menu.Item>
+
             <Menu.Item
-              key="delete"
-              icon={<DeleteOutlined />}
-              danger
-              onClick={() => handleDelete(record._id)}
+              key="toggle-status"
+              icon={record.status === "active" ? <DeleteOutlined /> : <EditOutlined />}
+              onClick={() => handleStatusToggle(record._id, record.status)}
             >
-              Delete
+              {record.status === "active" ? "Deactivate" : "Activate"}
+            </Menu.Item>
+
+            <Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={() => confirmHardDelete(record._id)}>
+              Hard Delete
             </Menu.Item>
           </Menu>
         );
@@ -310,48 +414,81 @@ export default function ServicesPage() {
     },
   ];
 
+  // header filter buttons (Active / Inactive / All)
+  const renderFilterButtons = () => (
+    <Space>
+      <Button
+        type={activeFilter === "all" ? "primary" : "default"}
+        onClick={() => {
+          setActiveFilter("all");
+          fetchServices("all");
+        }}
+      >
+        All
+      </Button>
+      <Button
+        type={activeFilter === "active" ? "primary" : "default"}
+        onClick={() => {
+          setActiveFilter("active");
+          fetchServices("active");
+        }}
+      >
+        Active
+      </Button>
+      <Button
+        type={activeFilter === "inactive" ? "primary" : "default"}
+        onClick={() => {
+          setActiveFilter("inactive");
+          fetchServices("inactive");
+        }}
+      >
+        Inactive
+      </Button>
+    </Space>
+  );
+
   return (
-    <div className="services-page"> <Toaster position="top-right" reverseOrder={false} />
+    <div className="services-page p-6">
+      <Toaster position="top-right" reverseOrder={false} />
       <div className="header flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800">💇 Services</h2>
-        <Button
-          type="primary"
-          size="large"
-          onClick={() => {
-            setIsDrawerOpen(true);
-            setEditingItem(null);
-            form.resetFields();
-            setFilteredSubCategories([]);
-            setFilteredVarieties([]);
-          }}
-        >
-          + Add Service
-        </Button>
+        <div>
+          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>💇 Services</h2>
+          <div style={{ marginTop: 6 }}>{renderFilterButtons()}</div>
+        </div>
+
+        <div>
+          <Button
+            type="primary"
+            size="large"
+            onClick={() => {
+              setIsDrawerOpen(true);
+              setEditingItem(null);
+              form.resetFields();
+              setFilteredSubCategories([]);
+              setFilteredVarieties([]);
+            }}
+          >
+            + Add Service
+          </Button>
+        </div>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-10">
+        <div style={{ padding: 40, textAlign: "center" }}>
           <Spin />
         </div>
       ) : (
         <Tabs defaultActiveKey="all">
-          <TabPane tab="All" key="all">
-            <Table
-              dataSource={services}
-              rowKey="_id"
-              pagination={{ pageSize: 5 }}
-              columns={columns}
-            />
+          <TabPane tab="All Services" key="all">
+            <Table dataSource={services} rowKey="_id" pagination={{ pageSize: 100 }} columns={columns} />
           </TabPane>
 
           {categories.map((cat) => (
             <TabPane tab={cat.name} key={cat._id}>
               <Table
-                dataSource={services.filter(
-                  (s) => s.category && s.category._id === cat._id
-                )}
+                dataSource={services.filter((s) => s.category && s.category._id === cat._id)}
                 rowKey="_id"
-                pagination={{ pageSize: 5 }}
+                pagination={{ pageSize: 100 }}
                 columns={columns}
               />
             </TabPane>
@@ -359,125 +496,125 @@ export default function ServicesPage() {
         </Tabs>
       )}
 
-      {/* Drawer for Add/Edit */}
-     <Drawer
-  title={`${editingItem ? "Edit" : "Add"} Service`}
-  open={isDrawerOpen}
-  onClose={() => setIsDrawerOpen(false)}
-  width={600}
-  extra={
-    <div className="flex gap-2">
-      <Button onClick={() => setIsDrawerOpen(false)}>Cancel</Button>
-      <Button type="primary" onClick={handleSave} loading={saving}>
-        Save
-      </Button>
-    </div>
-  }
->
-  <Form form={form} layout="vertical">
-    <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-      <Input placeholder="Enter service name" />
-    </Form.Item>
+      {/* Main Drawer for Add / Edit */}
+      <Drawer
+        title={`${editingItem ? "Edit" : "Add"} Service`}
+        open={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        width={640}
+        extra={
+          <div className="flex gap-2">
+            <Button onClick={() => setIsDrawerOpen(false)}>Cancel</Button>
+            <Button type="primary" onClick={handleSave} loading={saving}>
+              Save
+            </Button>
+          </div>
+        }
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="name" label="Name" rules={[{ required: true, message: "Please enter service name" }]}>
+            <Input placeholder="Enter service name" />
+          </Form.Item>
 
-    <Row gutter={16}>
-      <Col span={12}>
-        <Form.Item name="originalPrice" label="Original Price">
-          <InputNumber min={1} style={{ width: "100%" }} />
-        </Form.Item>
-      </Col>
-      <Col span={12}>
-        <Form.Item name="price" label="Final Price">
-          <InputNumber min={1} style={{ width: "100%" }} />
-        </Form.Item>
-      </Col>
-    </Row>
+          <Row gutter={12}>
+            <Col span={12}>
+              <Form.Item name="originalPrice" label="Original Price" rules={[{ required: true }]}>
+                <InputNumber min={1} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="price" label="Final Price" rules={[{ required: true }]}>
+                <InputNumber min={1} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+          </Row>
 
-    <Row gutter={16}>
-      <Col span={12}>
-        <Form.Item name="hours" label="Hours">
-          <InputNumber min={0} style={{ width: "100%" }} />
-        </Form.Item>
-      </Col>
-      <Col span={12}>
-        <Form.Item name="minutes" label="Minutes">
-          <InputNumber min={0} max={59} style={{ width: "100%" }} />
-        </Form.Item>
-      </Col>
-    </Row>
+          <Row gutter={12}>
+            <Col span={12}>
+              <Form.Item name="hours" label="Hours">
+                <InputNumber min={0} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="minutes" label="Minutes">
+                <InputNumber min={0} max={59} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+          </Row>
 
-    <Row gutter={16}>
-      <Col span={8}>
-        <Form.Item name="category" label="Category">
-          <Select
-            placeholder="Select a category"
-            allowClear
-            onChange={handleCategoryChange}
-          >
-            {categories.map((c) => (
-              <Select.Option key={c._id} value={c._id}>
-                {c.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-      </Col>
-      <Col span={8}>
-        <Form.Item name="subCategory" label="SubCategory">
-          <Select
-            placeholder="Select a subcategory"
-            allowClear
-            onChange={handleSubCategoryChange}
-          >
-            {filteredSubCategories.map((sc) => (
-              <Select.Option key={sc._id} value={sc._id}>
-                {sc.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-      </Col>
-      <Col span={8}>
-        <Form.Item name="variety" label="Variety">
-          <Select placeholder="Select a variety" allowClear>
-            {filteredVarieties.map((v) => (
-              <Select.Option key={v._id} value={v._id}>
-                {v.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-      </Col>
-    </Row>
+          <Row gutter={12}>
+            <Col span={8}>
+              <Form.Item name="category" label="Category">
+                <Select placeholder="Select a category" allowClear onChange={handleCategoryChange}>
+                  {categories.map((c) => (
+                    <Select.Option key={c._id} value={c._id}>
+                      {c.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="subCategory" label="SubCategory">
+                <Select placeholder="Select a subcategory" allowClear onChange={handleSubCategoryChange}>
+                  {filteredSubCategories.map((sc) => (
+                    <Select.Option key={sc._id} value={sc._id}>
+                      {sc.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="variety" label="Variety">
+                <Select placeholder="Select a variety" allowClear>
+                  {filteredVarieties.map((v) => (
+                    <Select.Option key={v._id} value={v._id}>
+                      {v.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
 
-    <Form.Item name="description" label="Description">
-      <Input.TextArea rows={3} placeholder="Enter service details" />
-    </Form.Item>
+          <Form.Item name="status" label="Status" rules={[{ required: true }]}>
+            <Select placeholder="Select service status">
+              <Select.Option value="active">Active</Select.Option>
+              <Select.Option value="inactive">Inactive</Select.Option>
+            </Select>
+          </Form.Item>
 
-    <Form.Item
-      name="image"
-      label="Upload Image"
-      valuePropName="fileList"
-      getValueFromEvent={normalizeUpload}
-    >
-      <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
-        <Button icon={<UploadOutlined />}>Upload</Button>
-      </Upload>
-    </Form.Item>
+          <Form.Item name="description" label="Description">
+            <Input.TextArea rows={3} placeholder="Enter service details" />
+          </Form.Item>
 
-    <Button type="dashed" block onClick={() => setIsDetailsDrawerOpen(true)}>
-      Manage Service Details
-    </Button>
-  </Form>
-</Drawer>
+          <Form.Item name="image" label="Upload Image" valuePropName="fileList" getValueFromEvent={normalizeUpload}>
+            <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
+              <Button icon={<UploadOutlined />}>Upload</Button>
+            </Upload>
+          </Form.Item>
 
+          <Button type="dashed" block onClick={() => setIsDetailsDrawerOpen(true)}>
+            Manage Service Details
+          </Button>
+        </Form>
+      </Drawer>
 
-      {/* Nested Drawer for Service Details */}
+      {/* Nested Drawer: Service Details */}
       <Drawer
         title="Service Details"
         open={isDetailsDrawerOpen}
         onClose={() => setIsDetailsDrawerOpen(false)}
-        width={650}
-        extra={<Button type="primary" onClick={() => setIsDetailsDrawerOpen(false)}>Done</Button>}
+        width={720}
+        extra={
+          <div style={{ display: "flex", gap: 8 }}>
+            <Button onClick={() => setIsDetailsDrawerOpen(false)}>Done</Button>
+            <Button type="primary" onClick={() => setIsDetailsDrawerOpen(false)}>
+              Save & Close
+            </Button>
+          </div>
+        }
       >
         <Form form={form} layout="vertical">
           <Tabs defaultActiveKey="overview">
@@ -487,7 +624,7 @@ export default function ServicesPage() {
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, ...restField }) => (
-                      <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
+                      <div key={key} style={{ marginBottom: 12, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
                         <Form.Item
                           {...restField}
                           name={[name, "img"]}
@@ -502,10 +639,14 @@ export default function ServicesPage() {
                         <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}>
                           <Input placeholder="Title" />
                         </Form.Item>
-                        <Button danger onClick={() => remove(name)}>Remove</Button>
+                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                          <Button danger onClick={() => remove(name)}>
+                            Remove
+                          </Button>
+                        </div>
                       </div>
                     ))}
-                    <Button type="dashed" onClick={() => add()} block>
+                    <Button type="dashed" block onClick={() => add()}>
                       + Add Overview
                     </Button>
                   </>
@@ -519,8 +660,14 @@ export default function ServicesPage() {
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, ...restField }) => (
-                      <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
-                        <Form.Item {...restField} name={[name, "img"]} valuePropName="fileList" getValueFromEvent={normalizeUpload} rules={[{ required: true }]}>
+                      <div key={key} style={{ marginBottom: 12, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "img"]}
+                          valuePropName="fileList"
+                          getValueFromEvent={normalizeUpload}
+                          rules={[{ required: true, message: "Image required" }]}
+                        >
                           <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
                             <Button icon={<UploadOutlined />}>Upload</Button>
                           </Upload>
@@ -531,10 +678,14 @@ export default function ServicesPage() {
                         <Form.Item {...restField} name={[name, "desc"]} rules={[{ required: true }]}>
                           <Input.TextArea placeholder="Step Description" />
                         </Form.Item>
-                        <Button danger onClick={() => remove(name)}>Remove</Button>
+                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                          <Button danger onClick={() => remove(name)}>
+                            Remove
+                          </Button>
+                        </div>
                       </div>
                     ))}
-                    <Button type="dashed" onClick={() => add()} block>
+                    <Button type="dashed" block onClick={() => add()}>
                       + Add Step
                     </Button>
                   </>
@@ -548,17 +699,21 @@ export default function ServicesPage() {
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, ...restField }) => (
-                      <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
+                      <div key={key} style={{ marginBottom: 12, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
                         <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}>
                           <Input placeholder="Title" />
                         </Form.Item>
                         <Form.Item {...restField} name={[name, "desc"]} rules={[{ required: true }]}>
                           <Input.TextArea placeholder="Description" />
                         </Form.Item>
-                        <Button danger onClick={() => remove(name)}>Remove</Button>
+                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                          <Button danger onClick={() => remove(name)}>
+                            Remove
+                          </Button>
+                        </div>
                       </div>
                     ))}
-                    <Button type="dashed" onClick={() => add()} block>
+                    <Button type="dashed" block onClick={() => add()}>
                       + Add Info
                     </Button>
                   </>
@@ -572,17 +727,21 @@ export default function ServicesPage() {
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, ...restField }) => (
-                      <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
+                      <div key={key} style={{ marginBottom: 12, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
                         <Form.Item {...restField} name={[name, "title"]} rules={[{ required: true }]}>
                           <Input placeholder="Title" />
                         </Form.Item>
                         <Form.Item {...restField} name={[name, "desc"]} rules={[{ required: true }]}>
                           <Input.TextArea placeholder="Description" />
                         </Form.Item>
-                        <Button danger onClick={() => remove(name)}>Remove</Button>
+                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                          <Button danger onClick={() => remove(name)}>
+                            Remove
+                          </Button>
+                        </div>
                       </div>
                     ))}
-                    <Button type="dashed" onClick={() => add()} block>
+                    <Button type="dashed" block onClick={() => add()}>
                       + Add Precaution
                     </Button>
                   </>
@@ -596,17 +755,21 @@ export default function ServicesPage() {
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, ...restField }) => (
-                      <div key={key} className="flex flex-col gap-2 mb-3 p-2 border rounded">
+                      <div key={key} style={{ marginBottom: 12, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
                         <Form.Item {...restField} name={[name, "question"]} rules={[{ required: true }]}>
                           <Input placeholder="Question" />
                         </Form.Item>
                         <Form.Item {...restField} name={[name, "answer"]} rules={[{ required: true }]}>
                           <Input.TextArea placeholder="Answer" />
                         </Form.Item>
-                        <Button danger onClick={() => remove(name)}>Remove</Button>
+                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                          <Button danger onClick={() => remove(name)}>
+                            Remove
+                          </Button>
+                        </div>
                       </div>
                     ))}
-                    <Button type="dashed" onClick={() => add()} block>
+                    <Button type="dashed" block onClick={() => add()}>
                       + Add FAQ
                     </Button>
                   </>
