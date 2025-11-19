@@ -29,7 +29,7 @@ export default function PartnerLayout() {
           onToggleSidebar={() => setSidebarVisible(!sidebarVisible)}
         />
 
-        <Content className="partner-content" style={{ padding: "10px 20px" }}>
+        <Content className="partner-content" >
           <Outlet />
         </Content>
       </Layout>

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+// 1. ✅ Import useNavigate for redirection
+import { useNavigate } from "react-router-dom";
 import {
   Card, Row, Col, Drawer, Form, Input, Button,
   Upload, Radio, Select, Modal, Avatar, Spin, Image
@@ -9,9 +11,9 @@ import {
   IdcardOutlined, UploadOutlined, EditFilled, LockOutlined
 } from "@ant-design/icons";
 import servicespartnerimg from "./servicepartner.jpg";
-import api from "../../../../api";
+import api from "../../../../api"; // Assuming this is your axios instance setup
 import toast from "react-hot-toast";
-import './PartnerRegisterForm.css';
+import './PartnerRegisterForm.css'; // Assuming this CSS file exists
 
 const { Option } = Select;
 
@@ -32,7 +34,10 @@ const PartnerRegisterForm = () => {
   const [partnerData, setPartnerData] = useState(null);
   const [approvalModal, setApprovalModal] = useState(false);
   const [loadingFiles, setLoadingFiles] = useState({});
-  const [submitLoading, setSubmitLoading] = useState(false); // ✅ Added
+  const [submitLoading, setSubmitLoading] = useState(false);
+  
+  // 2. ✅ Initialize the navigate hook
+  const navigate = useNavigate();
 
   const toFileList = (url) => url ? [{ uid: "-1", name: "Uploaded", status: "done", url, thumbUrl: url }] : [];
 
@@ -40,7 +45,6 @@ const PartnerRegisterForm = () => {
     if (partnerId) {
       api.get(`/api/partners/${partnerId}`)
         .then(res => setPartnerData(res.data))
-        .catch(() => toast.error("Failed to fetch partner data."));
     }
   }, [partnerId]);
 
@@ -60,6 +64,7 @@ const PartnerRegisterForm = () => {
           prefill = {
             name: partnerData.name,
             phone: partnerData.phone,
+            email: partnerData.email, // Ensure email is included if available
             city: partnerData.city,
             gender: partnerData.gender,
             profession: partnerData.profession
@@ -92,15 +97,27 @@ const PartnerRegisterForm = () => {
   };
 
   const handleFinish = async (values) => {
-    setSubmitLoading(true); // ✅ start loading
+    setSubmitLoading(true);
     try {
       if (selectedStep.step === "Step 2") {
-        if (!values.aadhaarFront?.length || !values.aadhaarBack?.length || !values.pan?.length) {
-          toast.error("All documents are mandatory!");
+        const hasAllDocs = values.aadhaarFront?.length && values.aadhaarBack?.length && values.pan?.length;
+        if (!hasAllDocs) {
+          toast.error("All documents (Aadhaar Front/Back, PAN) are mandatory!");
           setSubmitLoading(false);
           return;
         }
       }
+      
+      // Validation for Step 4 if experienced, must have certificate
+      if (selectedStep.step === "Step 4" && values.experience === "experienced") {
+        const hasCert = values.professionalCert?.length;
+        if (!hasCert) {
+          toast.error("Experience Certificate is required for experienced partners!");
+          setSubmitLoading(false);
+          return;
+        }
+      }
+
 
       const formData = new FormData();
       formData.append("step", selectedStep.step);
@@ -109,7 +126,10 @@ const PartnerRegisterForm = () => {
       for (const key in values) {
         if (Array.isArray(values[key]) && values[key].length > 0) {
           values[key].forEach(file => {
+            // Only append the actual file object for new uploads
             if (file.originFileObj) formData.append(key, file.originFileObj);
+            // If it's an existing file with a URL (not being re-uploaded), handle it on the backend
+            // For safety, we often only send new files and let the backend manage existing URLs
           });
         } else if (values[key] !== undefined) {
           formData.append(key, values[key]);
@@ -127,6 +147,9 @@ const PartnerRegisterForm = () => {
 
       if (selectedStep.step === "Step 4") {
         toast.success("✅ Submitted Successfully! Our Team Will Contact You Soon on your registered mobile number.");
+        
+        // 3. ✅ REDIRECTION LOGIC
+        navigate('/partner'); 
       }
 
       if (selectedStep.step === "Step 4" && data.status === "approved") {
@@ -134,8 +157,9 @@ const PartnerRegisterForm = () => {
       }
     } catch (err) {
       toast.error(`❌ Failed to submit ${selectedStep?.step || "form"}. Please try again.`);
+      console.error(err);
     } finally {
-      setSubmitLoading(false); // ✅ stop loading
+      setSubmitLoading(false);
     }
   };
 
@@ -167,19 +191,28 @@ const PartnerRegisterForm = () => {
   );
 
   const renderStepForm = () => {
+    // Attempt to retrieve current partner data for prefilling or review
+    const currentPartnerData = partnerData || {};
+    
     switch (selectedStep?.step) {
       case "Step 1":
         return <>
-          <Form.Item name="name" rules={[{ required: true }]}><Input placeholder="Name" /></Form.Item>
-          <Form.Item name="phone" rules={[{ required: true }]}><Input placeholder="Phone" /></Form.Item>
-          <Form.Item name="email" rules={[{ required: true, type: "email" }]}><Input placeholder="Email" /></Form.Item>
-          <Form.Item name="city" rules={[{ required: true }]}><Input placeholder="City" /></Form.Item>
-          <Form.Item name="gender" rules={[{ required: true }]}><Select placeholder="Select Gender">
+          <Form.Item name="name" rules={[{ required: true, message: "Name is required" }]}><Input placeholder="Name" /></Form.Item>
+          <Form.Item 
+            name="phone" 
+            rules={[
+              { required: true, message: "Phone is required" }, 
+              { pattern: /^[0-9]{10}$/, message: "Must be a valid 10-digit phone number" }
+            ]}
+          ><Input placeholder="Phone" /></Form.Item>
+          <Form.Item name="email" rules={[{ required: true, type: "email", message: "A valid email is required" }]}><Input placeholder="Email" /></Form.Item>
+          <Form.Item name="city" rules={[{ required: true, message: "City is required" }]}><Input placeholder="City" /></Form.Item>
+          <Form.Item name="gender" rules={[{ required: true, message: "Gender is required" }]}><Select placeholder="Select Gender">
             <Option value="Male">Male</Option>
             <Option value="Female">Female</Option>
             <Option value="Other">Other</Option>
           </Select></Form.Item>
-          <Form.Item name="profession" rules={[{ required: true }]}><Select placeholder="Select Profession">
+          <Form.Item name="profession" rules={[{ required: true, message: "Profession is required" }]}><Select placeholder="Select Profession">
             <Option value="Beautician">Beautician</Option>
             <Option value="Makeup Artist">Makeup Artist</Option>
             <Option value="Massage Therapist">Massage Therapist</Option>
@@ -187,65 +220,95 @@ const PartnerRegisterForm = () => {
         </>;
       case "Step 2":
         return <>
+          <p>Please upload clear images of the following documents:</p>
           {renderUploadField("aadhaarFront", "Aadhaar Front")}
           {renderUploadField("aadhaarBack", "Aadhaar Back")}
           {renderUploadField("pan", "PAN Card")}
         </>;
       case "Step 3":
         return <>
-          <Form.Item name="bankName" rules={[{ required: true }]}><Input placeholder="Bank Name" /></Form.Item>
-          <Form.Item name="accountNumber" rules={[{ required: true }]}><Input placeholder="Account Number" /></Form.Item>
-          <Form.Item name="ifsc" rules={[{ required: true }]}><Input placeholder="IFSC" /></Form.Item>
+          <Form.Item name="bankName" rules={[{ required: true, message: "Bank Name is required" }]}><Input placeholder="Bank Name" /></Form.Item>
+          <Form.Item name="accountNumber" rules={[{ required: true, message: "Account Number is required" }]}><Input placeholder="Account Number" /></Form.Item>
+          <Form.Item name="ifsc" rules={[{ required: true, message: "IFSC Code is required" }]}><Input placeholder="IFSC" /></Form.Item>
         </>;
       case "Step 4":
-        return <>
-          <h3>Review All Details</h3>
-          <p><strong>Name:</strong> {form.getFieldValue("name")}</p>
-          <p><strong>Phone:</strong> {form.getFieldValue("phone")}</p>
-          <p><strong>Email:</strong> {form.getFieldValue("email")}</p>
-          <p><strong>City:</strong> {form.getFieldValue("city")}</p>
-          <p><strong>Gender:</strong> {form.getFieldValue("gender")}</p>
-          <p><strong>Profession:</strong> {form.getFieldValue("profession")}</p>
-          <p><strong>Bank Name:</strong> {form.getFieldValue("bankName")}</p>
-          <p><strong>Account Number:</strong> {form.getFieldValue("accountNumber")}</p>
-          <p><strong>IFSC:</strong> {form.getFieldValue("ifsc")}</p>
+        // Fallback to partnerData if form values haven't been set yet
+        const displayData = {
+            name: form.getFieldValue("name") || currentPartnerData.name || "N/A",
+            phone: form.getFieldValue("phone") || currentPartnerData.phone || "N/A",
+            email: form.getFieldValue("email") || currentPartnerData.email || "N/A",
+            city: form.getFieldValue("city") || currentPartnerData.city || "N/A",
+            gender: form.getFieldValue("gender") || currentPartnerData.gender || "N/A",
+            profession: form.getFieldValue("profession") || currentPartnerData.profession || "N/A",
+            bankName: form.getFieldValue("bankName") || currentPartnerData.bankName || "N/A",
+            accountNumber: form.getFieldValue("accountNumber") || currentPartnerData.accountNumber || "N/A",
+            ifsc: form.getFieldValue("ifsc") || currentPartnerData.ifsc || "N/A",
+        };
 
+        return <>
+          <h3>Review Your Details</h3>
+          <p><strong>Name:</strong> {displayData.name}</p>
+          <p><strong>Phone:</strong> {displayData.phone}</p>
+          <p><strong>Email:</strong> {displayData.email}</p>
+          <p><strong>City:</strong> {displayData.city}</p>
+          <p><strong>Gender:</strong> {displayData.gender}</p>
+          <p><strong>Profession:</strong> {displayData.profession}</p>
+          
+          <h3 style={{ marginTop: 15 }}>Bank Details</h3>
+          <p><strong>Bank Name:</strong> {displayData.bankName}</p>
+          <p><strong>Account Number:</strong> {displayData.accountNumber}</p>
+          <p><strong>IFSC:</strong> {displayData.ifsc}</p>
+
+          <h3 style={{ marginTop: 15 }}>Uploaded Documents</h3>
           <Image.PreviewGroup>
             {["aadhaarFront", "aadhaarBack", "pan", "professionalCert"].map(field => {
-              const file = form.getFieldValue(field)?.[0];
+              const fileList = form.getFieldValue(field) || toFileList(currentPartnerData[field]);
+              const file = fileList?.[0];
               if (!file) return null;
+              
+              const fieldLabels = {
+                  aadhaarFront: "Aadhaar Front",
+                  aadhaarBack: "Aadhaar Back",
+                  pan: "PAN Card",
+                  professionalCert: "Experience Certificate"
+              };
+              
+              const imageUrl = file.url || (file.originFileObj ? URL.createObjectURL(file.originFileObj) : null);
+
               return (
                 <div key={field} style={{ marginBottom: 10 }}>
-                  <strong>
-                    {field === "aadhaarFront" ? "Aadhaar Front"
-                      : field === "aadhaarBack" ? "Aadhaar Back"
-                        : field === "pan" ? "PAN Card"
-                          : "Experience Certificate"}:
-                  </strong>
+                  <strong>{fieldLabels[field]}:</strong>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: 4 }}>
-                    <Image
-                      src={file.url || URL.createObjectURL(file.originFileObj)}
-                      alt={file.name}
-                      width={120}
-                      height={120}
-                      style={{ objectFit: "cover", borderRadius: 4 }}
-                      preview={{ mask: "  Preview" }}
-                    />
-                    <span>{file.name}</span>
+                    {imageUrl && (
+                      <Image
+                        src={imageUrl}
+                        alt={file.name}
+                        width={120}
+                        height={120}
+                        style={{ objectFit: "cover", borderRadius: 4 }}
+                        preview={{ mask: "Preview" }}
+                      />
+                    )}
+                    <span>{file.name || "File Uploaded"}</span>
                   </div>
                 </div>
               );
             })}
           </Image.PreviewGroup>
 
-          <Form.Item name="experience">
-            <Radio.Group value={experience} onChange={e => setExperience(e.target.value)}>
+          <h3 style={{ marginTop: 15 }}>Experience</h3>
+          <Form.Item name="experience" initialValue="fresher" style={{ marginBottom: 0 }}>
+            <Radio.Group onChange={e => setExperience(e.target.value)}>
               <Radio value="fresher">Fresher</Radio>
               <Radio value="experienced">Experienced</Radio>
             </Radio.Group>
           </Form.Item>
 
-          {experience === "experienced" && renderUploadField("professionalCert", "Experience Certificate")}
+          {experience === "experienced" && (
+            <div style={{ marginTop: 15 }}>
+              {renderUploadField("professionalCert", "Experience Certificate")}
+            </div>
+          )}
         </>;
       default:
         return null;
@@ -295,16 +358,16 @@ const PartnerRegisterForm = () => {
         onClose={() => setOpen(false)}
         width={600}
       >
-        <Form form={form} layout="vertical" onFinish={handleFinish}>
+        <Form form={form} layout="vertical" onFinish={handleFinish} initialValues={{ experience: "fresher" }}>
           {renderStepForm()}
           <Button
             type="primary"
             htmlType="submit"
             block
             style={{ marginTop: 12 }}
-            loading={submitLoading} // ✅ shows spinner
+            loading={submitLoading}
           >
-            {submitLoading ? "Submitting..." : "Submit"} {/* ✅ dynamic text */}
+            {submitLoading ? "Submitting..." : "Submit"}
           </Button>
         </Form>
       </Drawer>
