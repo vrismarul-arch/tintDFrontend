@@ -172,7 +172,11 @@
 /* ===================== SEARCH BAR STYLES ===================== */
 .searchbar-container {
   position: relative;
-  width: 100%;
+  width: 230px;
+}
+.searchbar-container input {
+  position: relative;
+  width: 280px;
 }
 
 .search-overlay {

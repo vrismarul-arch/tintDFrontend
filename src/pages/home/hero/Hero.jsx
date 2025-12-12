@@ -1,23 +1,19 @@
 import React from "react";
 import { Carousel } from "antd";
 import "./Hero.css";
-import facial from "./banner/banner1.png";
-import waxing from "./banner/banner2.png";
-import Manicure from "./banner/banner3.png";
-import SareeDraping from "./banner/banner4.png";
-import facialleft from "./banner/banner2.png";
-import waxingleft from "./banner/banner5.png";
+
+import waxingleft2 from "./banner/banner1.png";
 import facialleft1 from "./banner/banner6.png";
 import right2 from "./banner/banner7.png";
 import right3 from "./banner/banner8.png";
 import { StarOutlined, TeamOutlined } from "@ant-design/icons";
 
 const categories = [
-  { name: "BOOK NOW", icon: facialleft },
-  { name: "Salon for Women", icon: SareeDraping },
-  { name: "Waxing Service", icon: waxing },
-  { name: "Manicure", icon: Manicure },
-  { name: "Saree Draping", icon: waxingleft },
+  { name: "BOOK NOW", icon: facialleft1 },
+  { name: "Salon for Women", icon: right2 },
+  { name: "Waxing Service", icon: right3 },
+  { name: "Manicure", icon: facialleft1 },
+  { name: "Saree Draping", icon: waxingleft2 },
  
 ];
 
@@ -45,8 +41,8 @@ const Hero = () => {
 
           <div className="rating-item">
             <TeamOutlined className="rating-icon" />
-            <div className="rating-number">12M+</div>
-            <div className="rating-label">Customers Globally*</div>
+            <div className="rating-number">5k+</div>
+            <div className="rating-label">Happy Clients</div>
           </div>
         </div>
       </div>

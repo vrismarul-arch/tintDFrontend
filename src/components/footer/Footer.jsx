@@ -16,7 +16,7 @@ export default function Footer() {
       <div className="footer-container">
         {/* Left Section */}
         <div className="footer-column">
-          <h2 className="footer-logo">TINTD</h2>
+          <h2 className="footer-logo"><img src="/tintdw.png" alt="Logo" className="uc-logo-mobile" /></h2>
           <p className="footer-tagline">
             Experience personalized beauty on your own terms. TINTD provides on-demand doorstep makeup services for weddings, parties, photoshoots, or any day you want to feel special. Our professional artists are ready to serve you anywhere in Chennai.
           </p>

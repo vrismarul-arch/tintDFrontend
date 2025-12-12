@@ -1,14 +1,19 @@
 .partner-login-wrapper {
   display: flex;
-  height: 100vh;
   width: 100%;
+  height: 100vh; /* Full screen */
   overflow: hidden;
+
+  /* Make columns equal height and width */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
-/* Left side with background */
+/* LEFT SIDE */
 .partner-login-left {
-  flex: 1;
   position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .bg-image {
@@ -17,14 +22,15 @@
   object-fit: cover;
 }
 
-/* Right side with login card */
+/* RIGHT SIDE */
 .partner-login-right {
-  /* flex: 1; */
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #ffffff; /* optional light background */
+  background: #ffffff;
   padding: 2rem;
+  width: 100%;
+  height: 100%;
 }
 
 .partner-login-card {
@@ -45,20 +51,43 @@
   margin-top: 1rem;
 }
 
+/* ---------------------------------------
+   MOBILE RESPONSIVE
+---------------------------------------- */
 @media (max-width: 768px) {
+
   .partner-login-wrapper {
-    flex-direction: column;
+    grid-template-columns: 1fr; /* stack top-bottom */
+    height: auto;
   }
 
-  .partner-login-left,
-  .partner-login-right {
-    flex: none;
-    width: 100%;
-    height: 50vh;
+  .partner-login-left {
+    height: none;  /* reduce height on mobile */
   }
 
   .partner-login-right {
     height: auto;
-    padding: 1rem;
+    padding: 1.2rem;
+  }
+
+  .partner-login-card {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .partner-login-left {
+   display: none;
+  }
+
+.bg-image {
+  display: none;
+}
+  .partner-login-card .logo {
+    width: 80px;
+  }
+
+  .partner-login-card {
+    padding: 1.2rem;
   }
 }

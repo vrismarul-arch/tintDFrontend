@@ -100,27 +100,30 @@ export default function Salonservicesdrawer({ open, onClose, service }) {
                     <span className="discount">{details.discount}% OFF</span>
                   </>
                 )}
-
-                {isInCart(service._id) ? (
-                  <Button
-                    danger
-                    shape="round"
-                    size="large"
-                    onClick={handleRemove}
-                  >
-                    REMOVE
-                  </Button>
-                ) : (
-                  <Button
-                    type="primary"
-                    shape="round"
-                    size="large"
-                    onClick={handleAdd}
-                  >
-                    ADD
-                  </Button>
-                )}
+   <div className="cartbutton">
+  {isInCart(service._id) ? (
+    <Button
+      danger
+      shape="round"
+      size="large"
+      onClick={handleRemove}
+    >
+      REMOVE
+    </Button>
+  ) : (
+    <Button
+      type="primary"
+      shape="round"
+      size="large"
+      onClick={handleAdd}
+    >
+      ADD
+    </Button>
+  )}
+</div>
               </div>
+             
+
             </div>
 
             {details.overview?.length > 0 && (
@@ -181,19 +184,20 @@ export default function Salonservicesdrawer({ open, onClose, service }) {
               </>
             )}
 
-            {details.faqs?.length > 0 && (
+           
+{details.thingsToKnow?.length > 0 && (
               <>
-                <h3 className="section-title">FAQs</h3>
-                <Collapse accordion>
-                  {details.faqs.map((faq, idx) => (
-                    <Panel header={faq.question} key={idx}>
-                      <p>{faq.answer}</p>
-                    </Panel>
+                <h3 className="section-title">Things To Know</h3>
+                <div className="things-grid">
+                  {details.thingsToKnow.map((item, idx) => (
+                    <div className="things-card" key={idx}>
+                      <h4 className="things-title">{item.title}</h4>
+                      <p className="things-desc">{item.desc}</p>
+                    </div>
                   ))}
-                </Collapse>
+                </div>
               </>
             )}
-
             {details.precautionsAftercare?.length > 0 && (
               <>
                 <h3 className="section-title precautions-title">
@@ -208,6 +212,20 @@ export default function Salonservicesdrawer({ open, onClose, service }) {
                       </div>
                     </div>
                   ))}
+                </div>
+              </>
+            )}
+             {details.faqs?.length > 0 && (
+              <>
+              <div className="faq-sec">
+                <h3 className="section-title ">FAQs</h3>
+                <Collapse accordion>
+                  {details.faqs.map((faq, idx) => (
+                    <Panel header={faq.question} key={idx}>
+                      <p>{faq.answer}</p>
+                    </Panel>
+                  ))}
+                </Collapse>
                 </div>
               </>
             )}

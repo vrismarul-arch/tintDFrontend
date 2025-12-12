@@ -3,44 +3,54 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/tintdfav.svg" />
-
-    <!-- Responsive -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Primary Meta -->
     <title>TintD – Beauty Services at Home</title>
     <meta name="description" content="Book premium beauty services at home and join TintD Partners to grow your career with flexible hours and high earnings." />
 
-    <!-- OPEN GRAPH (For Instagram, Facebook, WhatsApp) -->
+    <!-- OPEN GRAPH -->
     <meta property="og:title" content="TintD – Beauty Services at Home" />
     <meta property="og:description" content="Join TintD Partners and grow your beauty career from home with flexible hours and higher earnings." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.tintd.in" />
-
-    <!-- ⚠️ Replace this with your real OG image -->
     <meta property="og:image" content="https://www.tintd.in/tintdfav.svg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
 
-    <!-- TWITTER CARDS (Instagram also uses this) -->
+    <!-- TWITTER CARDS -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="TintD – Beauty Services at Home" />
     <meta name="twitter:description" content="Premium beauty services at home. Join TintD Partners to earn more with flexible hours." />
     <meta name="twitter:image" content="https://www.tintd.in/tintdfav.svg" />
 
-    <!-- App Theme -->
     <meta name="theme-color" content="#000000" />
+
+    <!-- Meta Pixel Code -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '1890694714861407');
+      fbq('track', 'PageView');
+    </script>
+    <!-- End Meta Pixel Code -->
+
   </head>
 
   <body>
+    <!-- FIXED NOSCRIPT -->
+    <noscript>
+      <img height="1" width="1" style="display:none"
+        src="https://www.facebook.com/tr?id=1890694714861407&ev=PageView&noscript=1" />
+    </noscript>
+
     <div id="root"></div>
 
-    <!-- React Entry -->
     <script type="module" src="/src/main.jsx"></script>
-
-    <!-- Razorpay -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   </body>
 </html>

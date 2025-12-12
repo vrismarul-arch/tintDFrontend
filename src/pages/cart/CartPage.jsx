@@ -25,7 +25,6 @@ export default function CartPage() {
       }
     } catch (err) {
       console.error("Failed to fetch cart:", err);
-      antdMessage.error("Could not update cart. Try refreshing.");
       setCart([]);
     }
   };

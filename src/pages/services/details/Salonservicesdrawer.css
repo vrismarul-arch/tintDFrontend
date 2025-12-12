@@ -101,6 +101,12 @@
   border-radius: 6px;
   cursor: pointer;
 }
+.cartbutton {
+  display: flex;
+  justify-content: flex-end; /* 🔥 Move button to the right */
+  width: 100%;
+  margin-top: 10px;
+}
 
 /* Overview grid */
 .overview-grid {
@@ -127,9 +133,10 @@
 /* Section titles */
 .section-title {
   font-size: 16px;
+  text-align: left;
   font-weight: 600;
   padding: 0 16px;
-  margin: 10px 0;
+  margin: 10px 50;
   border-left: 3px solid #8454ba;
 }
 
@@ -310,11 +317,15 @@
 /* Grid for precautions */
 .precautions-grid {
   display: grid;
+  margin-bottom: 20px;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
   margin-top: 12px;
 }
+.faq-sec{
 
+   margin-bottom: 120px;
+}
 /* Card styling */
 .precaution-card {
   display: flex;

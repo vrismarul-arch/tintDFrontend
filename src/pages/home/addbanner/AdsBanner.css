@@ -1,375 +1,51 @@
-/* ==================================== */
-/* 0. CSS Variables for Theming */
-/* ==================================== */
-:root {
-  --primary-color: #0b9492;
-  --accent-color: #ff4757;
-  --text-color: #fff;
-  --overlay-color: rgba(0, 0, 0, 0.5);
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-blur: 12px;
-  --transition-speed: 0.4s;
-}
-
-/* Dark Mode Example */
-[data-theme="dark"] {
-  --overlay-color: rgba(0, 0, 0, 0.7);
-  --glass-bg: rgba(255, 255, 255, 0.05);
-}
-
-/* ==================================== */
-/* 1. Base Styles */
-/* ==================================== */
-.ads-banner-container {
+.ads-card-slider {
   width: 100%;
-  position: relative;
   overflow: hidden;
-  
 }
 
-.ads-slide {
-  position: relative;
-  height: clamp(300px, 60vh, 500px);
-  transition: transform var(--transition-speed) ease;
+/* Fix slick extra spacing */
+.slick-list {
+  overflow: hidden !important;
 }
 
-.ads-slide-bg {
+.slick-slide {
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+.ads-card {
   width: 100%;
-  height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.ads-card-img {
+  width: 100%;
+  height: 300px;
   background-size: cover;
-
-
   background-position: center;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.5s ease;
+  background-repeat: no-repeat;
+  border-radius: 18px;
 }
 
-.ads-slide:hover .ads-slide-bg {
-  transform: scale(1.05);
-}
-
-.ads-slide-bg::after {
-  content: '';
-  position: absolute;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-  background: rgba(0, 0, 0, 0.2);
-  pointer-events: none;
-  transition: background 0.5s ease;
-}
-
-.ads-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
-  transition: background 0.5s ease;
-  z-index: 1;
-}
-
-.ads-slide:hover .ads-overlay {
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8));
-}
-
-.ads-slide-content {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  color: var(--text-color);
-  padding: 20px;
-  max-width: 700px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border-radius: 15px;
-  animation: fadeInUp 0.8s ease forwards;
-}
-
-.ads-slide-content > * {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 0.8s ease forwards;
-}
-
-.ads-subtitle {
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
-  margin-bottom: 10px;
-  opacity: 0.8;
-  animation-delay: 0.2s;
-}
-
-.ads-title {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 700;
-  margin-bottom: 15px;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-  animation-delay: 0.4s;
-}
-
-.ads-btn {
-  background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
-  color: var(--text-color);
-  padding: 12px 28px;
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: 30px;
-  transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-  display: inline-block;
-  animation-delay: 0.6s;
-}
-
-.ads-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-/* Progress Bar */
-.ads-progress-bar {
-  position: absolute;
-  bottom: 10px;
-  left: 0;
-  width: 0%;
-  height: 4px;
-  background: var(--primary-color);
-  transition: width 5s linear;
-}
-
-/* ==================================== */
-/* 2. Animations */
-/* ==================================== */
-@keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
+/* 📱 Mobile (tablets + phones) */
+@media (max-width: 768px) {
+  .slick-slide {
+    padding: 0 6px !important;
   }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
+
+  .slick-list {
+    margin: 0 -6px !important;
+  }
+
+  .ads-card-img {
+    height: 220px; /* auto-fit mobile */
   }
 }
 
-/* ==================================== */
-/* 3. Slick Overrides */
-/* ==================================== */
-.ads-banner-container .slick-prev,
-.ads-banner-container .slick-next {
-  display: none !important;
-}
-
-.ads-banner-container .slick-dots {
-  bottom: 20px !important;
-  z-index: 3;
-}
-
-.ads-banner-container .slick-dots li button:before {
-  font-size: 10px;
-  color: var(--text-color);
-  opacity: 0.6;
-  transition: opacity 0.3s ease;
-}
-
-.ads-banner-container .slick-dots li.slick-active button:before {
-  opacity: 1;
-  color: var(--primary-color);
-}
-
-/* ==================================== */
-/* 4. Custom Arrows */
-/* ==================================== */
-.custom-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 5;
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  color: var(--text-color);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--transition-speed) ease;
-}
-
-.custom-arrow:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-50%) scale(1.1);
-  box-shadow: 0 8px 20px rgba(11, 148, 146, 0.6);
-}
-
-.custom-arrow.prev {
-  left: 15px;
-}
-
-.custom-arrow.next {
-  right: 15px;
-}
-
-/* ==================================== */
-/* 5. Media Queries */
-/* ==================================== */
-@media (min-width: 768px) {
-  .ads-slide {
-    height: 70vh;
-  }
-  .ads-title {
-    font-size: clamp(2.5rem, 4vw, 4rem);
-  }
-  .ads-subtitle {
-    font-size: clamp(1rem, 2vw, 1.3rem);
-  }
-  .custom-arrow {
-    width: 44px;
-    height: 44px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .ads-slide {
-    height: 80vh;
-  }
-  .custom-arrow {
-    width: 48px;
-    height: 48px;
-  }
-  .custom-arrow.prev {
-    left: 20px;
-  }
-  .custom-arrow.next {
-    right: 20px;
-  }
-}
-
-/* ==================================== */
-/* 6. Optional Thumbnails Styling */
-/* ==================================== */
-.custom-dots-container {
-  position: absolute;
-  bottom: 15px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  z-index: 3;
-}
-
-.custom-dot img {
-  width: 40px;
-  height: 25px;
-  object-fit: cover;
-  border: 2px solid var(--primary-color);
-  border-radius: 5px;
-  cursor: pointer;
-  transition: transform 0.3s ease, border 0.3s ease;
-}
-
-.custom-dot img:hover {
-  transform: scale(1.1);
-  border-color: var(--accent-color);
-}
-/* ==================================== */
-/* 5. Media Queries - Mobile & Tablet */
-/* ==================================== */
-
-/* Small devices: phones, portrait tablets */
-@media (max-width: 767px) {
-  .ads-slide {
-    height: 40vh;
-  }
-
-  .ads-slide-bg {
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-
-  .ads-slide-content {
-    padding: 15px;
-    max-width: 90%;
-  }
-
-  .ads-subtitle {
-    font-size: 0.9rem;
-    margin-bottom: 8px;
-  }
-
-  .ads-title {
-    font-size: 1.8rem;
-    margin-bottom: 12px;
-  }
-
-  .ads-btn {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-
-  .custom-arrow {
-    width: 36px;
-    height: 36px;
-  }
-
-  .custom-arrow.prev {
-    left: 10px;
-  }
-
-  .custom-arrow.next {
-    right: 10px;
-  }
-
-  .ads-progress-bar {
-    height: 3px;
-  }
-}
-
-/* Medium devices: tablets, landscape phones */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .ads-slide {
-    height: 65vh;
-  }
-
-  .ads-slide-content {
-    max-width: 85%;
-    padding: 18px;
-  }
-
-  .ads-title {
-    font-size: clamp(2rem, 3vw, 3rem);
-  }
-
-  .ads-subtitle {
-    font-size: clamp(1rem, 2vw, 1.2rem);
-  }
-
-  .ads-btn {
-    padding: 12px 24px;
-    font-size: 1rem;
-  }
-
-  .custom-arrow {
-    width: 42px;
-    height: 42px;
-  }
-
-  .custom-arrow.prev {
-    left: 12px;
-  }
-
-  .custom-arrow.next {
-    right: 12px;
+/* Small phones */
+@media (max-width: 480px) {
+  .ads-card-img {
+    height: 140px;
   }
 }

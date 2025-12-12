@@ -2,11 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api";
 import { message, Spin, Button, Card, Radio, Modal } from "antd";
-
-// Import images
 import onlinePaymentIcon from "../payment/icon/bank.png";
 import codPaymentIcon from "../payment/icon/afterpay.png";
-
 import "./PaymentPage.css";
 
 export default function PaymentPage() {
@@ -17,7 +14,6 @@ export default function PaymentPage() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
 
-  // Load pending booking from localStorage
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("pendingBooking"));
     if (!stored) {
@@ -28,85 +24,81 @@ export default function PaymentPage() {
     setPendingBooking(stored);
   }, [navigate]);
 
-  // ✅ Clear backend cart
   const clearCartBackend = async () => {
     try {
       await api.delete("/api/cart", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      console.log("Backend cart cleared");
     } catch (err) {
       console.error("Failed to clear backend cart:", err);
     }
   };
 
-// ✅ Handle online payment
-const handleOnlinePayment = async () => {
-  if (!pendingBooking) return;
-  setLoading(true);
+  const handleOnlinePayment = async () => {
+    if (!pendingBooking) return;
+    setLoading(true);
 
-  try {
-    const { data } = await api.post("/api/payment/create-order", {
-      totalAmount: pendingBooking.totalAmount,
-    });
+    try {
+      const { data } = await api.post("/api/payment/create-order", {
+        totalAmount: pendingBooking.totalAmount,
+      });
 
-    const { orderId, amount, currency } = data;
+      const { orderId, amount, currency } = data;
 
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_RByvKNCLagLArF",
-      amount: amount.toString(),
-      currency,
-      name: "Tintd",
-      description: "Service Booking Payment",
-      order_id: orderId,
-      handler: async (response) => {
-        try {
-          const verifyRes = await api.post("/api/payment/verify", {
-            ...response,
-            bookingData: pendingBooking, // ✅ send booking details now
-          });
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_RByvKNCLagLArF",
+        amount: amount.toString(),
+        currency,
+        name: "Tintd",
+        description: "Service Booking Payment",
+        order_id: orderId,
 
-          if (verifyRes.data.success) {
-            message.success("Payment successful!");
+        handler: async (response) => {
+          try {
+            const verifyRes = await api.post("/api/payment/verify", {
+              ...response,
+              bookingData: pendingBooking,
+            });
 
-          
+            if (verifyRes.data.success) {
+              message.success("Payment successful!");
 
-            localStorage.removeItem("cart");
-            localStorage.removeItem("pendingBooking");
-            await clearCartBackend();
+              localStorage.removeItem("cart");
+              localStorage.removeItem("pendingBooking");
+              await clearCartBackend();
 
-            navigate("/success");
-          } else {
+              navigate("/success");
+            } else {
+              message.error("Payment verification failed!");
+              navigate("/failure");
+            }
+          } catch (err) {
+            console.error("Verify error:", err);
             message.error("Payment verification failed!");
             navigate("/failure");
           }
-        } catch (err) {
-          console.error("Verify error:", err);
-          message.error("Payment verification failed!");
-          navigate("/failure");
-        }
-      },
-      prefill: {
-        name: pendingBooking.name,
-        email: pendingBooking.email,
-        contact: pendingBooking.phone,
-      },
-      theme: { color: "#3399cc" },
-    };
+        },
 
-    setLoading(false);
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  } catch (err) {
-    console.error("Order creation error:", err);
-    message.error("Failed to create payment order");
-    setLoading(false);
-    navigate("/checkout");
-  }
-};
+        prefill: {
+          name: pendingBooking.name,
+          email: pendingBooking.email,
+          contact: pendingBooking.phone,
+        },
 
+        theme: { color: "#7A3EEB" },
+      };
 
-  // ✅ Handle COD booking
+      setLoading(false);
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error("Order creation error:", err);
+      message.error("Failed to create payment order");
+      setLoading(false);
+      navigate("/checkout");
+    }
+  };
+
   const handleCOD = async () => {
     if (!pendingBooking) return;
     setLoading(true);
@@ -120,13 +112,11 @@ const handleOnlinePayment = async () => {
 
       message.success("Booking placed with Cash on Delivery!");
 
-      // Save booking success
       localStorage.setItem(
         "successBooking",
         JSON.stringify({ ...pendingBooking, paymentMethod: "cod" })
       );
 
-      // Clear local and backend cart
       localStorage.removeItem("cart");
       localStorage.removeItem("pendingBooking");
       await clearCartBackend();
@@ -146,17 +136,13 @@ const handleOnlinePayment = async () => {
     else handleCOD();
   };
 
-  // Cancel booking
   const confirmCancel = async () => {
     try {
       setCancelLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 500));
-      message.info("Booking cancelled, returning to cart.");
+      message.info("Booking cancelled");
       localStorage.removeItem("pendingBooking");
       navigate("/cart");
-    } catch (err) {
-      console.error("Cancel error:", err);
-      message.error("Failed to cancel booking");
     } finally {
       setCancelLoading(false);
       setShowCancelModal(false);
@@ -165,56 +151,86 @@ const handleOnlinePayment = async () => {
 
   if (!pendingBooking)
     return (
-      <div className="payment-container">
+      <div className="payment-page-loader">
         <Spin size="large" />
       </div>
     );
 
   return (
     <>
-      <div className="payment-container">
-        <Card className="payment-card">
-          <h3>Your Details</h3>
-          <p><strong>Name:</strong> {pendingBooking.name}</p>
-          <p><strong>Email:</strong> {pendingBooking.email}</p>
-          <p><strong>Phone:</strong> {pendingBooking.phone}</p>
-          <p><strong>Address:</strong> {pendingBooking.address}</p>
+      <div className="payment-page-wrapper">
 
-          <div className="payment-summary">
+        {/* LEFT SECTION */}
+        <div className="payment-left">
+
+          <Card className="section-card">
+            <h3>Your Details</h3>
+            <p><strong>Name:</strong> {pendingBooking.name}</p>
+            <p><strong>Email:</strong> {pendingBooking.email}</p>
+            <p><strong>Phone:</strong> {pendingBooking.phone}</p>
+            <p><strong>Address:</strong> {pendingBooking.address}</p>
+          </Card>
+
+          <Card className="section-card">
             <h3>Order Summary</h3>
+
             {pendingBooking.services?.map((s, idx) => (
-              <div key={idx}>
-                <span>{s.name} x {s.quantity}</span>
-                <span>₹{s.price * s.quantity}</span>
+              <div key={idx} className="order-item">
+                <img src={s.imageUrl} alt={s.name} className="service-image" />
+
+                <div className="order-info">
+                  <h4>{s.name}</h4>
+                  <p>Qty: {s.quantity}</p>
+                </div>
+
+                <span className="order-price">₹{s.price * s.quantity}</span>
               </div>
             ))}
-            <p className="total">Total: ₹{pendingBooking.totalAmount}</p>
-          </div>
 
-          <div className="payment-method">
+            <p className="total-amount">
+              Total <span>₹{pendingBooking.totalAmount}</span>
+            </p>
+          </Card>
+
+        </div>
+
+        {/* RIGHT SECTION */}
+        <div className="payment-right">
+          <Card className="section-card">
             <h3>Payment Method</h3>
+
             <Radio.Group
               onChange={(e) => setPaymentMethod(e.target.value)}
               value={paymentMethod}
+              className="payment-radio-group"
             >
-              <Radio value="online">
-                <img src={onlinePaymentIcon} alt="Online" style={{ marginRight: 8 }} />
+              <Radio value="online" className="payment-option">
+                <img src={onlinePaymentIcon} alt="Online" /><br />
                 Online Payment
               </Radio>
-              <Radio value="cod">
-                <img src={codPaymentIcon} alt="COD" style={{ marginRight: 8 }} />
+
+              <Radio value="cod" className="payment-option">
+                <img src={codPaymentIcon} alt="COD" />
                 Cash on Delivery
               </Radio>
             </Radio.Group>
-          </div>
 
-          <div className="payment-buttons">
-            <Button onClick={() => setShowCancelModal(true)}>← Go Back to Cart</Button>
-            <Button onClick={handleProceed} loading={loading} type="primary">
-              Confirm & Proceed with {paymentMethod === "online" ? "Online Payment" : "COD"}
+            <Button
+              type="primary"
+              block
+              className="proceed-btn"
+              loading={loading}
+              onClick={handleProceed}
+            >
+              Proceed with {paymentMethod === "online" ? "Online Payment" : "Cash on Delivery"}
             </Button>
-          </div>
-        </Card>
+
+            <Button block className="cancel-btn" onClick={() => setShowCancelModal(true)}>
+              ← Cancel & Go Back
+            </Button>
+          </Card>
+        </div>
+
       </div>
 
       <Modal
@@ -228,7 +244,7 @@ const handleOnlinePayment = async () => {
           </Button>,
         ]}
       >
-        {cancelLoading ? <Spin size="large" /> : <p>Are you sure you want to cancel this booking?</p>}
+        {cancelLoading ? <Spin size="large" /> : <p>Are you sure?</p>}
       </Modal>
     </>
   );

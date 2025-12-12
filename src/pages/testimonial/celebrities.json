@@ -1,0 +1,38 @@
+[
+  {
+    "name": "KAVITA KAUSHIK",
+    "subtitle": "Vocal For Local",
+    "thumb": "./1.png",
+    "video": "/media/celeb1-video.mp4"
+  },
+  {
+    "name": "GAUHAR KHAN",
+    "subtitle": "On Affordable RICA Waxing at Home!",
+    "thumb": "/media/celeb2-thumb.jpg",
+    "video": "/media/celeb2-video.mp4"
+  },
+  {
+    "name": "HINA KHAN",
+    "subtitle": "On Her Facial at Home Experience",
+    "thumb": "/media/celeb3-thumb.jpg",
+    "video": "/media/celeb3-video.mp4"
+  },
+  {
+    "name": "HINA KHAN",
+    "subtitle": "On Her Facial at Home Experience",
+    "thumb": "/media/celeb3-thumb.jpg",
+    "video": "/media/celeb3-video.mp4"
+  },
+  {
+    "name": "HINA KHAN",
+    "subtitle": "On Her Facial at Home Experience",
+    "thumb": "/media/celeb3-thumb.jpg",
+    "video": "/media/celeb3-video.mp4"
+  },
+  {
+    "name": "POOJA & CHAAVI",
+    "subtitle": "Salon Services at Home Will make you Glow & Shine",
+    "thumb": "/media/celeb4-thumb.jpg",
+    "video": "/media/celeb4-video.mp4"
+  }
+]

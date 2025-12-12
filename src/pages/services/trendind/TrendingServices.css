@@ -38,8 +38,8 @@
   overflow: hidden; /* ✅ round corners apply to img */
   cursor: pointer;
   width: 100%;
-  max-width: 250px; /* control size in grid */
-  height: 220px;
+  max-width: 290px; /* control size in grid */
+  height: 180px;
   background: #f5f5f5;
 }
 

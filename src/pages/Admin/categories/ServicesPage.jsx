@@ -136,11 +136,9 @@ export default function ServicesPage() {
         values.status = values.status ?? editingItem.status;
       }
 
-      // calculate discount if both prices provided
-      if (values.originalPrice && values.price) {
-        values.discount = Math.round(((values.originalPrice - values.price) / values.originalPrice) * 100);
-      }
-
+      // *** MODIFIED: Removed automatic discount calculation. Discount is now a manual field. ***
+      // The discount value is already in 'values.discount' from the form.
+      
       // prepare formData for file uploads
       const formData = new FormData();
 
@@ -165,7 +163,7 @@ export default function ServicesPage() {
           formData.append(key, JSON.stringify(arr));
         } else if (["thingsToKnow", "precautionsAftercare", "faqs"].includes(key)) {
           formData.append(key, JSON.stringify(values[key] || []));
-        } else if (key === "status") {
+        } else if (key === "status" || key === "discount") { // Also ensure discount is appended
           formData.append(key, values[key]);
         } else if (Array.isArray(values[key]) || typeof values[key] === "object") {
           // if it's an object but not handled above, attempt to append JSON
@@ -291,6 +289,11 @@ export default function ServicesPage() {
       onFilter: (value, record) => record.status === value,
     },
     {
+      title: "Discount",
+      dataIndex: "discount",
+      render: (d) => <span style={{ fontWeight: 700, color: d > 0 ? '#d9534f' : '#6b7280' }}>{d ? `${d}%` : '-'}</span>,
+    },
+    {
       title: "Final Price",
       dataIndex: "price",
       render: (p) => <span style={{ fontWeight: 700 }}>₹{typeof p === "number" ? p.toFixed(2) : p}</span>,
@@ -337,6 +340,7 @@ export default function ServicesPage() {
                   name: record.name,
                   originalPrice: record.originalPrice,
                   price: record.price,
+                  discount: record.discount, // *** ADDED: Populate manual discount
                   hours,
                   minutes,
                   category: record.category?._id,
@@ -517,16 +521,23 @@ export default function ServicesPage() {
           </Form.Item>
 
           <Row gutter={12}>
-            <Col span={12}>
+            <Col span={8}>
               <Form.Item name="originalPrice" label="Original Price" rules={[{ required: true }]}>
                 <InputNumber min={1} style={{ width: "100%" }} />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col span={8}>
               <Form.Item name="price" label="Final Price" rules={[{ required: true }]}>
                 <InputNumber min={1} style={{ width: "100%" }} />
               </Form.Item>
             </Col>
+            {/* *** ADDED: Manual Discount Input *** */}
+            <Col span={8}>
+              <Form.Item name="discount" label="Discount (%)" rules={[{ required: true, message: "Required" }]}>
+                <InputNumber min={0} max={100} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            {/* ********************************** */}
           </Row>
 
           <Row gutter={12}>

@@ -1,0 +1,23 @@
+[
+  {
+    "img": "https://bwglgjteqloufayiaadv.supabase.co/storage/v1/object/public/tintd/Sreeja.jpeg",
+    "name": "Sreeja",
+    "role": "First-Time Makeup (College Girl)",
+    "rating":4.5,
+    "review": "“This was my first time getting professional makeup and I loved it! Tintd gave me a very natural look that wasn’t too heavy. I felt really confident and comfortable. Definitely going back again.”"
+  },
+  {
+    "img": "https://bwglgjteqloufayiaadv.supabase.co/storage/v1/object/public/tintd/Radhika.jpeg",
+    "name": "Radhika",
+    "rating": 4.5,
+    "role": " Bridesmaid Makeup (California)",
+    "review": "“I always get my makeup done at Tintd whenever I’m in Chennai. They know exactly what suits me. My bridesmaid makeup came out so clean and natural. It stayed the whole event and I loved the finish. Always a great experience with them.”"
+  },
+  {
+    "img": "https://bwglgjteqloufayiaadv.supabase.co/storage/v1/object/public/tintd/sandra.jpeg",
+    "name": "Kaviya ",
+    "rating": 5,
+    "role": "Baby Shower Makeup",
+    "review": "“Tintd did my baby shower makeup and it turned out so beautiful. The look was soft and suited me perfectly. I got so many compliments on that day. Really happy with their service!”"
+  }
+]

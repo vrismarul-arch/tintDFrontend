@@ -8,6 +8,9 @@ import Testimonial from "../testimonial/Testimonial";
 import TestimonialSlider from "../testimonial/TestimonialSlider";
 import Tintpartner from "../b2b/Tintpartner";
 import Footer from "../../components/footer/Footer";
+import AdsBanner from "../home/addbanner/AdsBanner";
+import Banner from "../partner/home/main/Banner";
+import StartInFive from "../partner/home/main/StartInFive";
 
 export default function Home() {
   return (
@@ -26,6 +29,12 @@ export default function Home() {
       >
       <TrendingServices toast={toast} />
       </div>
+      <div
+        className="addbanner"
+        style={{ padding: "20px", marginTop: "2rem", marginBottom: "2rem" }}
+      >
+      <AdsBanner toast={toast} />
+      </div>
      
       <div
         className="addbanner"
@@ -40,6 +49,18 @@ export default function Home() {
       >
 
         <TestimonialSlider/>
+      </div>
+      <div
+        className="addbanner"
+      >
+
+        <Banner/>
+      </div>
+      <div
+        className="addbanner"
+      >
+
+        <StartInFive/>
       </div>
       <div
         className="addbanner"

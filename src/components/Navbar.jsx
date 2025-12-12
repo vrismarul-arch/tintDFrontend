@@ -96,8 +96,11 @@ const ResponsiveNavbar = () => {
   if (isMobile) {
     return (
       <>
-        <div className="mobile-top-bar">
-          <Link to="/"><img src="/tintD.png" alt="Logo" className="uc-logo-mobile" /></Link>
+        <div className="mobile-top-bar">          
+  <div className="mobile-middle-bar">
+          <LocationSearch />
+          <SearchBar />
+        </div>
           {!isLoggedIn ? (
             <Link to="/login">
               <Avatar size={36} icon={<UserOutlined />} style={{ backgroundColor: "#a066e1" }} />
@@ -108,11 +111,11 @@ const ResponsiveNavbar = () => {
             </Dropdown>
           )}
         </div>
-
+{/* 
         <div className="mobile-middle-bar">
           <LocationSearch />
           <SearchBar />
-        </div>
+        </div> */}
 
         <div className="mobile-bottom-navbar">
           {menuData.mobileNav.map((item, index) => {

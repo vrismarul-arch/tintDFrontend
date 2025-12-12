@@ -4,54 +4,20 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./AdsBanner.css";
 import api from "../../../../api";
-import { ChevronLeft, ChevronRight } from "lucide-react"; // Lucide icons
-
-// Custom Arrow Components
-const PrevArrow = ({ className, style, onClick }) => (
-  <button
-    className={`custom-arrow prev ${className}`}
-    style={{ ...style }}
-    onClick={onClick}
-    aria-label="Previous Slide"
-  >
-    <ChevronLeft size={28} />
-  </button>
-);
-
-const NextArrow = ({ className, style, onClick }) => (
-  <button
-    className={`custom-arrow next ${className}`}
-    style={{ ...style }}
-    onClick={onClick}
-    aria-label="Next Slide"
-  >
-    <ChevronRight size={28} />
-  </button>
-);
 
 export default function AdsBanner() {
   const [banners, setBanners] = useState([]);
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     fetchBanners();
-    
-    // Set initial screen size and add a listener for changes
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-
-    // Clean up the event listener on component unmount
-    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const fetchBanners = async () => {
     try {
       const res = await api.get("/api/admin/banners");
       const now = new Date();
-      const activeBanners = res.data.filter((b) => {
+
+      const active = res.data.filter((b) => {
         if (!b.isActive) return false;
         if (b.schedule?.startDate && new Date(b.schedule.startDate) > now)
           return false;
@@ -59,62 +25,52 @@ export default function AdsBanner() {
           return false;
         return true;
       });
-      setBanners(activeBanners);
+
+      setBanners(active);
     } catch (err) {
       console.error("Error fetching banners", err);
     }
   };
 
   const settings = {
-    dots: true,
+    dots: false,
     infinite: true,
-    speed: 700,
     autoplay: true,
-    autoplaySpeed: 5000,
-    slidesToShow: 1,
+    autoplaySpeed: 2500,
+    speed: 600,
+    slidesToShow: 2,
     slidesToScroll: 1,
-    fade: true,
-    prevArrow: <PrevArrow />,
-    nextArrow: <NextArrow />,
-    appendDots: (dots) => (
-      <ul
-        style={{
-          margin: 0,
-          position: "absolute",
-          bottom: "20px",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          zIndex: 3,
-        }}
-      >
-        {dots}
-      </ul>
-    ),
+    responsive: [
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1, // ✅ Mobile always 1 card
+        },
+      },
+    ],
   };
 
   return (
-    <div className="ads-banner-container">
-      <Slider {...settings} className="ads-slick-slider">
-        {banners.map((banner, i) => {
-          // Choose the image based on screen size
-          const imageUrl = isMobile && banner.mobileImageUrl 
-            ? banner.mobileImageUrl 
-            : banner.imageUrl || "/placeholder.png";
+    <div className="ads-card-slider">
+      <div className="category-header">
+        <h2 className="categories-title">Offers & Discounts</h2>
+        <hr className="custom-hr" />
+      </div>
 
-          return (
-            <div key={i} className="ads-slide">
-              <div
-                className="ads-slide-bg"
-                style={{
-                  backgroundImage: `url(${imageUrl})`,
-                }}
-              >
-                
-              </div>
-            </div>
-          );
-        })}
+      <Slider {...settings}>
+        {banners.map((banner) => (
+          <div
+            key={banner._id}
+            className="ads-card"
+            onClick={() => banner.btnLink && (window.location.href = banner.btnLink)}
+            style={{ cursor: banner.btnLink ? "pointer" : "default" }}
+          >
+            <div
+              className="ads-card-img"
+              style={{ backgroundImage: `url('${banner.imageUrl}')` }}
+            />
+          </div>
+        ))}
       </Slider>
     </div>
   );
